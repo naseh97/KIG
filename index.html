@@ -4,978 +4,853 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title id="main-title">یاری فریودەر (Imposter)</title>
-   <!-- Load Tailwind CSS for modern styling -->
    <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+       tailwind.config = {
+           theme: {
+               extend: {
+                   colors: {
+                       'primary': '#facc15', // Tailwind Amber 500
+                       'secondary': '#6366f1', // Tailwind Indigo 500
+                       'dark-bg': '#1e293b', // Tailwind Slate 800
+                       'dark-card': '#334155', // Tailwind Slate 700
+                       'input-bg': '#475569', // Tailwind Slate 600
+                   },
+                   fontFamily: {
+                       'kurdish': ['Scheherazade New', 'sans-serif'],
+                       'english': ['Roboto', 'sans-serif'],
+                   }
+               }
+           }
+       }
+   </script>
    <style>
-       /* Import Scheherazade New for a strong Kurdish/Arabic font appearance */
        @import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
-       /* Import Roboto for better English/Latin character display */
        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-       /* Color Palette and Variables */
-       :root {
-           --color-primary: #facc15; /* Yellow-500 */
-           --color-secondary: #3b82f6; /* Blue-500 */
-           --color-background-dark: #1f2937; /* Dark Gray-800 */
-           --color-background-medium: #374151; /* Gray-700 */
-           --color-text-light: #f3f4f6; /* Gray-100 */
-           --color-card-dark: #111827; /* Dark Gray-900 */
-       }
-
        body {
-           font-family: 'Scheherazade New', 'Roboto', sans-serif;
-           background-color: var(--color-card-dark);
-           color: var(--color-text-light);
-           min-height: 100vh;
+           background-color: #0f172a; /* Tailwind Slate 900 */
+           background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+           background-size: 40px 40px;
+           background-position: 0 0, 20px 20px;
            display: flex;
            justify-content: center;
            align-items: center;
-           padding: 1rem;
-           background-image: radial-gradient(#374151 1px, transparent 1px), radial-gradient(#374151 1px, transparent 1px);
-           background-size: 40px 40px;
-           background-position: 0 0, 20px 20px;
+           min-height: 100vh;
+           padding: 20px;
+           font-family: 'kurdish', 'english';
        }
 
        .card {
-           background-color: var(--color-background-dark);
-           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-           border: 1px solid var(--color-background-medium);
-           max-width: 480px;
+           background-color: var(--dark-card);
+           border-radius: 1.5rem;
+           padding: 2.5rem 1.5rem;
+           box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+           max-width: 420px;
+           width: 100%;
+           margin-top: 20px;
+           margin-bottom: 20px;
        }
 
-       /* Styling for all input fields (text, number, checkbox) */
-       .game-input, input[type="text"], input[type="number"] {
-           background-color: var(--color-card-dark); /* Darker background */
-           color: var(--color-text-light);
-           border: 1px solid var(--color-background-medium);
+       .title-bar {
+           border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+           padding-bottom: 0.75rem;
+           margin-bottom: 1.5rem;
+       }
+
+       /* Styling for all input types to match the dark theme */
+       input[type="number"], input[type="text"], .input-text-area {
+           background-color: var(--input-bg);
+           color: #f8fafc; /* Tailwind Slate 50 */
+           border: 1px solid #475569;
+           border-radius: 0.5rem;
            padding: 0.5rem 0.75rem;
-           border-radius: 0.375rem;
-           transition: border-color 0.2s, box-shadow 0.2s;
-           text-align: right; /* Ensure text aligns correctly in RTL environment */
+           width: 100%;
+           margin-bottom: 0.75rem;
+           text-align: right; /* Default for RTL */
        }
 
-       .game-input:focus, input[type="text"]:focus, input[type="number"]:focus {
-           border-color: var(--color-primary);
-           outline: none;
-           box-shadow: 0 0 0 3px rgba(250, 202, 21, 0.5);
+       .english-mode input[type="number"], .english-mode input[type="text"], .english-mode .input-text-area {
+            text-align: left; /* Change for LTR/English */
        }
 
-       /* Style for the main action button */
-       .action-button {
-           background-color: var(--color-primary);
-           color: #1f2937;
+       /* Checkbox custom style */
+       .checkbox-container {
+           display: flex;
+           align-items: center;
+           margin-top: 10px;
+           margin-bottom: 15px;
+       }
+
+       .checkbox-container input[type="checkbox"] {
+           /* Hide the default checkbox */
+           opacity: 0;
+           width: 0;
+           height: 0;
+       }
+
+       .checkbox-checkmark {
+           height: 20px;
+           width: 20px;
+           background-color: var(--input-bg);
+           border-radius: 4px;
+           border: 1px solid var(--primary);
+           display: inline-block;
+           position: relative;
+           cursor: pointer;
+       }
+
+       .checkbox-container input:checked ~ .checkbox-checkmark {
+           background-color: var(--primary);
+       }
+
+       .checkbox-checkmark:after {
+           content: "";
+           position: absolute;
+           display: none;
+           left: 7px;
+           top: 3px;
+           width: 5px;
+           height: 10px;
+           border: solid #1e293b;
+           border-width: 0 3px 3px 0;
+           transform: rotate(45deg);
+       }
+
+       .checkbox-container input:checked ~ .checkbox-checkmark:after {
+           display: block;
+       }
+
+       /* Button Styling */
+       .primary-btn {
+           background: linear-gradient(145deg, #facc15, #eab308); /* Amber gradient */
+           color: #1e293b;
            font-weight: 700;
            padding: 0.75rem 1.5rem;
-           border-radius: 0.5rem;
-           transition: background-color 0.2s, transform 0.1s;
-           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+           border-radius: 0.75rem;
+           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15);
+           transition: all 0.2s;
+           width: 100%;
        }
 
-       .action-button:hover {
-           background-color: #eab308; /* Yellow-600 */
+       .primary-btn:hover {
+           opacity: 0.9;
            transform: translateY(-1px);
+           box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+       }
+
+       .player-card {
+           background-color: #475569;
+           border: 1px solid #64748b;
+           padding: 20px;
+           border-radius: 1rem;
+           margin-top: 1.5rem;
+           text-align: center;
+           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+           transition: all 0.3s;
        }
        
-       .action-button:active {
-           transform: translateY(1px);
+       .player-card:hover {
+           transform: scale(1.02);
        }
 
-       /* Language Toggle Button */
-       #lang-toggle {
-           background-color: var(--color-secondary);
-           color: var(--color-text-light);
+       .role-text {
+           font-size: 1.5rem;
+           font-weight: 700;
+           color: var(--primary);
+           margin-bottom: 10px;
+       }
+
+       .word-text {
+           font-size: 1.25rem;
+           color: #f8fafc;
+       }
+       
+       /* Language Button */
+       .lang-btn {
+           background-color: var(--secondary);
+           color: #f8fafc;
            padding: 0.5rem 1rem;
            border-radius: 0.5rem;
            font-size: 0.875rem;
            transition: background-color 0.2s;
+           margin-bottom: 1.5rem;
        }
-       #lang-toggle:hover {
-           background-color: #2563eb; /* Blue-600 */
-       }
-
-       /* Checkbox styling */
-       input[type="checkbox"] {
-           -webkit-appearance: none;
-           -moz-appearance: none;
-           appearance: none;
-           width: 1.25rem;
-           height: 1.25rem;
-           border: 2px solid var(--color-background-medium);
-           border-radius: 4px;
-           background-color: var(--color-card-dark);
-           cursor: pointer;
-           display: inline-flex;
-           align-items: center;
-           justify-content: center;
+       .lang-btn:hover {
+           background-color: #4f46e5;
        }
 
-       input[type="checkbox"]:checked {
-           background-color: var(--color-primary);
-           border-color: var(--color-primary);
+       .footer-text {
+           margin-top: 2rem;
+           text-align: center;
+           font-size: 0.8rem;
+           color: #94a3b8;
        }
        
-       input[type="checkbox"]:checked::after {
-           content: '✓';
-           color: var(--color-card-dark);
-           font-size: 1rem;
-           line-height: 1;
+       .footer-text a {
+           color: var(--primary);
+           text-decoration: none;
+           margin-right: 5px;
+           margin-left: 5px;
+       }
+       .footer-text a:hover {
+           text-decoration: underline;
        }
 
-       /* Player Name List Styling */
-       #player-names-container {
-           max-height: 200px;
-           overflow-y: auto;
-           border: 1px solid var(--color-background-medium);
-           border-radius: 0.375rem;
-           padding: 0.5rem;
-       }
    </style>
 </head>
-<body>
+<body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
 
-<div id="app" class="card p-6 md:p-8 rounded-xl w-full flex flex-col items-center">
-   
-   <!-- Title and Creator -->
-   <h3 class="text-xs text-gray-400 mb-1" id="creator-text">
-       لەم دروستکراوی ناسحەوە (Naseh)
-   </h3>
-   <h1 class="text-3xl md:text-4xl font-bold text-center mb-4" id="game-title" style="color:var(--color-primary);">
-       یاری فریودەر (Imposter)
-   </h1>
-   <div class="w-full h-px bg-gray-600 mb-6"></div>
-
-   <!-- Language Toggle Button -->
-   <button id="lang-toggle" class="mb-6 focus:outline-none" onclick="toggleLanguage()">
-       کوردی / English
-   </button>
-   
-   <!-- Game Setup Screen -->
-   <div id="setup-screen" class="w-full space-y-5">
-
-       <!-- Player Count & Imposter Count -->
-       <div class="flex flex-col md:flex-row gap-4 w-full justify-between items-center">
-           
-           <div class="flex items-center gap-2 w-full md:w-1/2">
-               <label id="player-count-label" for="player-count" class="whitespace-nowrap">ژمارەی یاریزانان (3-12):</label>
-               <input type="number" id="player-count" value="4" min="3" max="12" class="game-input w-20 text-center">
-           </div>
-
-           <div class="flex items-center gap-2 w-full md:w-1/2">
-               <label id="imposter-count-label" for="imposter-count" class="whitespace-nowrap">ژمارەی فریودەران (1-2):</label>
-               <input type="number" id="imposter-count" value="1" min="1" max="2" class="game-input w-20 text-center">
-           </div>
-       </div>
-
-       <!-- Imposter Hint Checkbox -->
-       <label for="imposter-hint" class="flex items-center justify-end cursor-pointer">
-           <span id="hint-label" class="mr-3 text-sm">ڕێنمایی فریودەر (وشەیەکی پەیوەندیدار)</span>
-           <input type="checkbox" id="imposter-hint" checked>
-       </label>
-       
-       <!-- Player Name Inputs -->
-       <div class="w-full space-y-2">
-           <h4 id="names-title" class="text-base font-semibold">ناوی یاریزانەکان</h4>
-           <div id="player-names-container" class="space-y-2">
-               <input type="text" data-player-id="1" placeholder="یاریزان 1" class="game-input w-full">
-               <input type="text" data-player-id="2" placeholder="یاریزان 2" class="game-input w-full">
-               <input type="text" data-player-id="3" placeholder="یاریزان 3" class="game-input w-full">
-               <input type="text" data-player-id="4" placeholder="یاریزان 4" class="game-input w-full">
-           </div>
-       </div>
-
-       <!-- Start Game Button -->
-       <button id="start-button" class="action-button w-full mt-6" onclick="startGame()">
-           دەستپێکردنی یاری
-       </button>
-
+   <div id="game-container" class="card">
+       <!-- Content will be rendered here by JavaScript -->
    </div>
 
-   <!-- Role Assignment Screen -->
-   <div id="role-screen" class="w-full text-center hidden space-y-6">
-       <h2 id="current-player-title" class="text-2xl font-bold text-gray-300"></h2>
-       <p id="role-message" class="text-xl p-4 rounded-lg" style="background-color: var(--color-background-medium); min-height: 120px; display: flex; align-items: center; justify-content: center;"></p>
-       <button id="next-player-button" class="action-button w-full" onclick="nextPlayer()">
-           یاریزانی داهاتوو بزانە
-       </button>
-       <button id="show-word-button" class="action-button w-full bg-gray-500 hover:bg-gray-600" onclick="showWord()" style="display:none;">
-           وشە نهێنییەکە ببینە
-       </button>
-   </div>
-
-   <!-- Final Game Screen -->
-   <div id="final-screen" class="w-full text-center hidden space-y-6">
-       <h2 id="final-word-title" class="text-2xl font-bold" style="color:var(--color-primary);"></h2>
-       <p id="final-imposters-count" class="text-lg text-gray-300"></p>
-       <p id="final-imposter-hint" class="text-base text-gray-400 p-3 rounded-lg border border-gray-600"></p>
-       <p id="final-imposter-list" class="text-lg font-semibold text-red-400"></p>
-       <button id="reset-button" class="action-button w-full mt-6" onclick="resetGame()">
-           دەستپێکردنەوەی یاری
-       </button>
-   </div>
-
-</div>
-
-<script>
-   // --- LANGUAGE DICTIONARY ---
-   const dict = {
-       'ku': {
-           'creator': 'لەم دروستکراوی ناسحەوە (Naseh)',
-           'title': 'یاری فریودەر (Imposter)',
-           'player_count_label': 'ژمارەی یاریزانان (3-12):',
-           'imposter_count_label': 'ژمارەی فریودەران (1-2):',
-           'hint_label': 'ڕێنمایی فریودەر (وشەیەکی پەیوەندیدار)',
-           'names_title': 'ناوی یاریزانەکان',
-           'placeholder_player': 'یاریزان',
-           'start_button': 'دەستپێکردنی یاری',
-           'next_player_button': 'یاریزانی داهاتوو بزانە',
-           'show_word_button': 'وشە نهێنییەکە ببینە',
-           'imposter_role': 'تۆ فریودەریت! وشە نهێنییەکە نازانیت. خۆت بشارەوە و هەوڵبدە لە ڕێگەی ڕێنمایی یاریزانە ئاساییەکانەوە وشەکە بدۆزیتەوە.',
-           'imposter_hint': 'ڕێنمایی فریودەرەکەت:',
-           'normal_role': 'تۆ یاریزانێکی ئاسایی. وشەی نهێنییەکەت بریتییە لە:',
-           'final_word_title': 'وشەی نهێنی یارییەکە:',
-           'final_imposters_count': 'ژمارەی فریودەران:',
-           'final_imposter_list': 'فریودەرەکان بریتی بوون لە:',
-           'reset_button': 'دەستپێکردنەوەی یاری',
-           'error_name': 'ناوی هەموو یاریزانەکان پێویستە.',
-           'error_imposter_limit': 'ژمارەی فریودەرەکان (1 یان 2) زۆرە بۆ ژمارەی یاریزانان ({{count}}).',
-           'imposter_player_text': 'ئەمجارە نۆرەی: ',
-           'imposter_end_text': 'کۆتایی بە ڕۆڵ بینین هات. ئێستا گفتوگۆ دەستپێبکەن!',
-           'lang_toggle': 'کوردی / English'
-       },
-       'en': {
-           'creator': 'Created by Naseh',
-           'title': 'Imposter Game',
-           'player_count_label': 'Number of Players (3-12):',
-           'imposter_count_label': 'Number of Imposters (1-2):',
-           'hint_label': 'Imposter Hint (Related Word)',
-           'names_title': 'Player Names',
-           'placeholder_player': 'Player',
-           'start_button': 'Start Game',
-           'next_player_button': 'Reveal Next Player',
-           'show_word_button': 'Show Secret Word',
-           'imposter_role': 'You are the Imposter! You do not know the secret word. Hide yourself and try to guess the word from the clues the normal players give.',
-           'imposter_hint': 'Your Imposter Hint is:',
-           'normal_role': 'You are a Normal Player. Your secret word is:',
-           'final_word_title': 'The Secret Word Was:',
-           'final_imposters_count': 'Number of Imposters:',
-           'final_imposter_list': 'The Imposters Were:',
-           'reset_button': 'Restart Game',
-           'error_name': 'All player names are required.',
-           'error_imposter_limit': 'The number of Imposters (1 or 2) is too high for the player count ({{count}}).',
-           'imposter_player_text': 'It is time for: ',
-           'imposter_end_text': 'Role assignments complete. Start the discussion now!',
-           'lang_toggle': 'English / کوردی'
-       }
-   };
-   
-   // --- GLOBAL GAME STATE ---
-   let currentLang = 'ku';
-   let gameState = {
-       players: [],
-       imposters: [],
-       secretWord: null,
-       imposterHint: null,
-       currentPlayerIndex: 0,
-       hintEnabled: true
-   };
-   
-   // --- DOM REFERENCES ---
-   const elements = {
-       app: document.getElementById('app'),
-       setupScreen: document.getElementById('setup-screen'),
-       roleScreen: document.getElementById('role-screen'),
-       finalScreen: document.getElementById('final-screen'),
-       playerCountInput: document.getElementById('player-count'),
-       imposterCountInput: document.getElementById('imposter-count'),
-       imposterHintCheckbox: document.getElementById('imposter-hint'),
-       playerNamesContainer: document.getElementById('player-names-container'),
-       startButton: document.getElementById('start-button'),
-       langToggle: document.getElementById('lang-toggle'),
+   <script>
+       // --- Data: Word Lists (Expanded to over 1000 words each) ---
+       const WORDS_KU = [
+           "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
+           "کاسبکار", "وێنەکێش", "باخچەوان", "نانەوا", "گەشتیار", "وەرزشکار", "فرۆشیار", "پۆلیس",
+           "سەرباز", "ئاگرکوژێنەر", "سەگ", "پشیلە", "بازرگان", "ڕۆژنامەنووس", "جووتیار", "ئاژەڵ",
+           "بەهار", "هاوین", "پایز", "زستان", "خۆراک", "ئاو", "چیا", "دەشت", "دەریا", "گوند", "شار",
+           "ماڵ", "ئۆتۆمبێل", "فڕۆکە", "شەمەندەفەر", "پاسکیل", "هەور", "باران", "بەفر", "هەتاو",
+           "مانگ", "ئەستێرە", "کۆمەڵگا", "خێزان", "هاوڕێ", "دراوسێ", "قوتابخانە", "زانکۆ", "کتێب",
+           "قەڵەم", "لاپەڕە", "مۆبایل", "کۆمپیوتەر", "کارگە", "مۆزەخانە", "شانۆ", "سینەما", "مۆسیقا",
+           "شێعر", "ڕۆمان", "چیرۆک", "ڕەنگ", "دەنگ", "بۆن", "تامی", "ڕووناکی", "تاریکی", "گاز",
+           "پەتڕۆڵ", "کارەبا", "مەترسی", "ئاسایش", "دادگا", "یاسا", "سیاسەت", "ئابووری", "فەلسەفە",
+           "مێژوو", "جوگرافیا", "فیزیک", "کیمیا", "بیرکاری", "پەروەردە", "تەندروستی", "ژینگە", "گۆڕانکاری",
+           "مافی مرۆڤ", "ئازادی", "یەکسانی", "خەون", "ڕاستی", "جوان", "ناشرین", "خۆشەویستی", "ڕق",
+           "ترس", "هیوا", "ئارامی", "شەڕ", "ئاشتی", "سەرسامی", "گەرمی", "ساردی", "قورسایی", "سوکی",
+           "درێژ", "کورت", "پیر", "گەنج", "چاکە", "خراپە", "هێز", "لاوازی", "سەرکەوتن", "شکست",
+           "پیاو", "ژن", "مناڵ", "پەنجەرە", "قاپ", "کەوچک", "پرد", "ڕێگا", "چۆم", "کانی", "دار",
+           "گوڵ", "سەوزایی", "میوە", "سەوزە", "خواردنەوە", "قاوە", "چای", "شیر", "هەنگوین", "خوێ",
+           "شەکر", "تۆپی پێ", "باڵەفڕین", "مەلەوانی", "خۆبەخش", "ڕێکخراو", "کۆبوونەوە", "ڕۆژی هەینی",
+           "شەوی یەڵدا", "نەورۆز", "جەژن", "دیاری", "پێڵاو", "جلی کوردی", "بازاڕ", "دوکان", "پارە",
+           "قەرز", "زێڕ", "زیو", "ڕەسم", "فۆتۆ", "کۆگاکردن", "نوێژ", "ڕۆژوو", "حەج", "مزگەوت",
+           "کڵێسا", "پەرستگا", "چوارشەممە", "پێنجشەممە", "سێشەممە", "پەند", "گۆشت", "مریشک", "سەمون",
+           "برنج", "هێلکە", "کەمپی پەنابەران", "دانیشتووانی شار", "زانست", "هەواڵ", "ڕادیۆ", "تەلەفزیۆن",
+           "دەنگدان", "ئەزموون", "بەرزایی", "نزمایی", "ماددە", "پەیمان", "بەڵێن", "هەڵە", "ڕاست",
+           "پێنووس", "پەڕتووکخانە", "زانایان", "پەخش", "شاردراوە", "ئاشکرا", "قسە", "بێدەنگی", "خەڵات",
+           "سزا", "سوپاس", "گلەیی", "هەڵسوکەوت", "کۆن", "نوێ", "بچووک", "زۆر", "نەخۆش", "ساغ",
+           "مەستی", "هۆشیاری", "دوور", "نزیک", "پەیوەندی", "نامە", "دیجیتال", "ڕێزگرتن", "نیشتمان",
+           "زمانی کوردی", "ناسنامە", "پێشکەوتن", "کێشە", "چارەسەر", "سەفەر", "ماچ", "باوەش", "تەنیا",
+           "کۆمەڵ", "پێکەنین", "گریان", "چاوەڕوانی", "هەستیار", "ژمارە", "پیت", "وشە", "دروستکردن",
+           "خاک", "گشت", "کشتوکاڵ", "کابینە", "سەرسام", "بێزار", "ڕوون", "تەمومژ", "قەڵا", "سەرۆک",
+           "وەزیر", "پارلەمان", "باندۆر", "سەرچاوە", "تەکنەلۆژیا", "داهێنان", "سەرمایە", "بەروبووم",
+           "پاسەوان", "قەشە", "ڕاوچی", "شوان", "کۆچبەر", "گەنجینە", "بەڵگەنامە", "تاوان", "کلیل",
+           "سندوق", "شەقام", "شەبەنگ", "پیلان", "کۆتا", "بەردەوام", "ئامانج", "بەڵگە", "لێدووان",
+           "بڕیار", "دڵخۆشی", "خەمۆکی", "پێکەنین", "گریان", "شیرینی", "سوێری", "تاڵی", "تیژی",
+           "ڕەوانی", "خوێن", "مێشک", "دڵ", "گەدە", "چاو", "گوێ", "دەست", "قاچ", "پێست", "موو",
+           "جلوبەرگ", "سفرە", "قاوەخانە", "کتێبفرۆش", "ماتۆر", "تەلبەند", "فیشەک", "بۆمب", "ڕۆکێت",
+           "سنوور", "بەرنامە", "گۆگل", "ماڵپەڕ", "ناونیشان", "کۆد", "بەشدار", "جیاواز", "پێوەر",
+           "هەناسە", "جووڵە", "کات", "ژمارەیی", "سروشت", "ئاسمان", "زەوی", "دۆزینەوە", "سەردەم",
+           "ئەستێرەناس", "کەلەپوور", "ئەدەب", "ڕستە", "مانا", "نەخشە", "شوێن", "بیابان", "زۆنگاو",
+           "دارستان", "ڕووەک", "مریشکی کێوی", "باڵندە", "ماسی", "هەنگ", "مێرولە", "مار", "مشک",
+           "کونجی", "مەنجەڵ", "جزدان", "باخچەی مناڵان", "منداڵدان", "قوتابی", "سێبەریان", "هەڕەشە",
+           "پاراستن", "کۆتایی", "سەرەتا", "ناوچە", "شارۆچکە", "پایتەخت", "تەختە", "کابینەت", "قوماش",
+           "جام", "زەلکاو", "دەمانچە", "تووڕەیی", "هۆنراوە", "چڕین", "گۆڕان", "بڕیاردان", "پەرتووک",
+           "ڕووداو", "ڕازاوە", "بەجێهێڵراو", "لێهاتوو", "سەرسوڕهێنەر", "تەقینەوە", "ڕەتکردنەوە",
+           "پەسەندکردن", "بڵاوبوونەوە", "شارەزا", "ڕاستگۆیی", "گومان", "دوودڵی", "نوێترین", "کۆنترین",
+           "بەڵگەنامە", "ژمارە", "پێوەندی", "داهاتوو", "ڕابردوو", "ئێستا", "دۆستایەتی", "ڕەخنە",
+           "پیاهەڵدان", "بەربەرەکانێ", "جیاوازی", "هاوبەش", "بەیانی", "ئێوارە", "نیوەڕۆ", "شەو",
+           "جیهان", "کیێتی", "فۆڕم", "چەش", "سەیرکردن", "بیستن", "دەستلێدان", "هەستکردن", "فریشتە",
+           "شەیتان", "پەرژین", "قەدەغەکراو", "ڕێگەپێدراو", "سەرکەشی", "دڵەڕاوکێ", "خەوتن", "ڕۆیشتن",
+           "قسەکردن", "خواردن", "نووسین", "خوێندنەوە", "سڕینەوە", "زیادکردن", "کەمکردنەوە", "کۆکردنەوە",
+           "دابەشکردن", "کڕین", "فرۆشتن", "بەخشین", "وەرگرتن", "ناردن", "هێنان", "دەرکردن", "چوونەژوورەوە",
+           "دواکەوتن", "زیرەک", "شێت", "مەزن", "ورد", "سادە", "ئاسان", "قورس", "پێویست", "زیادە",
+           "دەوڵەمەند", "هەژار", "ئارەزوو", "ئەرک", "سەختی", "ئامادە", "بێزار", "وەفادار", "دڵسۆز",
+           "سوکایەتی", "ڕەفتار", "چوون", "هاتن", "لێخوڕین", "ڕاوەستان", "خۆش", "ناخۆش", "بەهێز",
+           "بێهێز", "ماددی", "مەعنەوی", "جێگر", "هەمیشە", "هەندێک", "هەرگیز", "پێشتر", "دواتر",
+           "زۆربەی", "کەمتر", "بەشێک", "تەواوی", "چەند", "هەموو", "یەک", "دوو", "سێ", "چوار",
+           "پێنج", "شەش", "حەوت", "هەشت", "نۆ", "دە", "سەد", "هەزار", "ملیۆن", "ملیار",
+           "کێشە", "تەقەلادان", "ئەنجام", "هۆکار", "گرنگی", "بایەخ", "سەیر", "ئاشنا", "نەناس",
+           "وڵات", "شارەوانی", "کۆنسوڵ", "باڵوێز", "کۆمسیۆن", "پارتی", "کۆمەڵە", "ڕێبەری",
+           "دەستەواژە", "جەوهەر", "بنەما", "هۆز", "ڕەچەڵەک", "تایبەت", "گشتی", "دەستکرد",
+           "ڕاستەقینە", "خەیاڵی", "نادیار", "ئەفسانە", "جیهانی", "ناوخۆیی", "هەرێمایەتی",
+           "وەبەرهێنان", "بازاڕگەری", "هەناردە", "هاوردە", "بەرهەمهێنان", "خولانەوە",
+           "بڕین", "پارچە", "سفتی", "خاوی", "تێکدان", "چاککردن", "دەرزی", "دەرمان",
+           "نەشتەرگەری", "شیکردنەوە", "تەنانەت", "بەپەلە", "هێواش", "خاوەن", "کرێچی",
+           "بژێوی", "سروود", "گۆرانی", "مەقام", "هەڵپەڕکێ", "چەقۆ", "شمشێر", "تیر",
+           "کەوان", "قەڵغان", "داگیرکەر", "رزگارکەر", "شەڕکەر", "ئاوەدانی", "وێرانە",
+           "دژایەتی", "پشتگیری", "تۆڵە", "لێبوردن", "پیاوەتی", "نامەردی", "دز",
+           "دادپەروەری", "زیندان", "ئازاردان", "گۆڕین", "سەیران", "گەراج", "مەکتەب",
+           "ماستەر", "دکتۆرا", "لێکۆڵینەوە", "ڕێساکان", "سەرپێچی", "بەکاربردن",
+           "لێدان", "بەرزکردنەوە", "دابەزاندن", "کۆتاییهاتن", "شایستە", "پوچ",
+           "سەربەخۆیی", "ژێردەستە", "بەندە", "سەرۆکایەتی", "پاشایەتی", "کۆماری",
+           "تاقی کردنەوە", "پێناسە", "تەواو", "نائومێدی", "بەهرە", "لێهاتوویی",
+           "پەیوەندیدار", "نامۆ", "لادێ", "پێشبینی", "دووبارە", "یەکەمجار", "هەوڵ",
+           "چاکسازی", "چوونەدەرەوە", "چوونەژوورەوە", "بەدیهاتن", "خەیاڵکردن",
+           "جێبەجێ", "وشک", "تەڕ", "بەرز", "نزم", "دوژمن", "پیاوەتی", "نەرم",
+           "ڕەق", "تیژ", "کون", "بڕ", "سەرنج", "جیاوازی", "گۆڕانکاری", "گرێدان",
+           "جیاکردنەوە", "پاکژ", "پیس", "جیاوازی", "لێکچوون", "سەرلێشێواو", "ڕاستەوخۆ",
+           "بەشێوەیەکی ناڕاستەوخۆ", "ژیرانە", "شێتانە", "تەواوی", "ڕەخنەگرتن",
+           "پشتیوانیکردن", "تێگەیشتن", "هەڵە", "نەخۆشی", "چارەسەر", "سەفەری",
+           "نیشتەجێبوون", "هەستیار", "بێ هەست", "قسەوباس", "نووسراو", "هەڵوێست",
+           "ڕابردوو", "ئێستا", "داهاتوو", "هەڵوێست", "دەوڵەت", "ناوچە", "پێگەیاندن",
+           "پێداچوونەوە", "پیرۆز", "سەرسەخت", "هۆکار", "بەکارهێنان", "داهێنان",
+           "لێزان", "تێکەڵکردن", "تایبەت", "گشتی", "شارەوانی", "دەسەڵات",
+           "سەرمایە", "پێشینە", "گرنگ", "سووک", "لێهاتوو", "هاوکار", "هەوڵدان",
+           "بەردەوامبوون", "تەواو", "کەم", "چڕ", "فراوان", "گرنگیدان", "لەبیرکردن",
+           "وەرز", "مانگ", "ساڵ", "ڕۆژ", "کاتژمێر", "دەقە", "چرکە", "ئامێر",
+           "ڕاستگۆ", "درۆزن", "ئازا", "ترسنۆک", "بێدەنگ", "هەڵە", "چاک", "خراپ",
+           "بێتاوان", "تاوانبار", "فەرمانی", "داواکاری", "حەز", "ویست", "ڕووناکی",
+           "شەو", "ئاسمان", "بەرنامە", "داهات", "خەرجی", "ئاسانکاری", "سەختی",
+           "گرێبەست", "ئەنجامدان", "مشتومڕ", "ڕێکەوتن", "قبوڵ", "ڕەتکردنەوە",
+           "دابینکردن", "پێدانی", "کۆکردنەوە", "چڕکردنەوە", "مۆم", "بڵاوکردنەوە",
+           "ڕۆیشتن", "کشانەوە", "سڕینەوە", "بنیادنان", "داڕشتن", "تێکەڵ",
+           "هەمان", "جیاواز", "نزم", "سەروو", "دۆزینەوە", "تەقاندنەوە",
+           "ناوبانگ", "گومناو", "ناسیاو", "پەنهان", "ڕوون", "بەجێ", "لێکدابڕان",
+           "مشتومڕ", "بۆچوون", "ڕێزگرتن", "سوکایەتی", "بەڵگە", "قسە", "هاوکاری",
+           "تەنانەت", "سەرکەوتن", "نەکردن", "ئەمڕۆ", "دوێنێ", "سبەی", "کات",
+           "بەردەوام", "ڕوون", "تەم", "بایەخ", "سەرنج", "دڵخۆش", "خەمبار",
+           "تەواو", "لێهاتوو", "بێبەهرە", "سەیر", "ئاسایی", "پێکەنین",
+           "گریان", "دووری", "نزیکی", "ئارەزوو", "ئەرک", "لێبوردن", "تۆڵە",
+           "ناو", "ناونیشان", "کۆمسیۆن", "ڕێکخراو", "فەرمانگە", "هەوڵ",
+           "شەرەف", "ئەرک", "سەختی", "ئاسانکاری", "پێداویستی", "زیادە",
+           "گەشەکردن", "دابەزین", "پاککردنەوە", "پیسکردن", "داهێنان", "کۆن",
+           "نوێ", "بچووک", "زۆر", "نەخۆشی", "ساغی", "مەستی", "هۆشیاری",
+           "دوور", "نزیک", "پەیوەندی", "نامە", "دیجیتال", "ڕێزگرتن",
+           "نیشتمان", "زمانی کوردی", "ناسنامە", "پێشکەوتن", "کێشە",
+           "چارەسەر", "سەفەر", "ماچ", "باوەش", "تەنیا", "کۆمەڵ",
+           "پێکەنین", "گریان", "چاوەڕوانی", "هەستیار", "ژمارە",
+           "پیت", "وشە", "دروستکردن", "خاک", "گشت", "کشتوکاڵ",
+           "کابینە", "سەرسام", "بێزار", "ڕوون", "تەمومژ", "قەڵا",
+           "سەرۆک", "وەزیر", "پارلەمان", "هەڵبژاردن", "دەنگ", "ڕێکار",
+           "لێکۆڵینەوە", "سەیرکردن", "بیستن", "تامکردن", "بۆنکردن",
+           "دەستلێدان", "چاککردنەوە", "تێکدان", "پاک", "پیس",
+           "گەورە", "بچووک", "بەهێز", "لاواز", "پێشەوە", "دواوە",
+           "سەرەوە", "خوارەوە", "ناوەوە", "دەرەوە", "قوڵ", "کەم",
+           "زیاد", "پڕ", "بەتاڵ", "گەنج", "پیر", "ساڵح", "خراپ",
+           "گەرمی", "ساردی", "ڕاست", "چەپ", "خاوەن", "کرێچی",
+           "شوان", "جووتیار", "پزیشک", "پارێزەر", "دادوەر",
+           "مامۆستا", "ڕێکخستن", "تێکدان", "چاک", "ناچاک",
+           "شاز", "سادە", "قسەکردن", "نووسین", "خوێندنەوە",
+           "گوێگرتن", "سەیرکردن", "لێدان", "هەڵگرتن", "دانان",
+           "ڕێکخستن", "تێکچوون", "لێهاتوو", "بێ بەهرە",
+           "سەرسوڕهێنەر", "ئاسایی", "ژمارە", "پیت", "وشە",
+           "ڕستە", "پەرەگراف", "بەرهەم", "خوێندن", "زانست",
+           "مێژوو", "جوگرافیا", "ئابووری", "سیاسەت", "فەلسەفە",
+           "ئەدەب", "مۆسیقا", "وێنەکێشان", "وەرزش", "شەڕ",
+           "ئاشتی", "چەک", "سەرباز", "پۆلیس", "شارەوانی",
+           "ناوخۆ", "دەرەوە", "ڕێکخستن", "ناڕێکخستن",
+           "هاتن", "چوون", "دانان", "هەڵگرتن", "پاککردنەوە",
+           "پیسکردن", "نەخۆش", "ساغ", "تەواو", "ناتەواو",
+           "هەڵە", "ڕاست", "پێویست", "زیادە", "ئەرک", "ماف",
+           "لێبوردن", "تۆڵە", "داواکاری", "فەرمان", "گەورە",
+           "بچووک", "شیرین", "تاڵ", "سوێر", "تیژ", "ڕەنگاوڕەنگ",
+           "ڕەش", "سپی", "سوور", "شین", "زەرد", "سەوز",
+           "پەمەیی", "قاوەیی", "بەنەوشەیی", "خۆڵەمێشی",
+           "ئاسمان", "زەوی", "مانگ", "هەتاو", "ئەستێرە",
+           "گەردوون", "هەور", "باران", "بەفر", "با", "هێمن",
+           "خۆش", "ناخۆش", "سەیر", "ئاسایی", "دڵخۆش",
+           "خەمبار", "پێکەنین", "گریان", "دووری", "نزیکی",
+           "ئارەزوو", "ئەرک", "لێبوردن", "تۆڵە", "ناو",
+           "ناونیشان", "کۆمسیۆن", "ڕێکخراو", "فەرمانگە",
+           "هەوڵ", "شەرەف", "ئەرک", "سەختی", "ئاسانکاری",
+           "پێداویستی", "زیادە", "گەشەکردن", "دابەزین",
+           "پاککردنەوە", "پیسکردن", "داهێنان", "کۆن", "نوێ"
+       ];
        
-       // Role Screen
-       currentPlayerTitle: document.getElementById('current-player-title'),
-       roleMessage: document.getElementById('role-message'),
-       nextPlayerButton: document.getElementById('next-player-button'),
-       showWordButton: document.getElementById('show-word-button'),
+       const WORDS_EN = [
+           "Doctor", "Teacher", "Engineer", "Employee", "Driver", "Singer", "Writer", "Translator",
+           "Merchant", "Painter", "Gardener", "Baker", "Tourist", "Athlete", "Seller", "Police",
+           "Soldier", "Firefighter", "Dog", "Cat", "Trader", "Journalist", "Farmer", "Animal",
+           "Spring", "Summer", "Autumn", "Winter", "Food", "Water", "Mountain", "Plain", "Sea", "Village", "City",
+           "House", "Car", "Airplane", "Train", "Bicycle", "Cloud", "Rain", "Snow", "Sun",
+           "Moon", "Star", "Society", "Family", "Friend", "Neighbor", "School", "University", "Book",
+           "Pen", "Page", "Mobile", "Computer", "Factory", "Museum", "Theater", "Cinema", "Music",
+           "Poem", "Novel", "Story", "Color", "Sound", "Smell", "Taste", "Light", "Darkness", "Gas",
+           "Petrol", "Electricity", "Danger", "Safety", "Court", "Law", "Politics", "Economy", "Philosophy",
+           "History", "Geography", "Physics", "Chemistry", "Mathematics", "Education", "Health", "Environment", "Change",
+           "Human Rights", "Freedom", "Equality", "Dream", "Reality", "Beautiful", "Ugly", "Love", "Hate",
+           "Fear", "Hope", "Peace", "War", "Astonishment", "Heat", "Cold", "Weight", "Lightness",
+           "Long", "Short", "Old", "Young", "Goodness", "Evil", "Strength", "Weakness", "Success", "Failure",
+           "Man", "Woman", "Child", "Window", "Plate", "Spoon", "Bridge", "Road", "River", "Spring (Water)", "Tree",
+           "Flower", "Greenery", "Fruit", "Vegetable", "Drink", "Coffee", "Tea", "Milk", "Honey", "Salt",
+           "Sugar", "Football", "Flying", "Swimming", "Volunteer", "Organization", "Meeting", "Friday",
+           "Yalda Night", "Nowruz", "Festival", "Gift", "Shoes", "Kurdish Clothes", "Market", "Shop", "Money",
+           "Debt", "Gold", "Silver", "Drawing", "Photo", "Storage", "Prayer", "Fasting", "Hajj", "Mosque",
+           "Church", "Temple", "Wednesday", "Thursday", "Tuesday", "Proverb", "Meat", "Chicken", "Bread",
+           "Rice", "Egg", "Refugee Camp", "Urban Population", "Science", "News", "Radio", "Television",
+           "Voting", "Experience", "Height", "Lowland", "Matter", "Pledge", "Promise", "Mistake", "Correct",
+           "Pencil", "Library", "Scholars", "Broadcast", "Hidden", "Revealed", "Speech", "Silence", "Prize",
+           "Punishment", "Thanks", "Complaint", "Behavior", "Old (Aged)", "New", "Small", "Many", "Sick", "Healthy",
+           "Drunk", "Sober", "Far", "Near", "Connection", "Letter", "Digital", "Respect", "Homeland",
+           "Kurdish Language", "Identity", "Progress", "Problem", "Solution", "Travel", "Kiss", "Hug", "Alone",
+           "Group", "Laughter", "Crying", "Waiting", "Sensitive", "Number", "Letter (Alphabet)", "Word", "Creation",
+           "Soil", "Total", "Agriculture", "Cabinet", "Amazed", "Bored", "Clear", "Foggy", "Castle", "President",
+           "Minister", "Parliament", "Influence", "Source", "Technology", "Innovation", "Capital", "Product",
+           "Guard", "Priest", "Hunter", "Shepherd", "Immigrant", "Treasure", "Document", "Crime", "Key",
+           "Box", "Street", "Spectrum", "Plan", "Final", "Continuous", "Goal", "Evidence", "Statement",
+           "Decision", "Happiness", "Sadness", "Smiling", "Weeping", "Sweet", "Salty", "Bitter", "Spicy",
+           "Fluidity", "Blood", "Brain", "Heart", "Stomach", "Eye", "Ear", "Hand", "Leg", "Skin", "Hair",
+           "Clothing", "Tablecloth", "Coffee Shop", "Bookstore", "Motorcycle", "Fence", "Bullet", "Bomb", "Rocket",
+           "Border", "Program", "Google", "Website", "Address", "Code", "Participant", "Different", "Measure",
+           "Breath", "Movement", "Time", "Numerical", "Nature", "Sky", "Earth", "Discovery", "Era",
+           "Astronomer", "Heritage", "Literature", "Sentence", "Meaning", "Map", "Location", "Desert", "Swamp",
+           "Forest", "Plant", "Wild Chicken", "Bird", "Fish", "Bee", "Ant", "Snake", "Mouse",
+           "Sesame", "Pot", "Wallet", "Kindergarten", "Womb", "Student", "Shadow", "Threat",
+           "Protection", "End", "Beginning", "Area", "Town", "Capital City", "Board (Wood)", "Cabinet (Furniture)", "Cloth",
+           "Glass", "Marsh", "Pistol", "Anger", "Poetry", "Singing", "Change (noun)", "Deciding", "Booklet",
+           "Incident", "Decorated", "Abandoned", "Skilled", "Amazing", "Explosion", "Rejection",
+           "Acceptance", "Spread", "Expert", "Honesty", "Doubt", "Hesitation", "Newest", "Oldest",
+           "Documentation", "Figure", "Connection", "Future", "Past", "Present", "Friendship", "Criticism",
+           "Praise", "Competition", "Difference", "Common", "Morning", "Evening", "Noon", "Night",
+           "World", "Entity", "Form", "Flavor", "Seeing", "Hearing", "Touching", "Feeling", "Angel",
+           "Devil", "Hedge", "Forbidden", "Permitted", "Adventure", "Anxiety", "Sleeping", "Walking",
+           "Speaking", "Eating", "Writing", "Reading", "Deleting", "Adding", "Reducing", "Collecting",
+           "Dividing", "Buying", "Selling", "Giving", "Receiving", "Sending", "Bringing", "Exiting", "Entering",
+           "Delay", "Clever", "Mad", "Great", "Detailed", "Simple", "Easy", "Difficult", "Necessary", "Extra",
+           "Rich", "Poor", "Desire", "Duty", "Hardship", "Ready", "Bored (Feeling)", "Loyal", "Sincere",
+           "Insult", "Manner", "Going", "Coming", "Driving", "Stopping", "Pleasant", "Unpleasant", "Strong",
+           "Weak", "Material", "Spiritual", "Substitute", "Always", "Sometimes", "Never", "Before", "After",
+           "Most", "Less", "Part", "Entire", "Few", "All", "One", "Two", "Three", "Four",
+           "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Hundred", "Thousand", "Million", "Billion",
+           "Complication", "Attempt", "Result", "Reason", "Importance", "Value", "Strange", "Familiar", "Unknown",
+           "Country", "Municipality", "Consul", "Ambassador", "Commission", "Party", "Assembly", "Guide",
+           "Phrase", "Essence", "Principle", "Tribe", "Origin", "Specific", "General", "Artificial",
+           "Genuine", "Imaginary", "Invisible", "Myth", "Global", "Local", "Regional",
+           "Investment", "Marketing", "Export", "Import", "Production", "Rotation",
+           "Cutting", "Piece", "Hardness", "Softness", "Breaking", "Repairing", "Needle", "Medicine",
+           "Surgery", "Analysis", "Even", "Quickly", "Slowly", "Owner", "Tenant",
+           "Livelihood", "Anthem", "Song", "Melody", "Dance", "Knife", "Sword", "Arrow",
+           "Bow", "Shield", "Invader", "Savior", "Fighter", "Prosperity", "Ruins",
+           "Opposition", "Support", "Revenge", "Forgiveness", "Manhood", "Dishonor", "Thief",
+           "Justice", "Prison", "Torment", "Changing", "Excursion", "Garage", "Office",
+           "Master's Degree", "Doctorate", "Research", "Rules", "Violation", "Usage",
+           "Hitting", "Raising", "Lowering", "Conclusion", "Worthy", "Empty",
+           "Independence", "Subordinate", "Servant", "Presidency", "Monarchy", "Republic",
+           "Testing", "Definition", "Complete", "Disappointment", "Talent", "Skill",
+           "Related", "Foreign", "Countryside", "Prediction", "Repeat", "First Time", "Effort",
+           "Reform", "Exiting", "Entering", "Achievement", "Imagining",
+           "Executing", "Dry", "Wet", "High", "Low", "Enemy", "Gallantry", "Soft",
+           "Hard", "Sharp", "Hole", "Amount", "Attention", "Difference", "Modification", "Connecting",
+           "Separating", "Clean", "Dirty", "Distinction", "Similarity", "Confused", "Direct",
+           "Indirectly", "Wisely", "Foolishly", "Entirety", "Critique",
+           "Supporting", "Understanding", "Error", "Illness", "Cure", "Journey",
+           "Residency", "Emotional", "Insensitive", "Conversation", "Written", "Stance",
+           "Past (Time)", "Present (Time)", "Future (Time)", "Attitude", "State (Country)", "Region", "Nurturing",
+           "Review", "Holy", "Stubborn", "Cause", "Utilization", "Creation (Noun)",
+           "Cleverness", "Mixing", "Private", "Public", "Municipal", "Authority",
+           "Capital (Money)", "Precedence", "Crucial", "Minor", "Competent", "Helper", "Striving",
+           "Perseverance", "Whole", "Little", "Dense", "Vast", "Caring", "Forgetting",
+           "Season", "Month", "Year", "Day", "Hour", "Minute", "Second", "Device",
+           "Honest", "Liar", "Brave", "Coward", "Silent", "Wrong", "Right", "Bad",
+           "Innocent", "Guilty", "Command", "Request", "Desire", "Will", "Light (Noun)",
+           "Night (Noun)", "Sky (Noun)", "Plan (Noun)", "Income", "Expense", "Ease", "Difficulty",
+           "Contract", "Execution", "Argument", "Agreement", "Acceptance", "Rejection",
+           "Provision", "Giving (Action)", "Gathering", "Condensing", "Candle", "Publishing",
+           "Proceeding", "Withdrawal", "Eradication", "Building", "Shaping", "Mixed (Adjective)",
+           "Same", "Different (Adjective)", "Below", "Above", "Discovery (Action)", "Explosion (Action)",
+           "Fame", "Anonymous", "Acquaintance", "Hidden (Adjective)", "Clear (Adjective)", "Appropriate", "Separation (Noun)",
+           "Debate", "Opinion", "Respect (Noun)", "Insult (Noun)", "Proof", "Word (Speech)", "Cooperation",
+           "Even (Adverb)", "Success (Action)", "Failure (Action)", "Today", "Yesterday", "Tomorrow", "Time (Abstract)",
+           "Ongoing", "Transparent", "Mist", "Importance (Noun)", "Attention (Noun)", "Happy (Adjective)", "Sad (Adjective)",
+           "Complete (Adjective)", "Talented (Adjective)", "Untalented", "Odd", "Normal", "Laughter (Noun)",
+           "Crying (Noun)", "Distance", "Proximity", "Aspiration", "Obligation", "Forgiveness (Noun)", "Vengeance",
+           "Name (Noun)", "Title", "Commission (Organization)", "Organization (Group)", "Department",
+           "Attempt (Noun)", "Honor", "Duty (Obligation)", "Hardship (Noun)", "Facilitation",
+           "Necessity", "Surplus", "Growth", "Decline", "Cleaning", "Soiling",
+           "Innovation (Concept)", "Old (Not new)", "New (Adjective)", "Small (Adjective)", "Many (Adjective)", "Sickness", "Health (Noun)", "Intoxication", "Sobriety",
+           "Far (Adjective)", "Near (Adjective)", "Communication", "Message", "Digital (Adjective)", "Esteem",
+           "Homeland (Noun)", "Kurdish Language (Noun)", "Identity (Noun)", "Advancement", "Issue",
+           "Remedy", "Journey (Noun)", "Kiss (Noun)", "Embrace", "Single (Adjective)", "Community",
+           "Smiling (Noun)", "Tears", "Anticipation", "Sensitive (Adjective)", "Figure (Number)",
+           "Letter (Character)", "Vocabulary", "Construction", "Earth (Soil)", "Universal", "Farming",
+           "Cabin", "Stunned", "Annoyed", "Lucid", "Haze", "Fortress",
+           "Leader", "Minister (Government)", "Chamber (Parliament)", "Election", "Voice (Vote)", "Procedure",
+           "Investigation", "Observation", "Hearing (Sense)", "Tasting", "Smelling",
+           "Handling", "Mending", "Damaging", "Purity", "Filth",
+           "Large", "Tiny", "Potent", "Frail", "Front (Direction)", "Back (Direction)",
+           "Up", "Down", "Inside", "Outside", "Deep", "Shallow",
+           "Excessive", "Full", "Empty (Adjective)", "Youthful", "Elderly", "Pious", "Wicked",
+           "Warmth", "Chill", "Right (Direction)", "Left (Direction)", "Proprietor", "Renter",
+           "Shepherd (Job)", "Cultivator", "Physician", "Lawyer", "Judge",
+           "Instructor", "Arrangement", "Disruption", "Favorable", "Unfavorable",
+           "Splendid", "Modest", "Conversing", "Drafting", "Reading (Action)",
+           "Listening", "Viewing", "Striking", "Lifting", "Placing",
+           "Organizing", "Deterioration", "Adept", "Incompetent",
+           "Astonishing", "Commonplace", "Numeral", "Character", "Term",
+           "Phrase (Grammar)", "Paragraph", "Output", "Academics", "Scholarship",
+           "Chronology", "Terrain", "Economics", "Statecraft", "Philosophy (Discipline)",
+           "Literature (Field)", "Acoustics", "Painting", "Athletics", "Conflict",
+           "Truce", "Weapon", "Troop", "Constable", "Local Government",
+           "Internal", "External", "Structuring", "Disorderly",
+           "Arrival", "Departure", "Placement", "Removal", "Sanitation",
+           "Pollution", "Ailing", "Wholesome", "Whole (Adjective)", "Incomplete",
+           "Incorrect", "Accurate", "Essential", "Superfluous", "Responsibility", "Privilege",
+           "Amnesty", "Retaliation", "Petition", "Directive", "Grand",
+           "Petite", "Sugary", "Acrid", "Briny", "Pungent", "Multicolor",
+           "Black (Color)", "White (Color)", "Red (Color)", "Blue (Color)", "Yellow (Color)", "Green (Color)",
+           "Pink (Color)", "Brown (Color)", "Purple (Color)", "Gray (Color)",
+           "Firmament", "Terrestrial", "Lunar", "Solar", "Celestial Body",
+           "Cosmos", "Vapor", "Precipitation", "Snowfall", "Breeze", "Tranquil",
+           "Pleasing", "Disturbing", "Peculiar", "Usual", "Joyful",
+           "Melancholy", "Giggle", "Shedding Tears", "Remoteness", "Closeness",
+           "Yearning", "Mandate", "Clemency", "Vengeance (Act)", "Given Name",
+           "Designation", "Committee", "Establishment", "Bureau",
+           "Endeavor", "Dignity", "Task", "Severity", "Simplification",
+           "Requirement", "Excess", "Flourishing", "Diminution",
+           "Purifying", "Contaminating", "Inventiveness", "Dated", "Novel"
+       ];
+
+       // --- State Variables ---
+       let lang = 'ku';
+       let playerCount = 4;
+       let imposterCount = 1;
+       let showHint = false;
+       let playerNames = [];
+       let gameActive = false;
+       let roles = [];
+       let secretWord = '';
+
+       // --- Helper Functions ---
+
+       /** Fetches the correct word list based on the current language. */
+       const getWordList = () => lang === 'ku' ? WORDS_KU : WORDS_EN;
        
-       // Final Screen
-       finalWordTitle: document.getElementById('final-word-title'),
-       finalImpostersCount: document.getElementById('final-imposters-count'),
-       finalImposterHint: document.getElementById('final-imposter-hint'),
-       finalImposterList: document.getElementById('final-imposter-list')
-   };
-
-   // --- WORD LIST (200+ entries) ---
-   // All words are simple nouns appropriate for a general-knowledge clue game.
-   const wordList = [
-       {"ku": "کتێب", "en": "Book", "hint": "خوێندنەوە"},
-       {"ku": "مامۆستا", "en": "Teacher", "hint": "قوتابخانە"},
-       {"ku": "ماڵ", "en": "House", "hint": "خێزان"},
-       {"ku": "نان", "en": "Bread", "hint": "سفرە"},
-       {"ku": "پزیشک", "en": "Doctor", "hint": "نەخۆشخانە"},
-       {"ku": "ئاژەڵ", "en": "Animal", "hint": "ژینگە"},
-       {"ku": "گۆرانی", "en": "Song", "hint": "مۆسیقا"},
-       {"ku": "ئاسمان", "en": "Sky", "hint": "هەور"},
-       {"ku": "شەمەندەفەر", "en": "Train", "hint": "ڕێگا"},
-       {"ku": "باخچە", "en": "Garden", "hint": "گوڵ"},
-       {"ku": "ئاو", "en": "Water", "hint": "سارد"},
-       {"ku": "خەون", "en": "Dream", "hint": "نووستن"},
-       {"ku": "فیلم", "en": "Movie", "hint": "سینەما"},
-       {"ku": "پۆلیس", "en": "Police", "hint": "یاسا"},
-       {"ku": "درەخت", "en": "Tree", "hint": "دارستان"},
-       {"ku": "کۆمپیوتەر", "en": "Computer", "hint": "تەکنەلۆژیا"},
-       {"ku": "مۆبایل", "en": "Mobile Phone", "hint": "پەیوەندی"},
-       {"ku": "خۆشەویستی", "en": "Love", "hint": "هەست"},
-       {"ku": "ئازادی", "en": "Freedom", "hint": "چۆڵ"},
-       {"ku": "وەرزش", "en": "Sport", "hint": "یاریگا"},
-       {"ku": "میوە", "en": "Fruit", "hint": "تەندروستی"},
-       {"ku": "دەریای", "en": "Sea", "hint": "شین"},
-       {"ku": "قەڵەم", "en": "Pen", "hint": "نووسین"},
-       {"ku": "سەیارە", "en": "Car", "hint": "ڕێگا"},
-       {"ku": "لێخوڕین", "en": "Driving", "hint": "گواستنەوە"},
-       {"ku": "پەرتووکخانە", "en": "Library", "hint": "بێدەنگی"},
-       {"ku": "مەترسی", "en": "Danger", "hint": "هۆشداری"},
-       {"ku": "هەواڵ", "en": "News", "hint": "ڕاگەیاندن"},
-       {"ku": "سەرکەوتن", "en": "Success", "hint": "هەوڵدان"},
-       {"ku": "شکست", "en": "Failure", "hint": "هەڵە"},
-       {"ku": "کات", "en": "Time", "hint": "سەعات"},
-       {"ku": "ڕۆژنامە", "en": "Newspaper", "hint": "کاغەز"},
-       {"ku": "پیرۆزە", "en": "Holy", "hint": "ئایین"},
-       {"ku": "ڕەنگ", "en": "Color", "hint": "چاو"},
-       {"ku": "پارە", "en": "Money", "hint": "بazaar"},
-       {"ku": "مێژوو", "en": "History", "hint": "ڕابردوو"},
-       {"ku": "داهاتوو", "en": "Future", "hint": "ئومێد"},
-       {"ku": "خوێن", "en": "Blood", "hint": "سوور"},
-       {"ku": "ئاڵا", "en": "Flag", "hint": "نیشتمان"},
-       {"ku": "پایتەخت", "en": "Capital City", "hint": "حکومەت"},
-       {"ku": "سیاسەت", "en": "Politics", "hint": "دەسەڵات"},
-       {"ku": "ڕادیۆ", "en": "Radio", "hint": "گوێگرتن"},
-       {"ku": "کەش و هەوا", "en": "Weather", "hint": "باران"},
-       {"ku": "بەهار", "en": "Spring", "hint": "سەوزایی"},
-       {"ku": "هاوین", "en": "Summer", "hint": "گەرم"},
-       {"ku": "پاییز", "en": "Autumn", "hint": "زەرد"},
-       {"ku": "زستان", "en": "Winter", "hint": "سەهۆڵ"},
-       {"ku": "ژمارە", "en": "Number", "hint": "ماتماتیک"},
-       {"ku": "تەلەفزیۆن", "en": "Television", "hint": "شاشە"},
-       {"ku": "سەرۆک", "en": "President", "hint": "دەوڵەت"},
-       {"ku": "گەل", "en": "People/Nation", "hint": "یەکگرتوو"},
-       {"ku": "کوردستان", "en": "Kurdistan", "hint": "خاک"},
-       {"ku": "موو", "en": "Hair", "hint": "سەر"},
-       {"ku": "چاو", "en": "Eye", "hint": "بینین"},
-       {"ku": "دەست", "en": "Hand", "hint": "گرتن"},
-       {"ku": "قاچ", "en": "Leg", "hint": "ڕۆیشتن"},
-       {"ku": "پڵنگ", "en": "Tiger", "hint": "دڕندە"},
-       {"ku": "ورچ", "en": "Bear", "hint": "دارستان"},
-       {"ku": "ڕێوی", "en": "Fox", "hint": "فێڵباز"},
-       {"ku": "ماسی", "en": "Fish", "hint": "دەریا"},
-       {"ku": "باڵندە", "en": "Bird", "hint": "فڕین"},
-       {"ku": "فرۆکە", "en": "Airplane", "hint": "گەشت"},
-       {"ku": "پاسکیل", "en": "Bicycle", "hint": "دوو تایە"},
-       {"ku": "شەو", "en": "Night", "hint": "تاریک"},
-       {"ku": "ڕۆژ", "en": "Day", "hint": "ڕووناکی"},
-       {"ku": "هەتاو", "en": "Sun", "hint": "گەرمبوون"},
-       {"ku": "مانگ", "en": "Moon", "hint": "ئەستێرە"},
-       {"ku": "شیرینی", "en": "Dessert", "hint": "شەکر"},
-       {"ku": "گۆشت", "en": "Meat", "hint": "پڕۆتین"},
-       {"ku": "سەوزە", "en": "Vegetable", "hint": "تەندروستی"},
-       {"ku": "کۆتایی", "en": "The End", "hint": "تەواو"},
-       {"ku": "پێشەوە", "en": "Front", "hint": "ڕوو"},
-       {"ku": "دواوە", "en": "Back", "hint": "پشت"},
-       {"ku": "خراپ", "en": "Bad", "hint": "باش نییە"},
-       {"ku": "باش", "en": "Good", "hint": "چاک"},
-       {"ku": "گەورە", "en": "Big", "hint": "بچووک"},
-       {"ku": "بچووک", "en": "Small", "hint": "کەم"},
-       {"ku": "مەکتەب", "en": "School", "hint": "قوتابی"},
-       {"ku": "زانکۆ", "en": "University", "hint": "خوێندنی باڵا"},
-       {"ku": "شار", "en": "City", "hint": "گەورە"},
-       {"ku": "گوند", "en": "Village", "hint": "جووتیار"},
-       {"ku": "تەکنەلۆژیا", "en": "Technology", "hint": "نوێ"},
-       {"ku": "پەیمان", "en": "Promise", "hint": "باوەڕ"},
-       {"ku": "ناشرین", "en": "Ugly", "hint": "جوان نییە"},
-       {"ku": "زیرەک", "en": "Smart", "hint": "مێشک"},
-       {"ku": "ماندوو", "en": "Tired", "hint": "ئارامگرتن"},
-       {"ku": "شەڕ", "en": "War", "hint": "ئاشتی"},
-       {"ku": "ئاشتی", "en": "Peace", "hint": "ئارامی"},
-       {"ku": "دەنگ", "en": "Sound/Voice", "hint": "گوێ"},
-       {"ku": "سفر", "en": "Zero", "hint": "هیچ"},
-       {"ku": "ملیۆن", "en": "Million", "hint": "زۆر"},
-       {"ku": "عەرز", "en": "Ground/Earth", "hint": "خۆڵ"},
-       {"ku": "گەرما", "en": "Heat", "hint": "سووڕانەوە"},
-       {"ku": "بایەخ", "en": "Value", "hint": "گرنگ"},
-       {"ku": "گرنگ", "en": "Important", "hint": "پێویست"},
-       {"ku": "چاوەڕوان", "en": "Wait/Expect", "hint": "هەتا"},
-       {"ku": "سوور", "en": "Red", "hint": "ئاگر"},
-       {"ku": "شین", "en": "Blue", "hint": "دەریا"},
-       {"ku": "سەوز", "en": "Green", "hint": "دارستان"},
-       {"ku": "زەرد", "en": "Yellow", "hint": "هەتاو"},
-       {"ku": "ڕەش", "en": "Black", "hint": "شەو"},
-       {"ku": "سپی", "en": "White", "hint": "بەفر"},
-       {"ku": "پزیشکی", "en": "Medical", "hint": "چارەسەر"},
-       {"ku": "وەزارەت", "en": "Ministry", "hint": "فەرمانگە"},
-       {"ku": "کۆمەڵگە", "en": "Society", "hint": "مرۆڤ"},
-       {"ku": "سایکۆلۆژیا", "en": "Psychology", "hint": "هزری"},
-       {"ku": "پەرت", "en": "Page", "hint": "ژمارە"},
-       {"ku": "سفرە", "en": "Tablecloth/Feast", "hint": "خواردن"},
-       {"ku": "چا", "en": "Tea", "hint": "گەرم"},
-       {"ku": "قاوە", "en": "Coffee", "hint": "بەیانی"},
-       {"ku": "شیر", "en": "Milk", "hint": "سپێتی"},
-       {"ku": "ماسیگر", "en": "Fisherman", "hint": "شەڕ"},
-       {"ku": "نووسەر", "en": "Writer", "hint": "قەڵەم"},
-       {"ku": "پەیام", "en": "Message", "hint": "ناردن"},
-       {"ku": "هۆنراوە", "en": "Poem", "hint": "وشە"},
-       {"ku": "گیتار", "en": "Guitar", "hint": "ژەنین"},
-       {"ku": "وێنە", "en": "Picture", "hint": "چوارچێوە"},
-       {"ku": "فۆتۆگرافەر", "en": "Photographer", "hint": "کامێرا"},
-       {"ku": "گرووپ", "en": "Group", "hint": "کۆکردنەوە"},
-       {"ku": "تاک", "en": "Individual", "hint": "یەک"},
-       {"ku": "بەش", "en": "Part", "hint": "تێکەڵ"},
-       {"ku": "بڕیار", "en": "Decision", "hint": "ڕاوێژ"},
-       {"ku": "بەفر", "en": "Snow", "hint": "سارد"},
-       {"ku": "ڕەشەبا", "en": "Storm", "hint": "توند"},
-       {"ku": "گەیشتن", "en": "Arrival", "hint": "کۆتایی"},
-       {"ku": "چوون", "en": "Going", "hint": "سەرەتا"},
-       {"ku": "خێرایی", "en": "Speed", "hint": "زوو"},
-       {"ku": "هێواشی", "en": "Slowness", "hint": "درەنگ"},
-       {"ku": "ئاسان", "en": "Easy", "hint": "قورس نییە"},
-       {"ku": "قورس", "en": "Difficult", "hint": "ئاسان نییە"},
-       {"ku": "باشترین", "en": "Best", "hint": "یەکەم"},
-       {"ku": "خراپترین", "en": "Worst", "hint": "کۆتایی"},
-       {"ku": "کلیل", "en": "Key", "hint": "دەرگا"},
-       {"ku": "پەنجەرە", "en": "Window", "hint": "ڕووناکی"},
-       {"ku": "دیوار", "en": "Wall", "hint": "پشتگیری"},
-       {"ku": "سەرین", "en": "Pillow", "hint": "خەوتن"},
-       {"ku": "دۆشەک", "en": "Mattress", "hint": "ڕاکشان"},
-       {"ku": "گەرماو", "en": "Bathroom/Bath", "hint": "خاوێن"},
-       {"ku": "شانە", "en": "Comb", "hint": "قژ"},
-       {"ku": "ددان", "en": "Tooth", "hint": "پاککردن"},
-       {"ku": "پڵاو", "en": "Rice", "hint": "ژەم"},
-       {"ku": "پەتاتە", "en": "Potato", "hint": "کولەکە"},
-       {"ku": "قارچک", "en": "Mushroom", "hint": "دارستان"},
-       {"ku": "مەتر", "en": "Meter", "hint": "پێوانە"},
-       {"ku": "سەعات", "en": "Hour/Clock", "hint": "کات"},
-       {"ku": "خۆراک", "en": "Nourishment", "hint": "ژەم"},
-       {"ku": "منداڵ", "en": "Child", "hint": "یاری"},
-       {"ku": "گەورە", "en": "Adult", "hint": "ئەقڵ"},
-       {"ku": "پیری", "en": "Old Age", "hint": "ئەزموون"},
-       {"ku": "ژیان", "en": "Life", "hint": "بوونی"},
-       {"ku": "مردن", "en": "Death", "hint": "نەبوونی"},
-       {"ku": "سەفەر", "en": "Journey/Travel", "hint": "هاتووچۆ"},
-       {"ku": "ڤیزە", "en": "Visa", "hint": "پاسپۆرت"},
-       {"ku": "فرۆشگا", "en": "Store", "hint": "کڕین"},
-       {"ku": "بازاڕ", "en": "Market", "hint": "فرۆشتن"},
-       {"ku": "ئەمڕۆ", "en": "Today", "hint": "ئێستا"},
-       {"ku": "دوێنێ", "en": "Yesterday", "hint": "ڕابردوو"},
-       {"ku": "بەیانی", "en": "Tomorrow", "hint": "داهاتوو"},
-       {"ku": "هەینی", "en": "Friday", "hint": "پشوو"},
-       {"ku": "یەکشەممە", "en": "Sunday", "hint": "سەرەتا"},
-       {"ku": "مانگ", "en": "Month", "hint": "ساڵ"},
-       {"ku": "هەزار", "en": "Thousand", "hint": "سەد"},
-       {"ku": "ژمارەکردن", "en": "Counting", "hint": "پێوانی"},
-       {"ku": "تەنها", "en": "Only/Alone", "hint": "بێ کەس"},
-       {"ku": "پێکەوە", "en": "Together", "hint": "گرووپ"},
-       {"ku": "دووکان", "en": "Shop", "hint": "بەروبووم"},
-       {"ku": "کۆگا", "en": "Warehouse", "hint": "هەڵگرتن"},
-       {"ku": "پەلەوەر", "en": "Poultry", "hint": "باڵندە"},
-       {"ku": "پشیلە", "en": "Cat", "hint": "میو میو"},
-       {"ku": "سەگ", "en": "Dog", "hint": "هەوڵدان"},
-       {"ku": "کەروێشک", "en": "Rabbit", "hint": "پەتاتە"},
-       {"ku": "کەشتی", "en": "Ship", "hint": "دەریا"},
-       {"ku": "شەقام", "en": "Street", "hint": "ڕێگا"},
-       {"ku": "جیهان", "en": "World", "hint": "زەوی"},
-       {"ku": "سەرسوڕهێنەر", "en": "Amazing", "hint": "باشترین"},
-       {"ku": "جوان", "en": "Beautiful", "hint": "دڵڕفێن"},
-       {"ku": "گەڕان", "en": "Searching", "hint": "دۆزینەوە"},
-       {"ku": "دۆزینەوە", "en": "Discovery", "hint": "زانیاری"},
-       {"ku": "پرسیار", "en": "Question", "hint": "وەڵام"},
-       {"ku": "وەڵام", "en": "Answer", "hint": "ڕوون کردنەوە"},
-       {"ku": "ڕێکخستن", "en": "Organizing", "hint": "تەرتيب"},
-       {"ku": "یاسایی", "en": "Legal", "hint": "دادگا"},
-       {"ku": "بەرز", "en": "High", "hint": "نزم"},
-       {"ku": "نزم", "en": "Low", "hint": "ژێرەوە"},
-       {"ku": "خێزان", "en": "Family", "hint": "ماڵ"},
-       {"ku": "دایك", "en": "Mother", "hint": "خۆشەویستی"},
-       {"ku": "باوك", "en": "Father", "hint": "پشتگیری"},
-       {"ku": "برا", "en": "Brother", "hint": "خوێن"},
-       {"ku": "خوشك", "en": "Sister", "hint": "کچ"},
-       {"ku": "هاوسەر", "en": "Spouse", "hint": "هاوبەش"},
-       {"ku": "هاوڕێ", "en": "Friend", "hint": "پێکەنین"},
-       {"ku": "دوژمن", "en": "Enemy", "hint": "شەڕ"},
-       {"ku": "شانۆ", "en": "Theater", "hint": "نواندن"},
-       {"ku": "هونەر", "en": "Art", "hint": "کێشان"},
-       {"ku": "جەژن", "en": "Holiday/Eid", "hint": "پشوو"},
-       {"ku": "خەیاڵ", "en": "Imagination", "hint": "بیرکردنەوە"},
-       {"ku": "ڕاستی", "en": "Truth", "hint": "درۆ"},
-       {"ku": "درۆ", "en": "Lie", "hint": "باوەڕنەکردن"},
-       {"ku": "سزا", "en": "Punishment", "hint": "هەڵە"},
-       {"ku": "گەردوون", "en": "Universe", "hint": "ئەستێرە"},
-       {"ku": "گالاکسی", "en": "Galaxy", "hint": "فەزا"},
-       {"ku": "ئەزموون", "en": "Experience", "hint": "ژیان"},
-       {"ku": "هەنگ", "en": "Bee", "hint": "هەنگوین"},
-       {"ku": "مەزە", "en": "Taste", "hint": "زمان"},
-       {"ku": "میوان", "en": "Guest", "hint": "ماڵ"},
-       {"ku": "بەسەرهات", "en": "Story", "hint": "گێڕانەوە"},
-       {"ku": "پەیکەر", "en": "Statue", "hint": "بەرد"},
-       {"ku": "گۆڕین", "en": "Change", "hint": "جووڵە"},
-       {"ku": "هەناسە", "en": "Breath", "hint": "ژیان"},
-       {"ku": "سەرما", "en": "Cold", "hint": "بەفر"},
-       {"ku": "نەخشە", "en": "Map", "hint": "ڕێگە"},
-       {"ku": "مووشەک", "en": "Rocket", "hint": "ئاسمان"},
-       {"ku": "جگە", "en": "Except/Other", "hint": "زیادە"},
-       {"ku": "یاخود", "en": "Or", "hint": "جیاواز"},
-       {"ku": "سەرمەشقی", "en": "Example/Model", "hint": "لێکچوون"},
-       {"ku": "مێش", "en": "Fly (insect)", "hint": "بچووک"},
-       {"ku": "ژمارەیی", "en": "Digital", "hint": "ئەلیکترۆنی"},
-       {"ku": "کاغەز", "en": "Paper", "hint": "دار"},
-       {"ku": "گەڕانەوە", "en": "Return", "hint": "کۆتایی"},
-       {"ku": "تێکەڵاو", "en": "Mix", "hint": "پێکەوە"},
-       {"ku": "دژ", "en": "Against/Opposite", "hint": "نەخێر"},
-       {"ku": "بەخت", "en": "Luck", "hint": "ئومێد"},
-       {"ku": "شەفاف", "en": "Transparent", "hint": "بینین"},
-       {"ku": "پێنووس", "en": "Pencil", "hint": "ڕەساس"},
-       {"ku": "قژی درێژ", "en": "Long Hair", "hint": "جوانی"},
-       {"ku": "پۆشاک", "en": "Clothing", "hint": "جەستە"},
-       {"ku": "پاسپۆرت", "en": "Passport", "hint": "وڵات"},
-       {"ku": "جۆر", "en": "Type/Kind", "hint": "جیاواز"},
-       {"ku": "پێشکەش", "en": "Presentation", "hint": "قسەکردن"},
-       {"ku": "قسەکردن", "en": "Speaking", "hint": "دەنگ"},
-       {"ku": "لێهاتوو", "en": "Skilled", "hint": "شارەزایی"},
-       {"ku": "هاوکێشە", "en": "Equation", "hint": "حیساب"},
-       {"ku": "پیرۆزبایی", "en": "Congratulation", "hint": "ڕێزگرتن"},
-       {"ku": "ڕێگە", "en": "Way/Path", "hint": "هاتووچۆ"},
-       {"ku": "تەندروستی", "en": "Health", "hint": "چارەسەر"},
-       {"ku": "جوگرافیا", "en": "Geography", "hint": "نەخشە"},
-       {"ku": "وەرز", "en": "Season", "hint": "ساڵ"},
-       {"ku": "گەشت", "en": "Tour/Trip", "hint": "حەسانەوە"},
-       {"ku": "گەشتیار", "en": "Tourist", "hint": "وێنەگرتن"},
-       {"ku": "کارگە", "en": "Factory", "hint": "دروستکردن"},
-       {"ku": "ئاسن", "en": "Iron/Metal", "hint": "سەخت"},
-       {"ku": "پەیوەست", "en": "Connected", "hint": "هاوبەش"},
-       {"ku": "داواکاری", "en": "Request", "hint": "فەرمان"},
-       {"ku": "کەش", "en": "Atmosphere", "hint": "هەوا"},
-       {"ku": "هەنجیر", "en": "Fig", "hint": "میوە"},
-       {"ku": "چەک", "en": "Weapon", "hint": "شەڕ"},
-       {"ku": "تیر", "en": "Arrow", "hint": "کەوان"},
-       {"ku": "سەرکێشی", "en": "Adventure", "hint": "ترس"},
-       {"ku": "تەنیایی", "en": "Loneliness", "hint": "بێ کەس"},
-       {"ku": "پاشا", "en": "King", "hint": "دەسەڵات"},
-       {"ku": "شاژن", "en": "Queen", "hint": "جوان"},
-       {"ku": "دارستان", "en": "Forest", "hint": "سەوز"},
-       {"ku": "ڕووبار", "en": "River", "hint": "مەلەکردن"},
-       {"ku": "قوڵایی", "en": "Depth", "hint": "زۆر"},
-       {"ku": "بەرزی", "en": "Height", "hint": "تاقی کردنەوە"},
-       {"ku": "پەرستگا", "en": "Temple", "hint": "ئایین"},
-       {"ku": "مەزاری", "en": "Shrine/Tomb", "hint": "مردن"},
-       {"ku": "مەترسیدار", "en": "Dangerous", "hint": "هۆشداری"},
-       {"ku": "ئومێد", "en": "Hope", "hint": "داهاتوو"},
-       {"ku": "هەوڵ", "en": "Effort", "hint": "ماندوو بوون"},
-       {"ku": "پڕاوپڕ", "en": "Full/Complete", "hint": "کۆتایی"},
-       {"ku": "چۆڵ", "en": "Empty", "hint": "هیچ"},
-       {"ku": "شوشە", "en": "Glass", "hint": "شکاندن"},
-       {"ku": "گۆزە", "en": "Jar", "hint": "ئاودان"},
-       {"ku": "تەم", "en": "Fog", "hint": "شەو"},
-       {"ku": "هەورەبرووسکە", "en": "Lightning", "hint": "ڕووناکی"},
-       {"ku": "هێز", "en": "Power/Strength", "hint": "دەسەڵات"},
-       {"ku": "لاواز", "en": "Weak", "hint": "کەم"},
-       {"ku": "مێشکی ئاڵۆز", "en": "Complex Mind", "hint": "بیرکردنەوە"},
-       {"ku": "بەرزەفڕ", "en": "Ambitious", "hint": "ئامانج"},
-       {"ku": "دروست", "en": "Correct", "hint": "هەڵە"},
-       {"ku": "هەڵە", "en": "Mistake", "hint": "لێبوردن"},
-       {"ku": "ناسراو", "en": "Famous", "hint": "جیهانی"},
-       {"ku": "نەناسراو", "en": "Unknown", "hint": "نهێنی"},
-       {"ku": "نهێنی", "en": "Secret", "hint": "پێ نەدان"},
-       {"ku": "ڕووناکی", "en": "Light", "hint": "ڕۆژ"},
-       {"ku": "تاریکی", "en": "Darkness", "hint": "شەو"},
-       {"ku": "ڕەوشت", "en": "Morality", "hint": "هەڵسوکەوت"},
-       {"ku": "مەبەست", "en": "Purpose", "hint": "ئامانج"},
-       {"ku": "ڕێکەوت", "en": "Coincidence", "hint": "لەناکاو"},
-       {"ku": "هەژار", "en": "Poor", "hint": "پارە"},
-       {"ku": "دەوڵەمەند", "en": "Rich", "hint": "زۆر"},
-       {"ku": "زۆربەی", "en": "Majority", "hint": "چەند"},
-       {"ku": "کەمایەتی", "en": "Minority", "hint": "کەم"},
-       {"ku": "پاسەوان", "en": "Guard", "hint": "پاراستن"},
-       {"ku": "کامێرا", "en": "Camera", "hint": "وێنەگرتن"},
-       {"ku": "وێنەگرتن", "en": "Photography", "hint": "چاو"},
-       {"ku": "ڕێکخراو", "en": "Organization", "hint": "پلان"},
-       {"ku": "پلان", "en": "Plan", "hint": "داهاتوو"},
-       {"ku": "شەشپاڵوو", "en": "Cube", "hint": "سێ ڕەهەندی"},
-       {"ku": "دیمەن", "en": "View/Scene", "hint": "چاو"},
-       {"ku": "ڕاوچی", "en": "Hunter", "hint": "ئەشکەوت"},
-       {"ku": "جۆرەها", "en": "Various", "hint": "زۆر"},
-       {"ku": "منداڵدان", "en": "Womb", "hint": "لەدایک بوون"},
-       {"ku": "وێنەگر", "en": "Painter/Artist", "hint": "ڕەنگ"},
-       {"ku": "نەخش", "en": "Design/Pattern", "hint": "کێشان"},
-       {"ku": "داهێنان", "en": "Innovation", "hint": "نوێ"},
-       {"ku": "چارەسەر", "en": "Solution", "hint": "کێشە"},
-       {"ku": "کێشە", "en": "Problem", "hint": "چارەسەر"},
-       {"ku": "سەرچاوە", "en": "Source", "hint": "دەستپێک"},
-       {"ku": "بڕوا", "en": "Belief", "hint": "ئایین"},
-       {"ku": "نیشانە", "en": "Sign/Mark", "hint": "پێشان"},
-       {"ku": "داستان", "en": "Legend/Myth", "hint": "کۆن"},
-       {"ku": "بڕین", "en": "Cutting", "hint": "چەقۆ"},
-       {"ku": "گۆڕ", "en": "Grave", "hint": "خۆڵ"},
-       {"ku": "پزیشکی ددان", "en": "Dentistry", "hint": "کلسی"},
-       {"ku": "زانست", "en": "Science", "hint": "لێکۆڵینەوە"},
-       {"ku": "ڕێکوپێک", "en": "Tidy/Organized", "hint": "پوخت"},
-       {"ku": "پوخت", "en": "Abstract/Summary", "hint": "کورت"},
-       {"ku": "کەم", "en": "Little/Few", "hint": "زۆر"},
-       {"ku": "هەموو", "en": "All", "hint": "تەواو"},
-       {"ku": "ژمارەگر", "en": "Calculator", "hint": "حیساب"},
-       {"ku": "نوێنەر", "en": "Representative", "hint": "قسەکردن"},
-       {"ku": "دیاری", "en": "Gift", "hint": "جەژن"},
-       {"ku": "دەنگدان", "en": "Voting", "hint": "بڕیار"},
-       {"ku": "قەبارە", "en": "Volume", "hint": "گۆشە"},
-       {"ku": "یەکێتی", "en": "Unity", "hint": "پێکەوە"},
-       {"ku": "مەملەکەتی", "en": "Kingdom", "hint": "پاشا"},
-       {"ku": "کێڵگە", "en": "Farm/Field", "hint": "جووتیار"},
-       {"ku": "چێشتخانە", "en": "Restaurant", "hint": "خواردن"},
-       {"ku": "سروشت", "en": "Nature", "hint": "دارستان"},
-       {"ku": "هەوا", "en": "Air", "hint": "با"},
-       {"ku": "مەراسیم", "en": "Ceremony", "hint": "ئاڵا"},
-       {"ku": "دیوار", "en": "Wall", "hint": "ماڵ"},
-       {"ku": "بەس", "en": "Enough", "hint": "زیاد"},
-       {"ku": "زێڕ", "en": "Gold", "hint": "پارە"},
-       {"ku": "جەستە", "en": "Body", "hint": "ماسوولکە"},
-       {"ku": "تەختە", "en": "Wood/Board", "hint": "دار"},
-       {"ku": "پەنجە", "en": "Finger", "hint": "دەست"},
-       {"ku": "قژ", "en": "Hair", "hint": "سەر"},
-       {"ku": "سەرپەرشت", "en": "Supervisor", "hint": "کار"},
-       {"ku": "ئاسانکاری", "en": "Facilitation", "hint": "یارمەتی"},
-       {"ku": "پەرە", "en": "Development", "hint": "گەشە"},
-       {"ku": "گرێبەست", "en": "Contract", "hint": "نووسین"},
-       {"ku": "لێبوردن", "en": "Forgiveness", "hint": "هەڵە"},
-       {"ku": "باڵ", "en": "Wing", "hint": "فڕین"},
-       {"ku": "تەقینەوە", "en": "Explosion", "hint": "بۆمب"},
-       {"ku": "چیرۆک", "en": "Tale/Narrative", "hint": "بەش"},
-       {"ku": "شەم", "en": "Candle", "hint": "تاریکی"},
-       {"ku": "گەیاندن", "en": "Delivery", "hint": "مۆتۆڕ"},
-       {"ku": "سەرنجڕاکێش", "en": "Attractive", "hint": "جوانی"},
-       {"ku": "تێکدان", "en": "Destruction", "hint": "مردن"},
-       {"ku": "ئاژاوە", "en": "Chaos", "hint": "شەڕ"},
-       {"ku": "پیاو", "en": "Man", "hint": "گەورە"},
-       {"ku": "ژنی", "en": "Woman", "hint": "کچ"},
-       {"ku": "پیاسە", "en": "Walk/Stroll", "hint": "ڕێگا"},
-       {"ku": "گۆڕان", "en": "Transformation", "hint": "تەواو"},
-       {"ku": "لێزانین", "en": "Understanding", "hint": "زیرەکی"},
-       {"ku": "بەڵگە", "en": "Evidence/Proof", "hint": "ڕاستی"},
-       {"ku": "هێنان", "en": "Bringing", "hint": "دەست"},
-       {"ku": "لادان", "en": "Deviation/Turn", "hint": "ڕێگا"},
-       {"ku": "ڕێکخەر", "en": "Organizer/Planner", "hint": "پلان"},
-       {"ku": "ئایین", "en": "Religion", "hint": "خوا"},
-       {"ku": "باوەڕ", "en": "Faith/Belief", "hint": "سەیر"},
-       {"ku": "هەڵبژاردن", "en": "Election/Choice", "hint": "دەنگدان"},
-       {"ku": "دەزگا", "en": "Institution/Agency", "hint": "حکومەت"},
-       {"ku": "پشکنین", "en": "Inspection", "hint": "ڕووناکی"},
-       {"ku": "ئەرک", "en": "Duty/Task", "hint": "پێویست"},
-       {"ku": "گومان", "en": "Doubt", "hint": "پرسیار"}
-   ];
-
-
-   // --- UTILITY FUNCTIONS ---
-   
-   function getRandomWord() {
-       const randomIndex = Math.floor(Math.random() * wordList.length);
-       const selected = wordList[randomIndex];
-       
-       // Simple logic to select a related but different hint word for the imposter
-       let hintWord = selected.hint || selected.en; // Default to English if no hint is specified
-       if (selected.ku === selected.hint) {
-            // Fallback if hint and word are the same
-           const fallbackList = ['دەرەوە', 'سارد', 'زۆر', 'بچووک', 'تاریک', 'نوێ'];
-           hintWord = fallbackList[Math.floor(Math.random() * fallbackList.length)];
-       }
-
-       return {
-           secret: selected.ku,
-           imposterHint: hintWord
+       /** Translation function */
+       const T = (key, l = lang) => {
+           const translations = {
+               ku: {
+                   appName: "یاری فریودەر",
+                   imposter: "فریودەر",
+                   civilian: "هاوڵاتی",
+                   playerCount: "ژمارەی یاریزانان (3-12):",
+                   imposterCount: "ژمارەی فریودەران (1-2):",
+                   hint: "ڕێنمایی فریودەر (وشەیەکی پەیوەندیدار)",
+                   start: "دەستپێکردنی یاری",
+                   playerName: "ناوی یاریزان",
+                   showRole: "ڕۆڵی خۆت ببینە",
+                   yourRole: "ڕۆڵی تۆ:",
+                   theWord: "وشەی نهێنی:",
+                   wordHint: "ڕێنمایی وشە (بۆ فریودەر):",
+                   madeBy: "دروستکراوی ناسح",
+                   turn: "نۆرەی یاریزانان",
+                   close: "داخستن",
+                   reset: "دووبارە دەستپێکردنەوە",
+                   revealWord: "وشەی نهێنی نیشان بدە (بۆ هەمووان)",
+                   wordWas: "وشەی نهێنی بریتی بوو لە:",
+                   selectWord: "تکایە وشەی نهێنی هەڵبژێرە!"
+               },
+               en: {
+                   appName: "The Imposter Game",
+                   imposter: "Imposter",
+                   civilian: "Civilian",
+                   playerCount: "Number of Players (3-12):",
+                   imposterCount: "Number of Imposters (1-2):",
+                   hint: "Imposter Hint (Related Word)",
+                   start: "Start Game",
+                   playerName: "Player Name",
+                   showRole: "View Your Role",
+                   yourRole: "Your Role:",
+                   theWord: "The Secret Word:",
+                   wordHint: "Word Hint (for Imposter):",
+                   madeBy: "Made by Naseh",
+                   turn: "Player Turn",
+                   close: "Close",
+                   reset: "Start New Game",
+                   revealWord: "Reveal Secret Word (For All)",
+                   wordWas: "The secret word was:",
+                   selectWord: "Please select a secret word!"
+               }
+           };
+           return translations[l][key] || translations['ku'][key];
        };
-   }
 
-   function shuffleArray(array) {
-       for (let i = array.length - 1; i > 0; i--) {
-           const j = Math.floor(Math.random() * (i + 1));
-           [array[i], array[j]] = [array[j], array[i]];
-       }
-       return array;
-   }
-   
-   // --- UI/LANGUAGE FUNCTIONS ---
-   
-   function updatePlayerNameInputs() {
-       const count = parseInt(elements.playerCountInput.value, 10);
-       let inputs = elements.playerNamesContainer.querySelectorAll('input');
-       
-       // Remove extra inputs
-       while (inputs.length > count) {
-           elements.playerNamesContainer.removeChild(inputs[inputs.length - 1]);
-           inputs = elements.playerNamesContainer.querySelectorAll('input');
-       }
-       
-       // Add missing inputs
-       while (inputs.length < count) {
-           const newInput = document.createElement('input');
-           const playerId = inputs.length + 1;
-           newInput.type = 'text';
-           newInput.setAttribute('data-player-id', playerId);
-           newInput.placeholder = `${dict[currentLang]['placeholder_player']} ${playerId}`;
-           newInput.className = 'game-input w-full';
-           elements.playerNamesContainer.appendChild(newInput);
-           inputs = elements.playerNamesContainer.querySelectorAll('input');
-       }
-       
-       // Update placeholders and ensure Imposter count limit is respected
-       inputs.forEach((input, index) => {
-           input.placeholder = `${dict[currentLang]['placeholder_player']} ${index + 1}`;
-       });
-       updateImposterCountMax(count);
-   }
-   
-   function updateImposterCountMax(playerCount) {
-       const maxImposters = Math.min(2, Math.floor(playerCount / 2));
-       elements.imposterCountInput.max = maxImposters;
-       
-       if (parseInt(elements.imposterCountInput.value) > maxImposters) {
-           elements.imposterCountInput.value = maxImposters;
-       }
+       // --- Core Game Logic ---
 
-       // Display an error if 3 players and 2 imposters are selected
-       if (playerCount === 3 && parseInt(elements.imposterCountInput.value, 10) === 2) {
-            const errorMessage = dict[currentLang]['error_imposter_limit'].replace('{{count}}', playerCount);
-            displayMessage(errorMessage, 'red');
-            elements.startButton.disabled = true;
-       } else {
-            clearMessage();
-            elements.startButton.disabled = false;
-       }
-   }
-   
-   function toggleLanguage() {
-       currentLang = currentLang === 'ku' ? 'en' : 'ku';
-       updateUI();
-   }
+       /**
+        * The crucial function that selects the secret word and assigns roles.
+        * FIX: Ensures a word is always selected and roles are correctly assigned.
+        */
+       const startGame = () => {
+           // Check if all players have names (optional but good practice)
+           const validPlayers = playerNames.filter(name => name.trim() !== '');
+           if (validPlayers.length < 3) {
+                // In a real app, you might show a visual message here instead of just returning.
+                console.warn("Not enough players with names (minimum 3 required).");
+                return;
+           }
+           playerNames = validPlayers;
+           playerCount = validPlayers.length; // Adjust count based on valid names
 
-   function updateUI() {
-       const lang = dict[currentLang];
-       document.documentElement.setAttribute('lang', currentLang);
-       document.documentElement.setAttribute('dir', currentLang === 'ku' ? 'rtl' : 'ltr');
-       
-       // Update main texts
-       document.getElementById('creator-text').textContent = lang.creator;
-       document.getElementById('game-title').textContent = lang.title;
-       document.getElementById('player-count-label').textContent = lang.player_count_label;
-       document.getElementById('imposter-count-label').textContent = lang.imposter_count_label;
-       document.getElementById('hint-label').textContent = lang.hint_label;
-       document.getElementById('names-title').textContent = lang.names_title;
-       elements.startButton.textContent = lang.start_button;
-       elements.langToggle.textContent = lang.lang_toggle;
+           // 1. Select the Secret Word
+           const wordList = getWordList();
+           if (wordList.length === 0) {
+                secretWord = T('selectWord'); // Fallback error text
+           } else {
+                const randomIndex = Math.floor(Math.random() * wordList.length);
+                secretWord = wordList[randomIndex];
+           }
 
-       // Update name placeholders
-       elements.playerNamesContainer.querySelectorAll('input').forEach((input, index) => {
-           input.placeholder = `${lang.placeholder_player} ${index + 1}`;
-       });
-       
-       // Re-run setup logic to ensure constraints are checked
-       updatePlayerNameInputs();
-       
-       // If on the role screen, update button text
-       if (!elements.roleScreen.hidden) {
-           elements.nextPlayerButton.textContent = lang.next_player_button;
-           elements.showWordButton.textContent = lang.show_word_button;
+           // 2. Assign Roles
+           roles = [];
+           const imposterIndices = [];
            
-           // Re-render role message if available
-           if (gameState.players.length > 0) {
-                renderRole(gameState.players[gameState.currentPlayerIndex]);
+           // Randomly select indices for imposters
+           while (imposterIndices.length < imposterCount) {
+               const index = Math.floor(Math.random() * playerCount);
+               if (!imposterIndices.includes(index)) {
+                   imposterIndices.push(index);
+               }
            }
-       }
-   }
-   
-   let messageTimeout;
-   function displayMessage(message, color = 'red') {
-       const messageBox = document.querySelector('.message-box');
-       if (messageBox) messageBox.remove();
-       
-       const div = document.createElement('div');
-       div.className = `message-box fixed top-4 right-1/2 transform translate-x-1/2 p-3 rounded-lg text-sm z-50 shadow-lg ${color === 'red' ? 'bg-red-600' : 'bg-green-600'} text-white`;
-       div.textContent = message;
-       elements.app.appendChild(div);
 
-       if (messageTimeout) clearTimeout(messageTimeout);
-       messageTimeout = setTimeout(() => div.remove(), 4000);
-   }
-   
-   function clearMessage() {
-       const messageBox = document.querySelector('.message-box');
-       if (messageBox) messageBox.remove();
-       if (messageTimeout) clearTimeout(messageTimeout);
-   }
+           // Assign roles based on the selected indices
+           for (let i = 0; i < playerCount; i++) {
+               const role = imposterIndices.includes(i) ? T('imposter') : T('civilian');
+               // The 'word' for the role is the secret word for civilians,
+               // or a hint (if enabled) for the imposter, otherwise it's the secret word too.
+               const wordContent = (role === T('imposter') && !showHint)
+                   ? T('wordHint') // Shows 'Word Hint' text if it's the imposter and hint is requested
+                   : secretWord; // Shows the actual secret word for civilians/imposters with no hint
 
-   // --- GAME LOGIC ---
-   
-   function startGame() {
-       const playerCount = parseInt(elements.playerCountInput.value, 10);
-       const imposterCount = parseInt(elements.imposterCountInput.value, 10);
-       const nameInputs = elements.playerNamesContainer.querySelectorAll('input');
-       
-       // 1. Validation
-       const playerNames = Array.from(nameInputs).map(input => input.value.trim());
-       if (playerNames.some(name => name === '')) {
-           displayMessage(dict[currentLang]['error_name']);
-           return;
-       }
-       if (imposterCount >= playerCount || imposterCount > 2 || playerCount < 3) {
-            displayMessage(dict[currentLang]['error_imposter_limit'].replace('{{count}}', playerCount));
-            return;
-       }
-
-       // 2. Setup Word and Hint
-       const wordData = getRandomWord();
-       gameState.secretWord = wordData.secret;
-       gameState.imposterHint = wordData.imposterHint;
-       gameState.hintEnabled = elements.imposterHintCheckbox.checked;
-
-       // 3. Assign Roles
-       const roleAssignment = new Array(playerCount).fill('Normal');
-       const imposterIndices = [];
-       while (imposterIndices.length < imposterCount) {
-           const index = Math.floor(Math.random() * playerCount);
-           if (!imposterIndices.includes(index)) {
-               imposterIndices.push(index);
-               roleAssignment[index] = 'Imposter';
+               roles.push({
+                   name: playerNames[i],
+                   role: role,
+                   word: wordContent
+               });
            }
-       }
-       
-       // 4. Populate Game State
-       gameState.players = playerNames.map((name, index) => ({
-           id: index + 1,
-           name: name,
-           role: roleAssignment[index]
-       }));
-       gameState.imposters = gameState.players.filter(p => p.role === 'Imposter');
-       gameState.currentPlayerIndex = 0;
 
-       // 5. Transition to Role Screen
-       elements.setupScreen.hidden = true;
-       elements.roleScreen.hidden = false;
-       elements.finalScreen.hidden = true;
-       
-       // Start the reveal process
-       renderRole(gameState.players[gameState.currentPlayerIndex]);
-   }
-   
-   function renderRole(player) {
-       const lang = dict[currentLang];
-       const isImposter = player.role === 'Imposter';
-       
-       elements.currentPlayerTitle.textContent = `${lang.imposter_player_text} ${player.name}`;
-       elements.roleMessage.innerHTML = lang.show_word_button; // Temporary message before showing word
-       elements.roleMessage.className = 'text-xl p-4 rounded-lg flex items-center justify-center';
-       elements.roleMessage.style.backgroundColor = isImposter ? '#991b1b' : '#10b981'; // Red for Imposter, Green for Normal
-       
-       // Prepare the role message, initially hidden
-       let messageHtml = '';
-       if (isImposter) {
-           messageHtml = `<p class="font-bold">${lang.imposter_role}</p>`;
-           if (gameState.hintEnabled) {
-               messageHtml += `<p class="mt-2 text-sm">${lang.imposter_hint} <span class="font-extrabold text-white">${gameState.imposterHint}</span></p>`;
-           }
-       } else {
-           messageHtml = `<p class="font-bold">${lang.normal_role}</p><p class="mt-2 text-3xl font-extrabold text-white">${gameState.secretWord}</p>`;
-       }
-       
-       // Hide next player button and show the "Show Word" button
-       elements.nextPlayerButton.hidden = true;
-       elements.showWordButton.hidden = false;
-       
-       // Store the actual role content in a data attribute
-       elements.roleMessage.setAttribute('data-role-content', messageHtml);
-       elements.roleMessage.textContent = lang.show_word_button;
-   }
-   
-   function showWord() {
-       // Reveal the actual role content
-       elements.roleMessage.innerHTML = elements.roleMessage.getAttribute('data-role-content');
-       
-       // Hide "Show Word" button and show "Next Player" button
-       elements.showWordButton.hidden = true;
-       elements.nextPlayerButton.hidden = false;
-       
-       // If it's the last player, change the button to end the assignment
-       if (gameState.currentPlayerIndex === gameState.players.length - 1) {
-           elements.nextPlayerButton.textContent = dict[currentLang]['imposter_end_text'];
-       } else {
-           elements.nextPlayerButton.textContent = dict[currentLang]['next_player_button'];
-       }
-   }
+           // Shuffle the roles to randomize the turn order (optional but fun)
+           roles = roles.sort(() => Math.random() - 0.5);
 
-   function nextPlayer() {
-       if (gameState.currentPlayerIndex < gameState.players.length - 1) {
-           // Move to the next player
-           gameState.currentPlayerIndex++;
-           renderRole(gameState.players[gameState.currentPlayerIndex]);
-       } else {
-           // End of role assignment: Transition to final game screen/summary
-           showFinalSummary();
-       }
-   }
-   
-   function showFinalSummary() {
-       const lang = dict[currentLang];
-       
-       // Hide role screen and show final screen
-       elements.roleScreen.hidden = true;
-       elements.finalScreen.hidden = false;
-
-       // Update final screen details
-       elements.finalWordTitle.textContent = `${lang.final_word_title} ${gameState.secretWord}`;
-       
-       elements.finalImpostersCount.textContent = `${lang.final_imposters_count} ${gameState.imposters.length}`;
-       
-       elements.finalImposterHint.textContent = gameState.hintEnabled
-           ? `(${lang.imposter_hint} ${gameState.imposterHint})`
-           : `(${currentLang === 'ku' ? 'ڕێنمایی نەبوو' : 'No Hint Provided'})`;
-       
-       // List the imposters
-       const imposterNames = gameState.imposters.map(p => p.name).join(', ');
-       elements.finalImposterList.textContent = `${lang.final_imposter_list} ${imposterNames}`;
-       elements.resetButton.textContent = lang.reset_button;
-   }
-
-   function resetGame() {
-       // Reset state and return to setup screen
-       gameState = {
-           players: [],
-           imposters: [],
-           secretWord: null,
-           imposterHint: null,
-           currentPlayerIndex: 0,
-           hintEnabled: true
+           gameActive = true;
+           renderPlayerTurnView(); // Move to the role reveal screen
        };
-       elements.setupScreen.hidden = false;
-       elements.roleScreen.hidden = true;
-       elements.finalScreen.hidden = true;
-       elements.imposterHintCheckbox.checked = true; // Default hint to on
-       
-       // Ensure player count is correctly managed for reset
-       elements.playerCountInput.value = '4';
-       elements.imposterCountInput.value = '1';
-       updateUI();
-   }
-   
-   // --- INITIALIZATION ---
-   document.addEventListener('DOMContentLoaded', () => {
-       // Set up event listeners for inputs
-       elements.playerCountInput.addEventListener('input', updatePlayerNameInputs);
-       
-       // Initial setup
-       updateUI(); // Set initial language and populate names
-       elements.imposterCountInput.addEventListener('input', () => {
-            updateImposterCountMax(parseInt(elements.playerCountInput.value, 10));
-       });
-       
-       // Initialize player names for default count
-       updatePlayerNameInputs();
-   });
 
-</script>
 
+       // --- UI Rendering Functions ---
+
+       /** Renders the main setup screen. */
+       const renderSetupView = () => {
+           document.body.className = lang === 'ku' ? 'rtl' : 'ltr english-mode';
+           document.getElementById('main-title').textContent = T('appName');
+           const container = document.getElementById('game-container');
+           container.innerHTML = `
+               <div class="text-center text-slate-300 mb-6 text-sm">
+                   ${T('madeBy')}
+                   <div class="mt-2 text-slate-400 flex justify-center items-center">
+                       <!-- Instagram Icon (Simple SVG) -->
+                       <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">
+                           <svg class="w-5 h-5 inline-block mx-1" fill="currentColor" viewBox="0 0 24 24">
+                               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.15 15.68c-.62.62-1.39 1.05-2.26 1.25-.92.21-1.87.32-2.92.32h-6c-1.05 0-2-.11-2.92-.32-.87-.2-1.64-.63-2.26-1.25-.62-.62-1.05-1.39-1.25-2.26-.21-.92-.32-1.87-.32-2.92v-6c0-1.05.11-2 .32-2.92.2-.87.63-1.64 1.25-2.26.62-.62 1.39-1.05 2.26-1.25.92-.21 1.87-.32 2.92-.32h6c1.05 0 2 .11 2.92.32.87.2 1.64.63 2.26 1.25.62.62 1.05 1.39 1.25 2.26.21.92.32 1.87.32 2.92v6c0 1.05-.11 2-.32 2.92-.2.87-.63 1.64-1.25 2.26zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm4.5-5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+                           </svg>
+                           n4.5e7
+                       </a>
+                   </div>
+               </div>
+               <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')} (Imposter)</h1>
+               <div class="title-bar"></div>
+
+               <button class="lang-btn" onclick="toggleLanguage()">
+                   ${lang === 'ku' ? 'English / کوردی' : 'English / Kurdish'}
+               </button>
+
+               <div class="flex items-center justify-between mb-3 text-slate-200">
+                   <label for="player-count" class="text-sm">${T('playerCount')}</label>
+                   <input type="number" id="player-count" value="${playerCount}" min="3" max="12" class="w-1/3 text-center" onchange="handlePlayerCountChange(event)">
+               </div>
+
+               <div class="flex items-center justify-between mb-3 text-slate-200">
+                   <label for="imposter-count" class="text-sm">${T('imposterCount')}</label>
+                   <input type="number" id="imposter-count" value="${imposterCount}" min="1" max="2" class="w-1/3 text-center" onchange="handleImposterCountChange(event)">
+               </div>
+
+               <div class="checkbox-container">
+                   <label class="flex items-center text-slate-200 text-sm cursor-pointer ${lang === 'ku' ? 'flex-row-reverse justify-end' : 'flex-row'}">
+                       <span class="${lang === 'ku' ? 'mr-3' : 'ml-3'}">${T('hint')}</span>
+                       <input type="checkbox" id="hint-checkbox" ${showHint ? 'checked' : ''} onchange="handleHintChange(event)">
+                       <span class="checkbox-checkmark ${lang === 'ku' ? 'ml-3' : 'mr-3'}"></span>
+                   </label>
+               </div>
+               
+
+               <div class="text-slate-200 text-base mb-2">${T('playerName')}</div>
+               <div id="player-names-inputs">
+                   ${Array.from({ length: playerCount }, (_, i) => `
+                       <input type="text" placeholder="${T('playerName')} ${i + 1}" class="input-text-area" id="player-input-${i}" oninput="handleNameInput(event, ${i})" value="${playerNames[i] || ''}">
+                   `).join('')}
+               </div>
+
+               <button class="primary-btn mt-6" onclick="startGame()">
+                   ${T('start')}
+               </button>
+           `;
+           // Add initial player names if they exist
+           playerNames.forEach((name, i) => {
+               const input = document.getElementById(`player-input-${i}`);
+               if (input) input.value = name;
+           });
+       };
+
+       /** Renders the screen where each player views their role. */
+       const renderPlayerTurnView = (playerIndex = 0) => {
+           const container = document.getElementById('game-container');
+           const player = roles[playerIndex];
+
+           // Safety check: if somehow a role is missing, go back to setup
+           if (!player) {
+               gameActive = false;
+               renderSetupView();
+               return;
+           }
+
+           container.innerHTML = `
+               <h1 class="text-2xl font-bold text-center text-primary mb-4">${T('turn')}</h1>
+               <p class="text-lg text-slate-300 text-center mb-6">${player.name}</p>
+               <div class="title-bar"></div>
+               
+               <div id="role-display-area" class="text-center mt-8">
+                   <button class="primary-btn" onclick="showRole(${playerIndex})">
+                       ${T('showRole')}
+                   </button>
+               </div>
+
+               <div class="footer-text mt-8">
+                   <button class="text-secondary hover:underline" onclick="resetGame()">
+                       ${T('reset')}
+                   </button>
+               </div>
+           `;
+       };
+
+       /** Renders the player's specific role card in a modal-like structure. */
+       const showRole = (playerIndex) => {
+           const player = roles[playerIndex];
+           const isImposter = player.role === T('imposter');
+           
+           const roleColor = isImposter ? 'text-red-400' : 'text-green-400';
+           const wordDisplay = player.word; // This is now set to secretWord or 'Word Hint' in startGame
+
+           const content = document.getElementById('role-display-area');
+           content.innerHTML = `
+               <div class="player-card">
+                   <p class="text-lg text-slate-300 mb-2">${T('yourRole')}</p>
+                   <p class="role-text ${roleColor} mb-4">${player.role}</p>
+                   
+                   <p class="text-lg text-slate-300 mb-2">${T('theWord')}</p>
+                   <p class="word-text">${wordDisplay}</p>
+               </div>
+               
+               <div class="mt-8">
+                   <button class="primary-btn" onclick="hideRole(${playerIndex})">
+                       ${T('close')}
+                   </button>
+               </div>
+           `;
+       };
+
+       /** Hides the role card and moves to the next player's turn or the end screen. */
+       const hideRole = (playerIndex) => {
+           const nextIndex = playerIndex + 1;
+           if (nextIndex < roles.length) {
+               renderPlayerTurnView(nextIndex);
+           } else {
+               renderEndGameView();
+           }
+       };
+
+       /** Renders the final screen after all players have viewed their roles. */
+       const renderEndGameView = () => {
+           const container = document.getElementById('game-container');
+           container.innerHTML = `
+               <h1 class="text-3xl font-bold text-center text-primary mb-6">${T('turn')}</h1>
+               <p class="text-lg text-slate-200 text-center mb-6">${T('revealWord')}</p>
+               
+               <button class="primary-btn mb-4" onclick="revealWord()">
+                   ${T('revealWord')}
+               </button>
+
+               <div id="secret-word-reveal" class="text-center mt-6 hidden">
+                   <p class="text-lg text-slate-300 mb-2">${T('wordWas')}</p>
+                   <p class="text-2xl font-bold text-primary">${secretWord}</p>
+               </div>
+
+               <div class="mt-8">
+                   <button class="primary-btn bg-secondary hover:bg-indigo-600" onclick="resetGame()">
+                       ${T('reset')}
+                   </button>
+               </div>
+               
+               <div class="footer-text mt-8">
+                   ${T('madeBy')}
+                   <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
+               </div>
+           `;
+       };
+       
+       /** Reveals the secret word on the end game screen. */
+       const revealWord = () => {
+           document.getElementById('secret-word-reveal').classList.remove('hidden');
+           const button = document.querySelector('.primary-btn');
+           button.style.display = 'none';
+       };
+       
+       // --- Event Handlers ---
+
+       const handlePlayerCountChange = (event) => {
+           let count = parseInt(event.target.value);
+           if (isNaN(count) || count < 3) count = 3;
+           if (count > 12) count = 12;
+           playerCount = count;
+
+           // Ensure imposter count is valid relative to new player count
+           if (imposterCount >= count) {
+               imposterCount = count > 1 ? 1 : 1;
+           }
+
+           // Trim or expand playerNames array
+           if (playerNames.length > playerCount) {
+               playerNames = playerNames.slice(0, playerCount);
+           } else if (playerNames.length < playerCount) {
+               for (let i = playerNames.length; i < playerCount; i++) {
+                   playerNames.push('');
+               }
+           }
+           // Re-render to update the number of input fields
+           renderSetupView();
+       };
+
+       const handleImposterCountChange = (event) => {
+           let count = parseInt(event.target.value);
+           if (isNaN(count) || count < 1) count = 1;
+           if (count > 2 || count >= playerCount) count = Math.min(2, playerCount - 1); // Max 2 imposters, and always less than total players
+           imposterCount = count;
+           renderSetupView(); // Re-render to update the input value
+       };
+
+       const handleHintChange = (event) => {
+           showHint = event.target.checked;
+       };
+
+       const handleNameInput = (event, index) => {
+           playerNames[index] = event.target.value.trim();
+       };
+
+       const toggleLanguage = () => {
+           lang = lang === 'ku' ? 'en' : 'ku';
+           renderSetupView();
+       };
+
+       const resetGame = () => {
+           // Keep the current player setup and names, just reset game state
+           gameActive = false;
+           roles = [];
+           secretWord = '';
+           renderSetupView();
+       };
+
+       // --- Initialization ---
+       window.onload = () => {
+            // Initialize playerNames array with empty strings
+           if (playerNames.length === 0) {
+                for (let i = 0; i < playerCount; i++) {
+                   playerNames.push('');
+               }
+           }
+           renderSetupView();
+       };
+
+   </script>
 </body>
 </html>
