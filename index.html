@@ -285,6 +285,19 @@
          right: auto;
          left: 20px;
      }
+  <button id="help-btn" class="help-button">
+    ? 
+</button>
+
+<div id="help-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        
+        <div id="modal-text-content">
+            </div>
+    </div>
+</div>
+
      /* --- NEW STYLES FOR TIMER POPUP --- */
      .imposter-popup .modal-title {
         color: #f87171; /* Red color for Imposter reveal */
@@ -295,6 +308,72 @@
         font-weight: bold;
         color: #facc15; /* Primary color for the name */
      }
+/* Style the Button */
+.help-button {
+    /* Example styling: Make it round and distinct */
+    position: fixed; /* Keep it in a fixed spot, like the corner */
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001; /* Ensure it's above other elements */
+}
+
+/* 1. The Modal (Pop-up) Background/Overlay */
+.modal {
+    display: none; /* LINE TO ADD: Initially hidden */
+    position: fixed;
+    z-index: 2000; /* Must be above everything */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
+}
+
+/* 2. The Pop-up Box Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%; /* Width of the pop-up box */
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+/* 3. The Close Button (x) */
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Optional: Style the inner content for readability */
+#modal-text-content p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
 
 
  </style>
@@ -1154,6 +1233,116 @@
          }
          renderSetupView();
      };
+// --- 1. DEFINE ALL LANGUAGE TEXT ---
+// We use a JavaScript object to store the strings for each language.
+const translations = {
+    // English (Default - 'en')
+    'en': {
+        title: "<b>How to Play: The Imposter Game</b>",
+        content: `
+            <p>The goal is to convince everyone you know the Secret Word—or find the person who doesn't.</p>
+            <p><b>1. 🤫 Find Your Role</b></p>
+            <ul>
+                <li>The phone is passed around for everyone to look at the screen in secret.</li>
+                <li>Most Players will see the Secret Word (e.g., Sofa).</li>
+                <li>One Player will see "IMPOSTOR."</li>
+            </ul>
+            <p><b>2. 🗣️ Give Clues</b></p>
+            <ul>
+                <li>Go around the circle. Each player gives ONE WORD to describe the Secret Word.</li>
+                <li>If you know the word: Your clue must be specific enough to prove you know it, but vague enough to confuse the Impostor.</li>
+                <li>If you are the Impostor: Give a general clue that fits the category (e.g., Furniture) and try to blend in!</li>
+            </ul>
+            <p><b>3. 🗳️ Vote</b></p>
+            <p>After 2–3 rounds of clues, the discussion begins. Accuse the player whose clues seemed the most suspicious or generic. Everyone votes on who they think the Impostor is. The player with the most votes is revealed.</p>
+            <p><b>How to Win 🏆 :</b></p>
+            <ul>
+                <li><b>the players:</b> if they find out who is really the imposter before timer finishes.</li>
+                <li><b>the imposter:</b> if the players didn’t find out that he is imposter OR if the timer finishes.</li>
+            </ul>
+        `
+    },
+    // Kurdish (Using 'ku' for general Kurdish, or 'ckb' for Sorani if more specific)
+    'ku': {
+        title: "<b>چۆنیەتیی یاریكردن: یاریی ئیمپۆستەر</b>",
+        content: `
+            <p>ئامانج ئەوەیە هەمووان قەناعەت پێ بكەی كە وشە نهێنییەكەت دەزانیت—یان ئەو كەسە بدۆزیتەوە كە نایزانێت.</p>
+            <p><b>1. 🤫 ڕۆڵی خۆت بدۆزەرەوە</b></p>
+            <ul>
+                <li>مۆبایلەکە بەسەر هەموواندا دەسوڕێتەوە بۆ ئەوەی بە نهێنی سەیری شاشەکە بکەن.</li>
+                <li>زۆربەی یاریزانەکان وشە نهێنییەکە دەبینن (بۆ نموونە، سۆفا).</li>
+                <li>یەکێک لە یاریزانەکان "ئیمپۆستەر" دەبینێت.</li>
+            </ul>
+            <p><b>2. 🗣️ ئاماژە بدە</b></p>
+            <ul>
+                <li>بە دەوری بازنەکەدا بگەڕێ. هەریەک لە یاریزانەکان یەک وشە دەڵێت بۆ وەسفکردنی وشە نهێنییەکە.</li>
+                <li>ئەگەر وشەکە دەزانیت: دەبێت ئاماژەکەت ئەوەندە ورد بێت کە بیسەلمێنێت دەیزانیت، بەڵام ئەوەندە ناڕوون بێت کە ئیمپۆستەرەکە سەرلێشێواو بکات.</li>
+                <li>ئەگەر تۆ ئیمپۆستەریت: ئاماژەیەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە، مۆبیلیات) و هەوڵبدە خۆت تێکەڵ بکەیت!</li>
+            </ul>
+            <p><b>3. 🗳️ دەنگدان</b></p>
+            <p>دوای 2-3 خولی ئاماژەدان، گفتوگۆ دەست پێ دەکات. تۆمەتی ئەو یاریزانە بدە کە ئاماژەکانی گوماناویترین یان گشتیترین بوون. هەمووان دەنگ دەدەن لەسەر ئەوەی کە پێیان وایە ئیمپۆستەرەکەیە. ئەو یاریزانەی زۆرترین دەنگی هەیە ئاشکرا دەکرێت.</p>
+            <p><b>چۆنیەتیی بردنەوە 🏆 :</b></p>
+            <ul>
+                <li><b>یاریزانەکان:</b> ئەگەر پێش تەواوبوونی کاتژمێرەکە بیدۆزنەوە کێ بەڕاستی ئیمپۆستەرەکەیە.</li>
+                <li><b>ئیمپۆستەرەکە:</b> ئەگەر یاریزانەکان نەیاندۆزییەوە کە ئەو ئیمپۆستەرەکەیە یان ئەگەر کاتژمێرەکە تەواو بێت.</li>
+            </ul>
+        `
+    }
+    // Add other languages here if needed
+};
+
+// --- 2. GET ELEMENTS AND DETECT LANGUAGE ---
+const helpBtn = document.getElementById('help-btn');
+const helpModal = document.getElementById('help-modal');
+const closeBtn = document.querySelector('.close-btn');
+const modalContent = document.getElementById('modal-text-content');
+
+// Get the user's preferred language (e.g., 'en-US' or 'ku')
+const userLang = navigator.language.split('-')[0].toLowerCase();
+// Determine which translation to use: 'ku' if the user's language starts with 'ku', otherwise 'en'
+const langKey = translations[userLang] ? userLang : 'en'; 
+
+
+// --- 3. CREATE POP-UP CONTENT FUNCTION ---
+function setModalContent() {
+    const lang = translations[langKey];
+    
+    // Clear previous content
+    modalContent.innerHTML = '';
+    
+    // Add the title (using an H2 tag for structure)
+    const titleElement = document.createElement('h2');
+    // Use innerHTML because the string has <b> tags
+    titleElement.innerHTML = lang.title; 
+    modalContent.appendChild(titleElement);
+    
+    // Add the main content
+    const contentElement = document.createElement('div');
+    // Use innerHTML because the string has <p>, <ul>, and <b> tags
+    contentElement.innerHTML = lang.content; 
+    modalContent.appendChild(contentElement);
+}
+
+
+// --- 4. ADD EVENT LISTENERS (Logic) ---
+
+// A. Open the Modal when the button is clicked
+helpBtn.addEventListener('click', () => {
+    setModalContent(); // Load the correct language content
+    helpModal.style.display = 'block'; // Show the modal
+});
+
+// B. Close the Modal when the 'x' is clicked
+closeBtn.addEventListener('click', () => {
+    helpModal.style.display = 'none';
+});
+
+// C. Close the Modal when the user clicks anywhere outside of the content
+window.addEventListener('click', (event) => {
+    if (event.target === helpModal) {
+        helpModal.style.display = 'none';
+    }
+});
 
  </script>
 </body>
