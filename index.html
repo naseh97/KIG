@@ -220,6 +220,8 @@
          opacity: 0;
          visibility: hidden;
          transition: opacity 0.3s, visibility 0.3s;
+         /* ADDED: Allow scrolling when the modal is up */
+         overflow-y: auto;
      }
      #custom-modal.show {
          opacity: 1;
@@ -227,7 +229,8 @@
      }
      .modal-content {
          background-color: var(--dark-card);
-         margin: 15% auto;
+         /* Adjusted margin for better centering on smaller screens and to allow scroll */
+         margin: 5% auto; 
          padding: 2rem;
          border-radius: 1rem;
          max-width: 350px;
@@ -237,6 +240,10 @@
          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
          transform: translateY(-50px);
          transition: transform 0.3s;
+         /* ADDED: Max height and overflow for the content itself */
+         max-height: 90vh;
+         overflow-y: auto;
+         position: relative; /* For close button positioning */
      }
      #custom-modal.show .modal-content {
          transform: translateY(0);
@@ -244,15 +251,57 @@
      .modal-title {
          font-size: 1.5rem;
          font-weight: 700;
-         color: #f87171; /* Use red for warning titles */
+         color: #facc15; /* Use primary color for titles */
          margin-bottom: 0.75rem;
      }
+     /* Specific title color for validation/imposter reveal */
+     .imposter-popup .modal-title {
+        color: #f87171; /* Red color for Imposter reveal */
+        font-size: 2rem;
+     }
+     /* Specific message color for imposter reveal name */
+     .imposter-popup .modal-message {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #facc15; /* Primary color for the name */
+     }
+     /* Normal message text */
      .modal-message {
          margin-bottom: 1.5rem;
          font-size: 1rem;
+         text-align: right; /* Default for RTL */
+     }
+     .ltr .modal-message {
+         text-align: left; /* Change for LTR/English */
+     }
+     .modal-message strong {
+         color: #facc15;
+     }
+     
+     /* ADDED: Close button style for modal */
+     .modal-close-btn {
+        position: absolute;
+        top: 10px;
+        /* Positioned for RTL and LTR support */
+        right: 10px; 
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: #f8fafc;
+        cursor: pointer;
+        line-height: 1;
+        padding: 5px;
+     }
+     .rtl .modal-close-btn {
+        right: 10px;
+        left: auto;
+     }
+     .ltr .modal-close-btn {
+        left: 10px;
+        right: auto;
      }
 
-     /* --- NEW STYLES FOR SHARE BUTTON --- */
+     /* --- SHARE BUTTON STYLES --- */
      .share-button {
          position: fixed;
          bottom: 20px;
@@ -285,18 +334,40 @@
          right: auto;
          left: 20px;
      }
-     /* --- NEW STYLES FOR TIMER POPUP --- */
-     .imposter-popup .modal-title {
-        color: #f87171; /* Red color for Imposter reveal */
-        font-size: 2rem;
-     }
-     .imposter-popup .modal-message {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #facc15; /* Primary color for the name */
-     }
 
-
+     /* --- NEW HELP BUTTON STYLES --- */
+     .help-button {
+         position: fixed;
+         bottom: 20px;
+         background-color: #34d399; /* Tailwind Emerald 400 */
+         color: #1e293b;
+         border: none;
+         border-radius: 50%;
+         width: 50px;
+         height: 50px;
+         font-size: 1.5rem;
+         font-weight: bold;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         cursor: pointer;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+         z-index: 1000;
+         transition: background-color 0.2s, transform 0.2s;
+     }
+     .help-button:hover {
+         background-color: #10b981; /* Tailwind Emerald 500 */
+         transform: scale(1.05);
+     }
+     /* Positioning for help button relative to the share button */
+     .rtl .help-button {
+         right: 90px; /* 20px + 50px width + 20px spacing */
+         left: auto;
+     }
+     .ltr .help-button {
+         left: 90px; /* 20px + 50px width + 20px spacing */
+         right: auto;
+     }
  </style>
 </head>
 <body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
@@ -313,12 +384,17 @@
      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
  </button>
 
+ <button id="helpButton" class="help-button" onclick="showHelpModal()">
+    ?
+ </button>
+
 
  <script>
      // Global state for modal
      const modal = document.getElementById('custom-modal');
      const modalInner = document.getElementById('modal-inner');
      const shareButton = document.getElementById('shareButton');
+     const helpButton = document.getElementById('helpButton'); // Get the new help button
    
      const showModal = (titleKey, messageKey, isImposterReveal = false) => {
          // Reset classes
@@ -328,6 +404,9 @@
          }
 
          modalInner.innerHTML = `
+             <button class="modal-close-btn" onclick="hideModal()">
+                &times;
+             </button>
              <h3 class="modal-title">${T(titleKey)}</h3>
              <p class="modal-message">${T(messageKey)}</p>
              <button class="primary-btn" onclick="hideModal()">
@@ -340,298 +419,104 @@
      const hideModal = () => {
          modal.classList.remove('show');
      };
+     
+     // --- NEW HELP MODAL LOGIC ---
+     const showHelpModal = () => {
+         modalInner.classList.remove('imposter-popup');
+         modalInner.innerHTML = `
+             <button class="modal-close-btn" onclick="hideModal()">
+                &times;
+             </button>
+             <h3 class="modal-title">${T('howToPlayTitle')}</h3>
+             <p class="modal-message" style="text-align: ${lang === 'ku' ? 'right' : 'left'};">
+                 ${T('howToPlayBody')}
+             </p>
+             <button class="primary-btn" onclick="hideModal()">
+                 ${T('close')}
+             </button>
+         `;
+         modal.classList.add('show');
+     };
+     // --- END NEW HELP MODAL LOGIC ---
 
-
-     // --- Data: Word Lists (Unchanged) ---
-     // ... (WORDS_KU and WORDS_EN arrays remain here) ...
+     // --- Data: Word Lists (EXPANDED) ---
+     
+     // ADDED: Many more words, especially physical ones (places, animals, plants)
      const WORDS_KU = [
-         "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
-         "کاسبکار", "وێنەکێش", "باخچەوان", "نانەوا", "گەشتیار", "وەرزشکار", "فرۆشیار", "پۆلیس",
-         "سەرباز", "ئاگرکوژێنەر", "سەگ", "پشیلە", "بازرگان", "ڕۆژنامەنووس", "جووتیار", "ئاژەڵ",
-         "بەهار", "هاوین", "پایز", "زستان", "خۆراک", "ئاو", "چیا", "دەشت", "دەریا", "گوند", "شار",
-         "ماڵ", "ئۆتۆمبێل", "فڕۆکە", "شەمەندەفەر", "پاسکیل", "هەور", "باران", "بەفر", "هەتاو",
-         "مانگ", "ئەستێرە", "کۆمەڵگا", "خێزان", "هاوڕێ", "دراوسێ", "قوتابخانە", "زانکۆ", "کتێب",
-         "قەڵەم", "لاپەڕە", "مۆبایل", "کۆمپیوتەر", "کارگە", "مۆزەخانە", "شانۆ", "سینەما", "مۆسیقا",
-         "شێعر", "ڕۆمان", "چیرۆک", "ڕەنگ", "دەنگ", "بۆن", "تامی", "ڕووناکی", "تاریکی", "گاز",
-         "پەتڕۆڵ", "کارەبا", "مەترسی", "ئاسایش", "دادگا", "یاسا", "سیاسەت", "ئابووری", "فەلسەفە",
-         "مێژوو", "جوگرافیا", "فیزیک", "کیمیا", "بیرکاری", "پەروەردە", "تەندروستی", "ژینگە", "گۆڕانکاری",
-         "مافی مرۆڤ", "ئازادی", "یەکسانی", "خەون", "ڕاستی", "جوان", "ناشرین", "خۆشەویستی", "ڕق",
-         "ترس", "هیوا", "ئارامی", "شەڕ", "ئاشتی", "سەرسامی", "گەرمی", "ساردی", "قورسایی", "سوکی",
-         "درێژ", "کورت", "پیر", "گەنج", "چاکە", "خراپە", "هێز", "لاوازی", "سەرکەوتن", "شکست",
-         "پیاو", "ژن", "مناڵ", "پەنجەرە", "قاپ", "کەوچک", "پرد", "ڕێگا", "چۆم", "کانی", "دار",
-         "گوڵ", "سەوزایی", "میوە", "سەوزە", "خواردنەوە", "قاوە", "چای", "شیر", "هەنگوین", "خوێ",
-         "شەکر", "تۆپی پێ", "باڵەفڕین", "مەلەوانی", "خۆبەخش", "ڕێکخراو", "کۆبوونەوە", "ڕۆژی هەینی",
-         "شەوی یەڵدا", "نەورۆز", "جەژن", "دیاری", "پێڵاو", "جلی کوردی", "بازاڕ", "دوکان", "پارە",
-         "قەرز", "زێڕ", "زیو", "ڕەسم", "فۆتۆ", "کۆگاکردن", "نوێژ", "ڕۆژوو", "حەج", "مزگەوت",
-         "کڵێسا", "پەرستگا", "چوارشەممە", "پێنجشەممە", "سێشەممە", "پەند", "گۆشت", "مریشک", "سەمون",
-         "برنج", "هێلکە", "کەمپی پەنابەران", "دانیشتووانی شار", "زانست", "هەواڵ", "ڕادیۆ", "تەلەفزیۆن",
-         "دەنگدان", "ئەزموون", "بەرزایی", "نزمایی", "ماددە", "پەیمان", "بەڵێن", "هەڵە", "ڕاست",
-         "پێنووس", "پەڕتووکخانە", "زانایان", "پەخش", "شاردراوە", "ئاشکرا", "قسە", "بێدەنگی", "خەڵات",
-         "سزا", "سوپاس", "گلەیی", "هەڵسوکەوت", "کۆن", "نوێ", "بچووک", "زۆر", "نەخۆش", "ساغ",
-         "مەستی", "هۆشیاری", "دوور", "نزیک", "پەیوەندی", "نامە", "دیجیتال", "ڕێزگرتن", "نیشتمان",
-         "زمانی کوردی", "ناسنامە", "پێشکەوتن", "کێشە", "چارەسەر", "سەفەر", "ماچ", "باوەش", "تەنیا",
-         "کۆمەڵ", "پێکەنین", "گریان", "چاوەڕوانی", "هەستیار", "ژمارە", "پیت", "وشە", "دروستکردن",
-         "خاک", "گشت", "کشتوکاڵ", "کابینە", "سەرسام", "بێزار", "ڕوون", "تەمومژ", "قەڵا", "سەرۆک",
-         "وەزیر", "پارلەمان", "باندۆر", "سەرچاوە", "تەکنەلۆژیا", "داهێنان", "سەرمایە", "بەروبووم",
-         "پاسەوان", "قەشە", "ڕاوچی", "شوان", "کۆچبەر", "گەنجینە", "بەڵگەنامە", "تاوان", "کلیل",
-         "سندوق", "شەقام", "شەبەنگ", "پیلان", "کۆتا", "بەردەوام", "ئامانج", "بەڵگە", "لێدووان",
-         "بڕیار", "دڵخۆشی", "خەمۆکی", "پێکەنین", "گریان", "شیرینی", "سوێری", "تاڵی", "تیژی",
-         "ڕەوانی", "خوێن", "مێشک", "دڵ", "گەدە", "چاو", "گوێ", "دەست", "قاچ", "پێست", "موو",
-         "جلوبەرگ", "سفرە", "قاوەخانە", "کتێبفرۆش", "ماتۆر", "تەلبەند", "فیشەک", "بۆمب", "ڕۆکێت",
-         "سنوور", "بەرنامە", "گۆگل", "ماڵپەڕ", "ناونیشان", "کۆد", "بەشدار", "جیاواز", "پێوەر",
-         "هەناسە", "جووڵە", "کات", "ژمارەیی", "سروشت", "ئاسمان", "زەوی", "دۆزینەوە", "سەردەم",
-         "ئەستێرەناس", "کەلەپوور", "ئەدەب", "ڕستە", "مانا", "نەخشە", "شوێن", "بیابان", "زۆنگاو",
-         "دارستان", "ڕووەک", "مریشکی کێوی", "باڵندە", "ماسی", "هەنگ", "مێرولە", "مار", "مشک",
-         "کونجی", "مەنجەڵ", "جزدان", "باخچەی مناڵان", "منداڵدان", "قوتابی", "سێبەریان", "هەڕەشە",
-         "پاراستن", "کۆتایی", "سەرەتا", "ناوچە", "شارۆچکە", "پایتەخت", "تەختە", "کابینەت", "قوماش",
-         "جام", "زەلکاو", "دەمانچە", "تووڕەیی", "هۆنراوە", "چڕین", "گۆڕان", "بڕیاردان", "پەرتووک",
-         "ڕووداو", "ڕازاوە", "بەجێهێڵراو", "لێهاتوو", "سەرسوڕهێنەر", "تەقینەوە", "ڕەتکردنەوە",
-         "پەسەندکردن", "بڵاوبوونەوە", "شارەزا", "ڕاستگۆیی", "گومان", "دوودڵی", "نوێترین", "کۆنترین",
-         "بەڵگەنامە", "ژمارە", "پێوەندی", "داهاتوو", "ڕابردوو", "ئێستا", "دۆستایەتی", "ڕەخنە",
-         "پیاهەڵدان", "بەربەرەکانێ", "جیاوازی", "هاوبەش", "بەیانی", "ئێوارە", "نیوەڕۆ", "شەو",
-         "جیهان", "کیێتی", "فۆڕم", "چەش", "سەیرکردن", "بیستن", "دەستلێدان", "هەستکردن", "فریشتە",
-         "شەیتان", "پەرژین", "قەدەغەکراو", "ڕێگەپێدراو", "سەرکەشی", "دڵەڕاوکێ", "خەوتن", "ڕۆیشتن",
-         "قسەکردن", "خواردن", "نووسین", "خوێندنەوە", "سڕینەوە", "زیادکردن", "کەمکردنەوە", "کۆکردنەوە",
-         "دابەشکردن", "کڕین", "فرۆشتن", "بەخشین", "وەرگرتن", "ناردن", "هێنان", "دەرکردن", "چوونەژوورەوە",
-         "دواکەوتن", "زیرەک", "شێت", "مەزن", "ورد", "سادە", "ئاسان", "قورس", "پێویست", "زیادە",
-         "دەوڵەمەند", "هەژار", "ئارەزوو", "ئەرک", "سەختی", "ئامادە", "بێزار", "وەفادار", "دڵسۆز",
-         "سوکایەتی", "ڕەفتار", "چوون", "هاتن", "لێخوڕین", "ڕاوەستان", "خۆش", "ناخۆش", "بەهێز",
-         "بێهێز", "ماددی", "مەعنەوی", "جێگر", "هەمیشە", "هەندێک", "هەرگیز", "پێشتر", "دواتر",
-         "زۆربەی", "کەمتر", "بەشێک", "تەواوی", "چەند", "هەموو", "یەک", "دوو", "سێ", "چوار",
-         "پێنج", "شەش", "حەوت", "هەشت", "نۆ", "دە", "سەد", "هەزار", "ملیۆن", "ملیار",
-         "کێشە", "تەقەلادان", "ئەنجام", "هۆکار", "گرنگی", "بایەخ", "سەیر", "ئاشنا", "نەناس",
-         "وڵات", "شارەوانی", "کۆنسوڵ", "باڵوێز", "کۆمسیۆن", "پارتی", "کۆمەڵە", "ڕێبەری",
-         "دەستەواژە", "جەوهەر", "بنەما", "هۆز", "ڕەچەڵەک", "تایبەت", "گشتی", "دەستکرد",
-         "ڕاستەقینە", "خەیاڵی", "نادیار", "ئەفسانە", "جیهانی", "ناوخۆیی", "هەرێمایەتی",
-         "وەبەرهێنان", "بازاڕگەری", "هەناردە", "هاوردە", "بەرهەمهێنان", "خولانەوە",
-         "بڕین", "پارچە", "سفتی", "خاوی", "تێکدان", "چاککردن", "دەرزی", "دەرمان",
-         "نەشتەرگەری", "شیکردنەوە", "تەنانەت", "بەپەلە", "هێواش", "خاوەن", "کرێچی",
-         "بژێوی", "سروود", "گۆرانی", "مەقام", "هەڵپەڕکێ", "چەقۆ", "شمشێر", "تیر",
-         "کەوان", "قەڵغان", "داگیرکەر", "رزگارکەر", "شەڕکەر", "ئاوەدانی", "وێرانە",
-         "دژایەتی", "پشتگیری", "تۆڵە", "لێبوردن", "پیاوەتی", "نامەردی", "دز",
-         "دادپەروەری", "زیندان", "ئازاردان", "گۆڕین", "سەیران", "گەراج", "مەکتەب",
-         "ماستەر", "دکتۆرا", "لێکۆڵینەوە", "ڕێساکان", "سەرپێچی", "بەکاربردن",
-         "لێدان", "بەرزکردنەوە", "دابەزاندن", "کۆتاییهاتن", "شایستە", "پوچ",
-         "سەربەخۆیی", "ژێردەستە", "بەندە", "سەرۆکایەتی", "پاشایەتی", "کۆماری",
-         "تاقی کردنەوە", "پێناسە", "تەواو", "نائومێدی", "بەهرە", "لێهاتوویی",
-         "پەیوەندیدار", "نامۆ", "لادێ", "پێشبینی", "دووبارە", "یەکەمجار", "هەوڵ",
-         "چاکسازی", "چوونەدەرەوە", "چوونەژوورەوە", "بەدیهاتن", "خەیاڵکردن",
-         "جێبەجێ", "وشک", "تەڕ", "بەرز", "نزم", "دوژمن", "پیاوەتی", "نەرم",
-         "ڕەق", "تیژ", "کون", "بڕ", "سەرنج", "جیاوازی", "گۆڕانکاری", "گرێدان",
-         "جیاکردنەوە", "پاکژ", "پیس", "جیاوازی", "لێکچوون", "سەرلێشێواو", "ڕاستەوخۆ",
-         "بەشێوەیەکی ناڕاستەوخۆ", "ژیرانە", "شێتانە", "تەواوی", "ڕەخنەگرتن",
-         "پشتیوانیکردن", "تێگەیشتن", "هەڵە", "نەخۆشی", "چارەسەر", "سەفەری",
-         "نیشتەجێبوون", "هەستیار", "بێ هەست", "قسەوباس", "نووسراو", "هەڵوێست",
-         "ڕابردوو", "ئێستا", "داهاتوو", "هەڵوێست", "دەوڵەت", "ناوچە", "پێگەیاندن",
-         "پێداچوونەوە", "پیرۆز", "سەرسەخت", "هۆکار", "بەکارهێنان", "داهێنان",
-         "لێزان", "تێکەڵکردن", "تایبەت", "گشتی", "شارەوانی", "دەسەڵات",
-         "سەرمایە", "پێشینە", "گرنگ", "سووک", "لێهاتوو", "هاوکار", "هەوڵدان",
-         "بەردەوامبوون", "تەواو", "کەم", "چڕ", "فراوان", "گرنگیدان", "لەبیرکردن",
-         "وەرز", "مانگ", "ساڵ", "ڕۆژ", "کاتژمێر", "دەقە", "چرکە", "ئامێر",
-         "ڕاستگۆ", "درۆزن", "ئازا", "ترسنۆک", "بێدەنگ", "هەڵە", "چاک", "خراپ",
-         "بێتاوان", "تاوانبار", "فەرمانی", "داواکاری", "حەز", "ویست", "ڕووناکی",
-         "شەو", "ئاسمان", "بەرنامە", "داهات", "خەرجی", "ئاسانکاری", "سەختی",
-         "گرێبەست", "ئەنجامدان", "مشتومڕ", "ڕێکەوتن", "قبوڵ", "ڕەتکردنەوە",
-         "دابینکردن", "پێدانی", "کۆکردنەوە", "چڕکردنەوە", "مۆم", "بڵاوکردنەوە",
-         "ڕۆیشتن", "کشانەوە", "سڕینەوە", "بنیادنان", "داڕشتن", "تێکەڵ",
-         "هەمان", "جیاواز", "نزم", "سەروو", "دۆزینەوە", "تەقاندنەوە",
-         "ناوبانگ", "گومناو", "ناسیاو", "پەنهان", "ڕوون", "بەجێ", "لێکدابڕان",
-         "مشتومڕ", "بۆچوون", "ڕێزگرتن", "سوکایەتی", "بەڵگە", "قسە", "هاوکاری",
-         "تەنانەت", "سەرکەوتن", "نەکردن", "ئەمڕۆ", "دوێنێ", "سبەی", "کات",
-         "بەردەوام", "ڕوون", "تەم", "بایەخ", "سەرنج", "دڵخۆش", "خەمبار",
-         "تەواو", "لێهاتوو", "بێبەهرە", "سەیر", "ئاسایی", "پێکەنین",
-         "گریان", "دووری", "نزیکی", "ئارەزوو", "ئەرک", "لێبوردن", "تۆڵە",
-         "ناو", "ناونیشان", "کۆمسیۆن", "ڕێکخراو", "فەرمانگە", "هەوڵ",
-         "شەرەف", "ئەرک", "سەختی", "ئاسانکاری", "پێداویستی", "زیادە",
-         "گەشەکردن", "دابەزین", "پاککردنەوە", "پیسکردن", "داهێنان", "کۆن",
-         "نوێ", "بچووک", "زۆر", "نەخۆشی", "ساغی", "مەستی", "هۆشیاری",
-         "دوور", "نزیک", "پەیوەندی", "نامە", "دیجیتال", "ڕێزگرتن",
-         "نیشتمان", "زمانی کوردی", "ناسنامە", "پێشکەوتن", "کێشە",
-         "چارەسەر", "سەفەر", "ماچ", "باوەش", "تەنیا", "کۆمەڵ",
-         "پێکەنین", "گریان", "چاوەڕوانی", "هەستیار", "ژمارە",
-         "پیت", "وشە", "دروستکردن", "خاک", "گشت", "کشتوکاڵ",
-         "کابینە", "سەرسام", "بێزار", "ڕوون", "تەمومژ", "قەڵا",
-         "سەرۆک", "وەزیر", "پارلەمان", "هەڵبژاردن", "دەنگ", "ڕێکار",
-         "لێکۆڵینەوە", "سەیرکردن", "بیستن", "تامکردن", "بۆنکردن",
-         "دەستلێدان", "چاککردنەوە", "تێکدان", "پاک", "پیس",
-         "گەورە", "بچووک", "بەهێز", "لاواز", "پێشەوە", "دواوە",
-         "سەرەوە", "خوارەوە", "ناوەوە", "دەرەوە", "قوڵ", "کەم",
-         "زیاد", "پڕ", "بەتاڵ", "گەنج", "پیر", "ساڵح", "خراپ",
-         "گەرمی", "ساردی", "ڕاست", "چەپ", "خاوەن", "کرێچی",
-         "شوان", "جووتیار", "پزیشک", "پارێزەر", "دادوەر",
-         "مامۆستا", "ڕێکخستن", "تێکدان", "چاک", "ناچاک",
-         "شاز", "سادە", "قسەکردن", "نووسین", "خوێندنەوە",
-         "گوێگرتن", "سەیرکردن", "لێدان", "هەڵگرتن", "دانان",
-         "ڕێکخستن", "تێکچوون", "لێهاتوو", "بێ بەهرە",
-         "سەرسوڕهێنەر", "ئاسایی", "ژمارە", "پیت", "وشە",
-         "ڕستە", "پەرەگراف", "بەرهەم", "خوێندن", "زانست",
-         "مێژوو", "جوگرافیا", "ئابووری", "سیاسەت", "فەلسەفە",
-         "ئەدەب", "مۆسیقا", "وێنەکێشان", "وەرزش", "شەڕ",
-         "ئاشتی", "چەک", "سەرباز", "پۆلیس", "شارەوانی",
-         "ناوخۆ", "دەرەوە", "ڕێکخستن", "ناڕێکخستن",
-         "هاتن", "چوون", "دانان", "هەڵگرتن", "پاککردنەوە",
-         "پیسکردن", "نەخۆش", "ساغ", "تەواو", "ناتەواو",
-         "هەڵە", "ڕاست", "پێویست", "زیادە", "ئەرک", "ماف",
-         "لێبوردن", "تۆڵە", "داواکاری", "فەرمان", "گەورە",
-         "بچووک", "شیرین", "تاڵ", "سوێر", "تیژ", "ڕەنگاوڕەنگ",
-         "ڕەش", "سپی", "سوور", "شین", "زەرد", "سەوز",
-         "پەمەیی", "قاوەیی", "بەنەوشەیی", "خۆڵەمێشی",
-         "ئاسمان", "زەوی", "مانگ", "هەتاو", "ئەستێرە",
-         "گەردوون", "هەور", "باران", "بەفر", "با", "هێمن",
-         "خۆش", "ناخۆش", "سەیر", "ئاسایی", "دڵخۆش",
-         "خەمبار", "پێکەنین", "گریان", "دووری", "نزیکی",
-         "ئارەزوو", "ئەرک", "لێبوردن", "تۆڵە", "ناو",
-         "ناونیشان", "کۆمسیۆن", "ڕێکخراو", "فەرمانگە",
-         "هەوڵ", "شەرەف", "ئەرک", "سەختی", "ئاسانکاری",
-         "پێداویستی", "زیادە", "گەشەکردن", "دابەزین",
-         "پاککردنەوە", "پیسکردن", "داهێنان", "کۆن", "نوێ"
+        // Jobs/People
+        "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
+        "کاسبکار", "وێنەکێش", "باخچەوان", "نانەوا", "گەشتیار", "وەرزشکار", "فرۆشیار", "پۆلیس",
+        "سەرباز", "ئاگرکوژێنەر", "بازرگان", "ڕۆژنامەنووس", "جووتیار", "پاسەوان", "قەشە", "ڕاوچی", "شوان", 
+
+        // Animals (ئاژەڵ)
+        "سەگ", "پشیلە", "ئاژەڵ", "ورچ", "گورگ", "ئاسک", "ڕێوی", "شێر", "نەهەنگ", "ئەسپ", "شەمشەمەکوێرە",
+        "سمۆرە", "فیل", "مەیموون", "چیمپانزی", "هەڵۆ", "کوندەپەپوو", "قەلەڕەش", "تووتی", "مریشک", "قاز", "مەل",
+        "مار", "مارمێلکە", "قەل", "کیسەڵ", "تمساح", "بۆق", "ماسی", "قرش", "ئەختەبوت", "سێل", "دۆلفین", 
+        "جاڵجاڵۆکە", "مێرولە", "هەنگ", "پەپوولە", "کوولە", "دووپشک", "مشک", "شیرینەم", "پڵنگ", "کەرکەدەن",
+
+        // Plants and Nature (ڕووەک و سروشت)
+        "دار", "گوڵ", "سەوزایی", "میوە", "سەوزە", "داربڵاڵووک", "سنەوبەر", "بی", "لەپ", "ڕەگ", "تەنە", 
+        "لق", "گەڵا", "تەماتە", "خەیار", "پیاز", "سیر", "قارچک", "مۆس", "فەڕن", "توو", "گژوگیا", "گەنم", "گەنمەشامی",
+        "گیراوە", "هاڵاز", "پەتاتە", "چای", "قاوە", "شیر", "هەنگوین", "زەیتوون", "گەزۆ", "سروشت", 
+
+        // Places and Structures (شوێن و بینا)
+        "چیا", "دەشت", "دەریا", "گوند", "شار", "ماڵ", "قوتابخانە", "زانکۆ", "کارگە", "مۆزەخانە", "شانۆ",
+        "سینەما", "مزگەوت", "کڵێسا", "پەرستگا", "قەڵا", "شەقام", "بیابان", "زۆنگاو", "دارستان", "کانی",
+        "ئۆتۆمبێل", "فڕۆکە", "شەمەندەفەر", "پاسکیل", "کۆمەڵگا", "خێزان", "هاوڕێ", "دراوسێ", "کۆمەڵە",
+        "کەمپی پەنابەران", "ناوچە", "شارۆچکە", "پایتەخت", "گەراج", "بازاڕ", "دوکان", "قاوەخانە", "کتێبفرۆش",
+        "قەراغ دەریا", "گەروو", "تاڤگە", "دوورگە", "گڕکان", "گەنجینە", "سنوور", "بەرنامە", "ماڵپەڕ",
+        
+        // Objects and Concepts (شت و چەمک)
+        "خۆراک", "ئاو", "هەور", "باران", "بەفر", "هەتاو", "مانگ", "ئەستێرە", "کتێب", "قەڵەم", "لاپەڕە",
+        "مۆبایل", "کۆمپیوتەر", "مۆسیقا", "شێعر", "ڕۆمان", "چیرۆک", "ڕەنگ", "دەنگ", "بۆن", "تامی", "ڕووناکی",
+        "تاریکی", "گاز", "پەتڕۆڵ", "کارەبا", "مەترسی", "ئاسایش", "دادگا", "یاسا", "سیاسەت", "ئابووری", 
+        "فەلسەفە", "مێژوو", "جوگرافیا", "فیزیک", "کیمیا", "بیرکاری", "پەروەردە", "تەندروستی", "ژینگە",
+        "مافی مرۆڤ", "ئازادی", "یەکسانی", "خەون", "ڕاستی", "خۆشەویستی", "ڕق", "ترس", "هیوا", "ئارامی", 
+        "شەڕ", "ئاشتی", "شیرینی", "سوێری", "تاڵی", "تیژی", "خوێن", "مێشک", "دڵ", "گەدە", "چاو", "گوێ", "دەست", 
+        "قاچ", "پێست", "موو", "جلوبەرگ", "سفرە", "ماتۆر", "تەلبەند", "فیشەک", "بۆمب", "ڕۆکێت", "ناوچە", 
+        "تەختە", "قوماش", "جام", "زەلکاو", "دەمانچە", "تەقینەوە", "بەڵگەنامە", "تاوان", "کلیل", "سندوق",
+        "ژمارە", "پیت", "وشە", "دروستکردن", "خاک", "گشت", "کشتوکاڵ", "کابینە", "مۆم", "ئامێر", "وڵات", "پارتی"
      ];
    
      const WORDS_EN = [
-         "Doctor", "Teacher", "Engineer", "Employee", "Driver", "Singer", "Writer", "Translator",
-         "Merchant", "Painter", "Gardener", "Baker", "Tourist", "Athlete", "Seller", "Police",
-         "Soldier", "Firefighter", "Dog", "Cat", "Trader", "Journalist", "Farmer", "Animal",
-         "Spring", "Summer", "Autumn", "Winter", "Food", "Water", "Mountain", "Plain", "Sea", "Village", "City",
-         "House", "Car", "Airplane", "Train", "Bicycle", "Cloud", "Rain", "Snow", "Sun",
-         "Moon", "Star", "Society", "Family", "Friend", "Neighbor", "School", "University", "Book",
-         "Pen", "Page", "Mobile", "Computer", "Factory", "Museum", "Theater", "Cinema", "Music",
-         "Poem", "Novel", "Story", "Color", "Sound", "Smell", "Taste", "Light", "Darkness", "Gas",
-         "Petrol", "Electricity", "Danger", "Safety", "Court", "Law", "Politics", "Economy", "Philosophy",
-         "History", "Geography", "Physics", "Chemistry", "Mathematics", "Education", "Health", "Environment", "Change",
-         "Human Rights", "Freedom", "Equality", "Dream", "Reality", "Beautiful", "Ugly", "Love", "Hate",
-         "Fear", "Hope", "Peace", "War", "Astonishment", "Heat", "Cold", "Weight", "Lightness",
-         "Long", "Short", "Old", "Young", "Goodness", "Evil", "Strength", "Weakness", "Success", "Failure",
-         "Man", "Woman", "Child", "Window", "Plate", "Spoon", "Bridge", "Road", "River", "Spring (Water)", "Tree",
-         "Flower", "Greenery", "Fruit", "Vegetable", "Drink", "Coffee", "Tea", "Milk", "Honey", "Salt",
-         "Sugar", "Football", "Flying", "Swimming", "Volunteer", "Organization", "Meeting", "Friday",
-         "Yalda Night", "Nowruz", "Festival", "Gift", "Shoes", "Kurdish Clothes", "Market", "Shop", "Money",
-         "Debt", "Gold", "Silver", "Drawing", "Photo", "Storage", "Prayer", "Fasting", "Hajj", "Mosque",
-         "Church", "Temple", "Wednesday", "Thursday", "Tuesday", "Proverb", "Meat", "Chicken", "Bread",
-         "Rice", "Egg", "Refugee Camp", "Urban Population", "Science", "News", "Radio", "Television",
-         "Voting", "Experience", "Height", "Lowland", "Matter", "Pledge", "Promise", "Mistake", "Correct",
-         "Pencil", "Library", "Scholars", "Broadcast", "Hidden", "Revealed", "Speech", "Silence", "Prize",
-         "Punishment", "Thanks", "Complaint", "Behavior", "Old (Aged)", "New", "Small", "Many", "Sick", "Healthy",
-         "Drunk", "Sober", "Far", "Near", "Connection", "Letter", "Digital", "Respect", "Homeland",
-         "Kurdish Language", "Identity", "Progress", "Problem", "Solution", "Travel", "Kiss", "Hug", "Alone",
-         "Group", "Laughter", "Crying", "Waiting", "Sensitive", "Number", "Letter (Alphabet)", "Word", "Creation",
-         "Soil", "Total", "Agriculture", "Cabinet", "Amazed", "Bored", "Clear", "Foggy", "Castle", "President",
-         "Minister", "Parliament", "Influence", "Source", "Technology", "Innovation", "Capital", "Product",
-         "Guard", "Priest", "Hunter", "Shepherd", "Immigrant", "Treasure", "Document", "Crime", "Key",
-         "Box", "Street", "Spectrum", "Plan", "Final", "Continuous", "Goal", "Evidence", "Statement",
-         "Decision", "Happiness", "Sadness", "Smiling", "Weeping", "Sweet", "Salty", "Bitter", "Spicy",
-         "Fluidity", "Blood", "Brain", "Heart", "Stomach", "Eye", "Ear", "Hand", "Leg", "Skin", "Hair",
-         "Clothing", "Tablecloth", "Coffee Shop", "Bookstore", "Motorcycle", "Fence", "Bullet", "Bomb", "Rocket",
-         "Border", "Program", "Google", "Website", "Address", "Code", "Participant", "Different", "Measure",
-         "Breath", "Movement", "Time", "Numerical", "Nature", "Sky", "Earth", "Discovery", "Era",
-         "Astronomer", "Heritage", "Literature", "Sentence", "Meaning", "Map", "Location", "Desert", "Swamp",
-         "Forest", "Plant", "Wild Chicken", "Bird", "Fish", "Bee", "Ant", "Snake", "Mouse",
-         "Sesame", "Pot", "Wallet", "Kindergarten", "Womb", "Student", "Shadow", "Threat",
-         "Protection", "End", "Beginning", "Area", "Town", "Capital City", "Board (Wood)", "Cabinet (Furniture)", "Cloth",
-         "Glass", "Marsh", "Pistol", "Anger", "Poetry", "Singing", "Change (noun)", "Deciding", "Booklet",
-         "Incident", "Decorated", "Abandoned", "Skilled", "Amazing", "Explosion", "Rejection",
-         "Acceptance", "Spread", "Expert", "Honesty", "Doubt", "Hesitation", "Newest", "Oldest",
-         "Documentation", "Figure", "Connection", "Future", "Past", "Present", "Friendship", "Criticism",
-         "Praise", "Competition", "Difference", "Common", "Morning", "Evening", "Noon", "Night",
-         "World", "Entity", "Form", "Flavor", "Seeing", "Hearing", "Touching", "Feeling", "Angel",
-         "Devil", "Hedge", "Forbidden", "Permitted", "Adventure", "Anxiety", "Sleeping", "Walking",
-         "Speaking", "Eating", "Writing", "Reading", "Deleting", "Adding", "Reducing", "Collecting",
-         "Dividing", "Buying", "Selling", "Giving", "Receiving", "Sending", "Bringing", "Exiting", "Entering",
-         "Delay", "Clever", "Mad", "Great", "Detailed", "Simple", "Easy", "Difficult", "Necessary", "Extra",
-         "Rich", "Poor", "Desire", "Duty", "Hardship", "Ready", "Bored (Feeling)", "Loyal", "Sincere",
-         "Insult", "Manner", "Going", "Coming", "Driving", "Stopping", "Pleasant", "Unpleasant", "Strong",
-         "Weak", "Material", "Spiritual", "Substitute", "Always", "Sometimes", "Never", "Before", "After",
-         "Most", "Less", "Part", "Entire", "Few", "All", "One", "Two", "Three", "Four",
-         "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Hundred", "Thousand", "Million", "Billion",
-         "Complication", "Attempt", "Result", "Reason", "Importance", "Value", "Strange", "Familiar", "Unknown",
-         "Country", "Municipality", "Consul", "Ambassador", "Commission", "Party", "Assembly", "Guide",
-         "Phrase", "Essence", "Principle", "Tribe", "Origin", "Specific", "General", "Artificial",
-         "Genuine", "Imaginary", "Invisible", "Myth", "Global", "Local", "Regional",
-         "Investment", "Marketing", "Export", "Import", "Production", "Rotation",
-         "Cutting", "Piece", "Hardness", "Softness", "Breaking", "Repairing", "Needle", "Medicine",
-         "Surgery", "Analysis", "Even", "Quickly", "Slowly", "Owner", "Tenant",
-         "Livelihood", "Anthem", "Song", "Melody", "Dance", "Knife", "Sword", "Arrow",
-         "Bow", "Shield", "Invader", "Savior", "Fighter", "Prosperity", "Ruins",
-         "Opposition", "Support", "Revenge", "Forgiveness", "Manhood", "Dishonor", "Thief",
-         "Justice", "Prison", "Torment", "Changing", "Excursion", "Garage", "Office",
-         "Master's Degree", "Doctorate", "Research", "Rules", "Violation", "Usage",
-         "Hitting", "Raising", "Lowering", "Conclusion", "Worthy", "Empty",
-         "Independence", "Subordinate", "Servant", "Presidency", "Monarchy", "Republic",
-         "Testing", "Definition", "Complete", "Disappointment", "Talent", "Skill",
-         "Related", "Foreign", "Countryside", "Prediction", "Repeat", "First Time", "Effort",
-         "Reform", "Exiting", "Entering", "Achievement", "Imagining",
-         "Executing", "Dry", "Wet", "High", "Low", "Enemy", "Gallantry", "Soft",
-         "Hard", "Sharp", "Hole", "Amount", "Attention", "Difference", "Modification", "Connecting",
-         "Separating", "Clean", "Dirty", "Distinction", "Similarity", "Confused", "Direct",
-         "Indirectly", "Wisely", "Foolishly", "Entirety", "Critique",
-         "Supporting", "Understanding", "Error", "Illness", "Cure", "Journey",
-         "Residency", "Emotional", "Insensitive", "Conversation", "Written", "Stance",
-         "Past (Time)", "Present (Time)", "Future (Time)", "Attitude", "State (Country)", "Region", "Nurturing",
-         "Review", "Holy", "Stubborn", "Cause", "Utilization", "Creation (Noun)",
-         "Cleverness", "Mixing", "Private", "Public", "Municipal", "Authority",
-         "Capital (Money)", "Precedence", "Crucial", "Minor", "Competent", "Helper", "Striving",
-         "Perseverance", "Whole", "Little", "Dense", "Vast", "Caring", "Forgetting",
-         "Season", "Month", "Year", "Day", "Hour", "Minute", "Second", "Device",
-         "Honest", "Liar", "Brave", "Coward", "Silent", "Wrong", "Right", "Bad",
-         "Innocent", "Guilty", "Command", "Request", "Desire", "Will", "Light (Noun)",
-         "Night (Noun)", "Sky (Noun)", "Plan (Noun)", "Income", "Expense", "Ease", "Difficulty",
-         "Contract", "Execution", "Argument", "Agreement", "Acceptance", "Rejection",
-         "Provision", "Giving (Action)", "Gathering", "Condensing", "Candle", "Publishing",
-         "Proceeding", "Withdrawal", "Eradication", "Building", "Shaping", "Mixed (Adjective)",
-         "Same", "Different (Adjective)", "Below", "Above", "Discovery (Action)", "Explosion (Action)",
-         "Fame", "Anonymous", "Acquaintance", "Hidden (Adjective)", "Clear (Adjective)", "Appropriate", "Separation (Noun)",
-         "Debate", "Opinion", "Respect (Noun)", "Insult (Noun)", "Proof", "Word (Speech)", "Cooperation",
-         "Even (Adverb)", "Success (Action)", "Failure (Action)", "Today", "Yesterday", "Tomorrow", "Time (Abstract)",
-         "Ongoing", "Transparent", "Mist", "Importance (Noun)", "Attention (Noun)", "Happy (Adjective)", "Sad (Adjective)",
-         "Complete (Adjective)", "Talented (Adjective)", "Untalented", "Odd", "Normal", "Laughter (Noun)",
-         "Crying (Noun)", "Distance", "Proximity", "Aspiration", "Obligation", "Forgiveness (Noun)", "Vengeance",
-         "Name (Noun)", "Title", "Committee", "Establishment", "Bureau",
-         "Endeavor", "Dignity", "Task", "Severity", "Simplification",
-         "Requirement", "Excess", "Growth", "Decline", "Cleaning", "Soiling",
-         "Innovation (Concept)", "Old (Not new)", "New (Adjective)", "Small (Adjective)", "Many (Adjective)", "Sickness", "Health (Noun)", "Intoxication", "Sobriety",
-         "Far (Adjective)", "Near (Adjective)", "Communication", "Message", "Digital (Adjective)", "Esteem",
-         "Homeland (Noun)", "Kurdish Language (Noun)", "Identity (Noun)", "Advancement", "Issue",
-         "Remedy", "Journey (Noun)", "Kiss (Noun)", "Embrace", "Single (Adjective)", "Community",
-         "Smiling (Noun)", "Tears", "Anticipation", "Sensitive (Adjective)", "Figure (Number)",
-         "Letter (Character)", "Vocabulary", "Construction", "Earth (Soil)", "Universal", "Farming",
-         "Cabin", "Stunned", "Annoyed", "Lucid", "Haze", "Fortress",
-         "Leader", "Minister (Government)", "Chamber (Parliament)", "Election", "Voice (Vote)", "Procedure",
-         "Investigation", "Observation", "Hearing (Sense)", "Tasting", "Smelling",
-         "Handling", "Mending", "Damaging", "Purity", "Filth",
-         "Large", "Tiny", "Potent", "Frail", "Front (Direction)", "Back (Direction)",
-         "Up", "Down", "Inside", "Outside", "Deep", "Shallow",
-         "Excessive", "Full", "Empty (Adjective)", "Youthful", "Elderly", "Pious", "Wicked",
-         "Warmth", "Chill", "Right (Direction)", "Left (Direction)", "Proprietor", "Renter",
-         "Shepherd (Job)", "Cultivator", "Physician", "Lawyer", "Judge",
-         "Instructor", "Arrangement", "Disruption", "Favorable", "Unfavorable",
-         "Splendid", "Modest", "Conversing", "Drafting", "Reading (Action)",
-         "Listening", "Viewing", "Striking", "Lifting", "Placing",
-         "Organizing", "Deterioration", "Adept", "Incompetent",
-         "Astonishing", "Commonplace", "Numeral", "Character", "Term",
-         "Phrase (Grammar)", "Paragraph", "Output", "Academics", "Scholarship",
-         "Chronology", "Terrain", "Economics", "Statecraft", "Philosophy (Discipline)",
-         "Literature (Field)", "Acoustics", "Painting", "Athletics", "Conflict",
-         "Truce", "Weapon", "Troop", "Constable", "Local Government",
-         "Internal", "External", "Structuring", "Disorderly",
-         "Arrival", "Departure", "Placement", "Removal", "Sanitation",
-         "Pollution", "Ailing", "Wholesome", "Whole (Adjective)", "Incomplete",
-         "Incorrect", "Accurate", "Essential", "Superfluous", "Responsibility", "Privilege",
-         "Amnesty", "Retaliation", "Petition", "Directive", "Grand",
-         "Petite", "Sugary", "Acrid", "Briny", "Pungent", "Multicolor",
-         "Black (Color)", "White (Color)", "Red (Color)", "Blue (Color)", "Yellow (Color)", "Green (Color)",
-         "Pink (Color)", "Brown (Color)", "Purple (Color)", "Gray (Color)",
-         "Firmament", "Terrestrial", "Lunar", "Solar", "Celestial Body",
-         "Cosmos", "Vapor", "Precipitation", "Snowfall", "Breeze", "Tranquil",
-         "Pleasing", "Disturbing", "Peculiar", "Usual", "Joyful",
-         "Melancholy", "Giggle", "Shedding Tears", "Remoteness", "Closeness",
-         "Yearning", "Mandate", "Clemency", "Vengeance (Act)", "Given Name",
-         "Designation", "Committee", "Establishment", "Bureau",
-         "Endeavor", "Dignity", "Task", "Severity", "Simplification",
-         "Requirement", "Excess", "Growth", "Decline", "Cleaning", "Soiling",
-         "Innovation (Concept)", "Old (Not new)", "New (Adjective)"
+        // Jobs/People
+        "Doctor", "Teacher", "Engineer", "Employee", "Driver", "Singer", "Writer", "Translator",
+        "Merchant", "Painter", "Gardener", "Baker", "Tourist", "Athlete", "Seller", "Police",
+        "Soldier", "Firefighter", "Trader", "Journalist", "Farmer", "Guard", "Priest", "Hunter", "Shepherd", 
+
+        // Animals
+        "Dog", "Cat", "Animal", "Bear", "Wolf", "Deer", "Fox", "Lion", "Whale", "Horse", "Bat", "Squirrel",
+        "Elephant", "Monkey", "Chimpanzee", "Eagle", "Owl", "Raven", "Parrot", "Chicken", "Goose", "Bird",
+        "Snake", "Lizard", "Frog", "Turtle", "Alligator", "Toad", "Fish", "Shark", "Octopus", "Seal", "Dolphin", 
+        "Spider", "Ant", "Bee", "Butterfly", "Moth", "Scorpion", "Mouse", "Cheetah", "Rhinoceros",
+
+        // Plants and Nature
+        "Tree", "Flower", "Greenery", "Fruit", "Vegetable", "Oak", "Pine", "Willow", "Birch", "Palm", "Root", "Trunk", 
+        "Branch", "Leaf", "Tomato", "Cucumber", "Onion", "Garlic", "Mushroom", "Moss", "Fern", "Berry", "Herb", "Grass", 
+        "Wheat", "Corn", "Vine", "Algae", "Potato", "Tea", "Coffee", "Milk", "Honey", "Olive", "Nature",
+
+        // Places and Structures
+        "Mountain", "Plain", "Sea", "Village", "City", "House", "School", "University", "Factory", "Museum", "Theater", 
+        "Cinema", "Mosque", "Church", "Temple", "Castle", "Street", "Desert", "Swamp", "Forest", "River", 
+        "Car", "Airplane", "Train", "Bicycle", "Society", "Family", "Friend", "Neighbor", "Group",
+        "Refugee Camp", "Area", "Town", "Capital City", "Garage", "Market", "Shop", "Coffee Shop", "Bookstore",
+        "Coast", "Canyon", "Waterfall", "Island", "Volcano", "Treasure", "Border", "Program", "Website",
+        
+        // Objects and Concepts
+        "Food", "Water", "Cloud", "Rain", "Snow", "Sun", "Moon", "Star", "Book", "Pen", "Page",
+        "Mobile", "Computer", "Music", "Poem", "Novel", "Story", "Color", "Sound", "Smell", "Taste", "Light",
+        "Darkness", "Gas", "Petrol", "Electricity", "Danger", "Safety", "Court", "Law", "Politics", "Economy", 
+        "Philosophy", "History", "Geography", "Physics", "Chemistry", "Mathematics", "Education", "Health", 
+        "Environment", "Human Rights", "Freedom", "Equality", "Dream", "Reality", "Love", "Hate",
+        "Fear", "Hope", "Peace", "War", "Sweet", "Salty", "Bitter", "Spicy", "Blood", "Brain", "Heart", 
+        "Stomach", "Eye", "Ear", "Hand", "Leg", "Skin", "Hair", "Clothing", "Tablecloth", "Motorcycle", "Fence", 
+        "Bullet", "Bomb", "Rocket", "Region", "Board (Wood)", "Cloth", "Glass", "Marsh", "Pistol", "Explosion",
+        "Document", "Crime", "Key", "Box", "Number", "Letter (Alphabet)", "Word", "Creation", "Soil", "Total", 
+        "Agriculture", "Cabinet (Government)", "Candle", "Device", "Country", "Party"
      ];
 
 
-     // --- State Variables ---
+     // --- State Variables (Unchanged) ---
      let lang = 'ku';
      let playerCount = 4;
      let imposterCount = 1;
@@ -647,7 +532,7 @@
      let timeLeft;
 
 
-     // --- Helper Functions ---
+     // --- Helper Functions (Updated showModal, showHelpModal) ---
 
      /** Fetches the correct word list based on the current language. */
      const getWordList = () => lang === 'ku' ? WORDS_KU : WORDS_EN;
@@ -681,12 +566,49 @@
                  impostersWere: "فریودەرەکان بریتی بوون لە:",
                  justImposter: "تۆ فریودەریت!",
                  imposterHintLabel: "ڕێنمایی وشە:",
-                 // NEW TIMER KEYS
                  startDiscussion: "دەستپێکردنی گفتوگۆ",
                  discussionTime: "کاتی گفتوگۆ:",
                  timesUp: "کات کۆتایی هات!",
                  imposterWas: "فریودەرەکە بریتی بوو لە:",
-                 shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!"
+                 shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!",
+                 and: "و",
+                 // NEW HELP TRANSLATIONS
+                 howToPlayTitle: "چۆن یاری دەکەیت: یاری فریودەر",
+                 howToPlayBody: `ئامانج ئەوەیە هەمووان قەناعەت پێبکەیت کە وشەی نهێنی دەزانیت—یاخود ئەو کەسە بدۆزیتەوە کە نایزانێت.
+                    <br><br>
+                    <strong>١. 🤫 ڕۆڵی خۆت بدۆزەرەوە</strong>
+                    <br>
+                    • مۆبایلەکە بەدەوردا دەسوڕێنرێتەوە بۆ ئەوەی هەمووان بە نهێنی سەیری شاشەکە بکەن.
+                    <br>
+                    • زۆربەی یاریزانەکان <strong>وشەی نهێنی</strong> دەبینن (بۆ نموونە: قەنەفە).
+                    <br>
+                    • یەک یاریزان <strong>"فریودەر"</strong> دەبینێت.
+                    <br><br>
+                    <strong>٢. 🗣️ ئاماژە بدە</strong>
+                    <br>
+                    • بە دەوری بازنەکەدا بگەڕێن. هەر یاریزانێک <strong>یەک وشە</strong> بۆ وەسفکردنی وشە نهێنییەکە دەدات.
+                    <br>
+                    • <strong>ئەگەر وشەکە دەزانیت:</strong> ئاماژەکەت دەبێت ئەوەندە دیاریکراو بێت کە بیسەلمێنێت دەیزانیت، بەڵام ئەوەندەش ناڕوون بێت کە فریودەرەکە سەرلێشێواو بکات.
+                    <br>
+                    • <strong>ئەگەر تۆ فریودەریت:</strong> ئاماژەیەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە: کەلوپەل) و هەوڵبدە تێکەڵ ببیت!
+                    <br><br>
+                    <strong>٣. 🗳️ دەنگدان</strong>
+                    <br>
+                    • دوای ٢-٣ گەڕی ئاماژەدان، گفتوگۆ دەستپێدەکات. تۆمەت بخەرە پاڵ ئەو یاریزانەی کە ئاماژەکانی گوماناویترین یان گشتیترین بوون.
+                    <br>
+                    • هەمووان دەنگ دەدەن بۆ ئەوەی بزانن کێ گوماناوییە. ئەو یاریزانەی زۆرترین دەنگ بەدەست دەهێنێت ئاشکرا دەکرێت.
+                    <br><br>
+                    <strong>چۆن دەیبەیتەوە 🏆 :</strong>
+                    <br><br>
+                    • <strong>هاوڵاتییەکان:</strong>
+                    <br>
+                    -ئەگەر پێش کۆتایی هاتنی کات فریودەرەکە بدۆزنەوە.
+                    <br><br>
+                    • <strong>فریودەر:</strong>
+                    <br>
+                    -ئەگەر هاوڵاتییەکان نەیاندۆزنەوە کە فریودەرە.
+                    <br>
+                    -ئەگەر کاتەکە کۆتایی بێت.`,
              },
              en: {
                  appName: "The Imposter Game",
@@ -714,19 +636,56 @@
                  impostersWere: "The Imposters were:",
                  justImposter: "You are the Imposter!",
                  imposterHintLabel: "Word Hint:",
-                 // NEW TIMER KEYS
                  startDiscussion: "Start Discussion",
                  discussionTime: "Discussion Time:",
                  timesUp: "Time's Up!",
                  imposterWas: "The Imposter was:",
-                 shareLink: "Share the game link with your friends!"
+                 shareLink: "Share the game link with your friends!",
+                 and: "and",
+                 // NEW HELP TRANSLATIONS
+                 howToPlayTitle: "How to Play: The Imposter Game",
+                 howToPlayBody: `The goal is to convince everyone you know the Secret Word—or find the person who doesn't.
+                    <br><br>
+                    <strong>1. 🤫 Find Your Role</strong>
+                    <br>
+                    • The phone is passed around for everyone to look at the screen in secret.
+                    <br>
+                    • Most Players will see the <strong>Secret Word</strong> (e.g., Sofa).
+                    <br>
+                    • One Player will see <strong>"IMPOSTOR."</strong>
+                    <br><br>
+                    <strong>2. 🗣️ Give Clues</strong>
+                    <br>
+                    • Go around the circle. Each player gives <strong>ONE WORD</strong> to describe the Secret Word.
+                    <br>
+                    • <strong>If you know the word:</strong> Your clue must be specific enough to prove you know it, but vague enough to confuse the Impostor.
+                    <br>
+                    • <strong>If you are the Impostor:</strong> Give a general clue that fits the category (e.g., Furniture) and try to blend in!
+                    <br><br>
+                    <strong>3. 🗳️ Vote</strong>
+                    <br>
+                    • After 2-3 rounds of clues, the discussion begins. Accuse the player whose clues seemed the most suspicious or generic.
+                    <br>
+                    • Everyone votes on who they think the Impostor is. The player with the most votes is revealed.
+                    <br><br>
+                    <strong>How to Win 🏆 :</strong>
+                    <br><br>
+                    • <strong>The Civilians:</strong>
+                    <br>
+                    -If they find out who is really the Imposter before the timer finishes.
+                    <br><br>
+                    • <strong>The Imposter:</strong>
+                    <br>
+                    -If the Civilians didn’t find out that he is the Imposter.
+                    <br>
+                    -If the timer finishes.`,
              }
          };
          return translations[l][key] || translations['ku'][key];
      };
 
 
-     // --- NEW SHARE LOGIC ---
+     // --- NEW SHARE LOGIC (Unchanged) ---
      const shareGameLink = async () => {
          // The URL you want to share (The current page URL)
          const shareUrl = window.location.href; 
@@ -750,7 +709,7 @@
          }
      };
 
-     // --- NEW TIMER LOGIC ---
+     // --- NEW TIMER LOGIC (Unchanged) ---
 
      // Function to format seconds into MM:SS
      const formatTime = (totalSeconds) => {
@@ -807,7 +766,7 @@
      };
 
      // --- Core Game Logic (Unchanged) ---
-     // ... (startGame function remains here) ...
+     
      /**
       * Selects a secret word, assigns roles, and validates the player setup.
       */
@@ -872,7 +831,7 @@
      };
 
 
-     // --- UI Rendering Functions ---
+     // --- UI Rendering Functions (Unchanged) ---
 
      /** Renders the main setup screen. */
      const renderSetupView = () => {
@@ -1094,7 +1053,7 @@
    
    
      // --- Event Handlers (Unchanged) ---
-     // ... (handlePlayerCountChange, handleImposterCountChange, handleHintChange, handleNameInput, toggleLanguage functions remain here) ...
+     
      const handlePlayerCountChange = (event) => {
          let count = parseInt(event.target.value);
          if (isNaN(count) || count < 3) count = 3;
