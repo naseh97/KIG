@@ -138,6 +138,23 @@
          transform: translateY(-1px);
          box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
      }
+     
+     /* Secondary button style for How To Play */
+     .secondary-btn {
+         background-color: var(--dark-card);
+         color: #f8fafc;
+         border: 1px solid #475569;
+         font-weight: 500;
+         padding: 0.75rem 1.5rem;
+         border-radius: 0.75rem;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+         transition: all 0.2s;
+         width: 100%;
+     }
+     .secondary-btn:hover {
+         background-color: #475569;
+         border-color: #64748b;
+     }
 
      .player-card {
          background-color: #475569;
@@ -237,6 +254,8 @@
          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
          transform: translateY(-50px);
          transition: transform 0.3s;
+         overflow-y: auto; /* Allow scrolling for rules */
+         max-height: 90vh; /* Limit modal height */
      }
      #custom-modal.show .modal-content {
          transform: translateY(0);
@@ -244,13 +263,73 @@
      .modal-title {
          font-size: 1.5rem;
          font-weight: 700;
-         color: #f87171; /* Use red for warning titles */
+         color: var(--primary); /* Changed to primary for non-warning titles */
          margin-bottom: 0.75rem;
      }
      .modal-message {
          margin-bottom: 1.5rem;
          font-size: 1rem;
+         text-align: right; /* Default RTL align for messages */
      }
+     .ltr .modal-message {
+         text-align: left; /* LTR align for messages */
+     }
+
+     /* --- NEW STYLES FOR RULES MODAL --- */
+     .rules-modal .modal-title {
+         color: #34d399; /* Green for rules title */
+         font-size: 1.75rem;
+     }
+     .rules-modal .rule-section {
+         margin-top: 1.5rem;
+         margin-bottom: 1rem;
+         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+         padding-bottom: 0.5rem;
+         font-weight: bold;
+         color: var(--secondary);
+         text-align: inherit; /* Inherit align */
+     }
+     .rules-modal ul {
+         list-style-type: none;
+         padding: 0;
+         margin-top: 0.5rem;
+     }
+     .rules-modal ul li {
+         margin-bottom: 0.5rem;
+         color: #cbd5e1; /* Slate 300 */
+         font-size: 0.95rem;
+         text-align: inherit; /* Inherit align */
+     }
+     .rules-modal ul li:before {
+         content: "•";
+         color: var(--primary);
+         display: inline-block;
+         width: 1em;
+         margin-right: -1em;
+         margin-left: -1em;
+     }
+     .rtl .rules-modal ul li:before {
+         margin-right: -1em;
+         margin-left: 0.5em; /* Adjust bullet position for RTL */
+     }
+     .ltr .rules-modal ul li:before {
+         margin-right: 0.5em;
+         margin-left: -1em; /* Adjust bullet position for LTR */
+     }
+     .rules-modal .win-header {
+         font-size: 1.25rem;
+         color: #facc15;
+         margin-top: 1rem;
+         margin-bottom: 0.5rem;
+         text-align: inherit; /* Inherit align */
+     }
+     .rules-modal .win-condition {
+         font-weight: bold;
+         color: #f8fafc;
+         margin-top: 0.75rem;
+         text-align: inherit; /* Inherit align */
+     }
+
 
      /* --- NEW STYLES FOR SHARE BUTTON --- */
      .share-button {
@@ -322,15 +401,68 @@
    
      const showModal = (titleKey, messageKey, isImposterReveal = false) => {
          // Reset classes
-         modalInner.classList.remove('imposter-popup');
+         modalInner.classList.remove('imposter-popup', 'rules-modal');
          if (isImposterReveal) {
              modalInner.classList.add('imposter-popup');
          }
 
          modalInner.innerHTML = `
              <h3 class="modal-title">${T(titleKey)}</h3>
-             <p class="modal-message">${T(messageKey)}</p>
+             <p class="modal-message">${messageKey}</p>
              <button class="primary-btn" onclick="hideModal()">
+                 ${T('close')}
+             </button>
+         `;
+         modal.classList.add('show');
+     };
+
+     // NEW FUNCTION FOR RULES MODAL
+     const showRulesModal = () => {
+         modalInner.classList.remove('imposter-popup');
+         modalInner.classList.add('rules-modal'); // Add specific class for rules styling
+         
+         const rulesContent = `
+             <p class="rule-section">The goal is to convince everyone you know the Secret Word—or find the person who doesn't.</p>
+             
+             <div class="rule-section text-lg">1. 🤫 Find Your Role</div>
+             <ul>
+                 <li>The phone is passed around for everyone to look at the screen in secret.</li>
+                 <li>Most Players will see the **Secret Word** (e.g., Sofa).</li>
+                 <li>One Player will see "**IMPOSTOR**."</li>
+             </ul>
+             
+             <div class="rule-section text-lg">2. 🗣️ Give Clues</div>
+             <ul>
+                 <li>Go around the circle. Each player gives **ONE WORD** to describe the Secret Word.</li>
+                 <li>If you know the word: Your clue must be specific enough to prove you know it, but vague enough to confuse the Impostor.</li>
+                 <li>If you are the Impostor: Give a general clue that fits the category (e.g., Furniture) and try to blend in!</li>
+             </ul>
+             
+             <div class="rule-section text-lg">3. 🗳️ Vote</div>
+             <ul>
+                 <li>After 2-3 rounds of clues, the discussion begins.</li>
+                 <li>Accuse the player whose clues seemed the most suspicious or generic.</li>
+                 <li>Everyone votes on who they think the Impostor is. The player with the most votes is revealed.</li>
+             </ul>
+             
+             <div class="win-header">How to Win 🏆</div>
+             <div class="win-condition">The Players:</div>
+             <ul>
+                 <li>If they **correctly vote out** the Impostor before the timer finishes.</li>
+             </ul>
+             <div class="win-condition">The Impostor:</div>
+             <ul>
+                 <li>If the players **didn’t find out** that he is the Impostor.</li>
+                 <li>If the **timer finishes** (and the Impostor wasn't voted out).</li>
+             </ul>
+         `;
+
+         modalInner.innerHTML = `
+             <h3 class="modal-title">${T('howToPlay')}</h3>
+             <div class="modal-message text-sm">
+                ${rulesContent}
+             </div>
+             <button class="primary-btn mt-4" onclick="hideModal()">
                  ${T('close')}
              </button>
          `;
@@ -681,7 +813,8 @@
                  impostersWere: "فریودەرەکان بریتی بوون لە:",
                  justImposter: "تۆ فریودەریت!",
                  imposterHintLabel: "ڕێنمایی وشە:",
-                 // NEW TIMER KEYS
+                 // NEW KEYS ADDED HERE
+                 howToPlay: "چۆنیەتی یاریکردن",
                  startDiscussion: "دەستپێکردنی گفتوگۆ",
                  discussionTime: "کاتی گفتوگۆ:",
                  timesUp: "کات کۆتایی هات!",
@@ -714,7 +847,8 @@
                  impostersWere: "The Imposters were:",
                  justImposter: "You are the Imposter!",
                  imposterHintLabel: "Word Hint:",
-                 // NEW TIMER KEYS
+                 // NEW KEYS ADDED HERE
+                 howToPlay: "How to Play the Game",
                  startDiscussion: "Start Discussion",
                  discussionTime: "Discussion Time:",
                  timesUp: "Time's Up!",
@@ -930,8 +1064,12 @@
                      <input type="text" placeholder="${T('playerName')} ${i + 1}" class="input-text-area" id="player-input-${i}" oninput="handleNameInput(event, ${i})" value="${playerNames[i] || ''}">
                  `).join('')}
              </div>
+             
+             <button class="secondary-btn mt-6" onclick="showRulesModal()">
+                 ${T('howToPlay')}
+             </button>
 
-             <button class="primary-btn mt-6" onclick="startGame()">
+             <button class="primary-btn mt-4" onclick="startGame()">
                  ${T('start')}
              </button>
          `;
