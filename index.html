@@ -26,7 +26,7 @@
  </script>
  <style>
      @import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
-     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght+400;700&display=swap');
 
      body {
          background-color: #0f172a; /* Tailwind Slate 900 */
@@ -227,6 +227,7 @@
      }
      .modal-content {
          background-color: var(--dark-card);
+         margin: 15% auto;
          padding: 2rem;
          border-radius: 1rem;
          max-width: 350px;
@@ -251,28 +252,81 @@
          font-size: 1rem;
      }
 
+     /* --- NEW STYLES FOR SHARE BUTTON --- */
+     .share-button {
+         position: fixed;
+         bottom: 20px;
+         left: 20px;
+         background-color: var(--secondary);
+         color: white;
+         border: none;
+         border-radius: 50%;
+         width: 50px;
+         height: 50px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         cursor: pointer;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+         z-index: 1000;
+         transition: background-color 0.2s, transform 0.2s;
+     }
+     .share-button:hover {
+         background-color: #4f46e5;
+         transform: scale(1.05);
+     }
+     /* RTL adjustments for share button */
+     .rtl .share-button {
+         left: auto;
+         right: 20px;
+     }
+     /* LTR adjustment for share button */
+     .ltr .share-button {
+         right: auto;
+         left: 20px;
+     }
+     /* --- NEW STYLES FOR TIMER POPUP --- */
+     .imposter-popup .modal-title {
+        color: #f87171; /* Red color for Imposter reveal */
+        font-size: 2rem;
+     }
+     .imposter-popup .modal-message {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #facc15; /* Primary color for the name */
+     }
+
+
  </style>
 </head>
 <body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
 
  <div id="game-container" class="card">
-     <!-- Content will be rendered here by JavaScript -->
- </div>
+     </div>
 
- <!-- Custom Modal Structure -->
  <div id="custom-modal">
      <div class="modal-content" id="modal-inner">
-         <!-- Content populated by JavaScript -->
-     </div>
+         </div>
  </div>
+
+ <button id="shareButton" class="share-button hidden" onclick="shareGameLink()">
+     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+ </button>
 
 
  <script>
      // Global state for modal
      const modal = document.getElementById('custom-modal');
      const modalInner = document.getElementById('modal-inner');
+     const shareButton = document.getElementById('shareButton');
    
-     const showModal = (titleKey, messageKey) => {
+     const showModal = (titleKey, messageKey, isImposterReveal = false) => {
+         // Reset classes
+         modalInner.classList.remove('imposter-popup');
+         if (isImposterReveal) {
+             modalInner.classList.add('imposter-popup');
+         }
+
          modalInner.innerHTML = `
              <h3 class="modal-title">${T(titleKey)}</h3>
              <p class="modal-message">${T(messageKey)}</p>
@@ -288,7 +342,8 @@
      };
 
 
-     // --- Data: Word Lists (Expanded to over 1000 words each) ---
+     // --- Data: Word Lists (Unchanged) ---
+     // ... (WORDS_KU and WORDS_EN arrays remain here) ...
      const WORDS_KU = [
          "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
          "کاسبکار", "وێنەکێش", "باخچەوان", "نانەوا", "گەشتیار", "وەرزشکار", "فرۆشیار", "پۆلیس",
@@ -575,6 +630,7 @@
          "Innovation (Concept)", "Old (Not new)", "New (Adjective)"
      ];
 
+
      // --- State Variables ---
      let lang = 'ku';
      let playerCount = 4;
@@ -584,7 +640,12 @@
      let gameActive = false;
      let roles = [];
      let secretWord = '';
-     let imposterHintWord = ''; // New variable to store the actual hint word
+     let imposterHintWord = '';
+
+     // --- NEW TIMER VARIABLES ---
+     let timerInterval;
+     let timeLeft;
+
 
      // --- Helper Functions ---
 
@@ -618,9 +679,14 @@
                  notEnoughPlayers: "ژمارەی یاریزانان کەمە. پێویستت بە لانی کەم 3 یاریزانە.",
                  revealImposters: "فریودەرەکان نیشان بدە",
                  impostersWere: "فریودەرەکان بریتی بوون لە:",
-                 // NEW KEYS for Imposter logic
                  justImposter: "تۆ فریودەریت!",
                  imposterHintLabel: "ڕێنمایی وشە:",
+                 // NEW TIMER KEYS
+                 startDiscussion: "دەستپێکردنی گفتوگۆ",
+                 discussionTime: "کاتی گفتوگۆ:",
+                 timesUp: "کات کۆتایی هات!",
+                 imposterWas: "فریودەرەکە بریتی بوو لە:",
+                 shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!"
              },
              en: {
                  appName: "The Imposter Game",
@@ -646,101 +712,163 @@
                  notEnoughPlayers: "Not enough players. You need at least 3 players.",
                  revealImposters: "Reveal Imposters",
                  impostersWere: "The Imposters were:",
-                 // NEW KEYS for Imposter logic
                  justImposter: "You are the Imposter!",
                  imposterHintLabel: "Word Hint:",
+                 // NEW TIMER KEYS
+                 startDiscussion: "Start Discussion",
+                 discussionTime: "Discussion Time:",
+                 timesUp: "Time's Up!",
+                 imposterWas: "The Imposter was:",
+                 shareLink: "Share the game link with your friends!"
              }
          };
          return translations[l][key] || translations['ku'][key];
      };
 
-     // --- Core Game Logic ---
 
+     // --- NEW SHARE LOGIC ---
+     const shareGameLink = async () => {
+         // The URL you want to share (The current page URL)
+         const shareUrl = window.location.href; 
+         
+         if (navigator.share) {
+             try {
+                 await navigator.share({
+                     title: T('appName'),
+                     text: T('shareLink'),
+                     url: shareUrl,
+                 });
+                 console.log('Content shared successfully');
+             } catch (error) {
+                 // User likely cancelled the share
+                 console.error('Error sharing:', error);
+             }
+         } else {
+             // Fallback: Copy link to clipboard for unsupported browsers
+             await navigator.clipboard.writeText(shareUrl);
+             alert(`${T('shareLink')} (Link copied to clipboard)`);
+         }
+     };
+
+     // --- NEW TIMER LOGIC ---
+
+     // Function to format seconds into MM:SS
+     const formatTime = (totalSeconds) => {
+         const minutes = Math.floor(totalSeconds / 60);
+         const seconds = totalSeconds % 60;
+         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+     }
+
+     // Function to handle the end of the timer
+     const timerFinished = () => {
+         clearInterval(timerInterval); // Stop the timer
+         document.getElementById('timerDisplay').textContent = T('timesUp');
+         
+         // 1. Get Imposter names
+         const imposterNames = roles
+             .filter(r => r.role === T('imposter'))
+             .map(r => r.name);
+         const imposterList = imposterNames.join(' ' + T('and') + ' '); // Join names
+
+         // 2. Show the pop-up automatically
+         showModal('imposterWas', imposterList, true);
+
+         // 3. Automatically reveal the imposter list on the page as well (cleaner UX)
+         revealImposters(true); // Call existing reveal logic without button click
+     }
+
+     // Function to update the timer
+     const countdown = () => {
+         if (timeLeft <= 0) {
+             timerFinished();
+         } else {
+             timeLeft--;
+             document.getElementById('timerDisplay').textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+         }
+     }
+
+     // Event listener for the "Start Discussion" button
+     const startDiscussion = () => {
+         if (timerInterval) return; // Prevent multiple starts
+
+         // Calculate the initial time in seconds (1 minute per player)
+         // NOTE: The totalPlayers used here is the current value of playerCount from the setup screen.
+         timeLeft = playerCount * 60; 
+         
+         const startButton = document.getElementById('startDiscussionButton');
+         startButton.textContent = T('discussionTime'); // Change button text to timer running state
+         startButton.disabled = true;
+
+         // Set initial display
+         document.getElementById('timerDisplay').textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+
+         // Start the countdown, updating every 1000 milliseconds (1 second)
+         timerInterval = setInterval(countdown, 1000); 
+     };
+
+     // --- Core Game Logic (Unchanged) ---
+     // ... (startGame function remains here) ...
      /**
       * Selects a secret word, assigns roles, and validates the player setup.
       */
      const startGame = () => {
-         // 1. Get current player setup (using current playerCount setting)
          const currentNames = playerNames.slice(0, playerCount).map(name => name.trim());
-
-         // 2. Player Count Validation (3 or more)
          if (playerCount < 3) {
              showModal('validationTitle', 'notEnoughPlayers');
              return;
          }
-       
-         // 3. Player Name Validation (All must be filled)
          const emptyNameExists = currentNames.some(name => name === '');
          if (emptyNameExists) {
              showModal('validationTitle', 'nameRequired');
              return;
          }
-
-         // Use the validated list
          playerNames = currentNames;
-
-         // 4. Select the Secret Word and Hint Word (FIXED LOGIC)
          const wordList = getWordList();
          if (wordList.length === 0) {
-             secretWord = T('selectWord'); // Fallback error text
+             secretWord = T('selectWord');
          } else {
              const secretIndex = Math.floor(Math.random() * wordList.length);
              secretWord = wordList[secretIndex];
-
-             // Initialize imposterWordContent based on hint setting
              if (showHint) {
                  let hintIndex = secretIndex;
-                 // Ensure the hint word is different from the secret word
                  while (hintIndex === secretIndex) {
                      hintIndex = Math.floor(Math.random() * wordList.length);
                  }
                  imposterHintWord = wordList[hintIndex];
              } else {
-                 // If no hint, the imposter's "word" is just the instruction text
                  imposterHintWord = T('justImposter');
              }
          }
-
-         // 5. Assign Roles
          roles = [];
          const imposterIndices = [];
-       
-         // Randomly select indices for imposters
          while (imposterIndices.length < imposterCount) {
              const index = Math.floor(Math.random() * playerCount);
              if (!imposterIndices.includes(index)) {
                  imposterIndices.push(index);
              }
          }
-
-         // Assign roles
          for (let i = 0; i < playerCount; i++) {
              const isImposter = imposterIndices.includes(i);
              const role = isImposter ? T('imposter') : T('civilian');
-           
              let wordContent;
-             let isHintDisplay = false; // Flag for showing the "Word Hint" label
+             let isHintDisplay = false;
 
              if (isImposter) {
                  wordContent = imposterHintWord;
-                 isHintDisplay = showHint; // Only true if they are imposter AND hint is enabled
+                 isHintDisplay = showHint;
              } else {
                  wordContent = secretWord;
              }
-
              roles.push({
                  name: playerNames[i],
                  role: role,
                  word: wordContent,
-                 isHint: isHintDisplay // Used in showRole to display the "Hint Label"
+                 isHint: isHintDisplay
              });
          }
-
-         // Shuffle the roles
          roles = roles.sort(() => Math.random() - 0.5);
-
          gameActive = true;
-         renderPlayerTurnView(); // Move to the role reveal screen
+         renderPlayerTurnView();
      };
 
 
@@ -749,16 +877,22 @@
      /** Renders the main setup screen. */
      const renderSetupView = () => {
          document.body.className = lang === 'ku' ? 'rtl' : 'ltr english-mode';
+         shareButton.classList.remove('hidden'); // Show share button on first page
+
+         // Reset timer state on returning to setup
+         clearInterval(timerInterval);
+         timerInterval = null;
+         timeLeft = null;
+
          document.getElementById('main-title').textContent = T('appName');
          const container = document.getElementById('game-container');
          container.innerHTML = `
              <div class="text-center text-slate-300 mb-6 text-sm">
                  ${T('madeBy')}
                  <div class="mt-2 text-slate-400 flex justify-center items-center">
-                     <!-- Instagram Icon (Simple SVG) -->
                      <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">
                          <svg class="w-5 h-5 inline-block mx-1" fill="currentColor" viewBox="0 0 24 24">
-                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.15 15.68c-.62.62-1.39 1.05-2.26 1.25-.92.21-1.87.32-2.92.32h-6c-1.05 0-2-.11-2.92-.32-.87-.2-1.64-.63-2.26-1.25-.62-.62-1.05-1.39-1.25-2.26-.21-.92-.32-1.87-.32-2.92v-6c0-1.05.11-2 .32-2.92.2-.87.63-1.64 1.25-2.26.62-.62 1.39-1.05 2.26-1.25.92-.21 1.87-.32 2.92-.32h6c1.05 0 2 .11 2.92.32.87.2 1.64.63 2.26 1.25.62.62 1.05 1.39 1.25 2.26.21.92.32 1.87.32 2.92v6c0 1.05-.11 2-.32 2.92-.2.87-.63 1.64-1.25 2.26zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm4.5-5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.15 15.68c-.62.62-1.39 1.05-2.26 1.25-.92.21-1.87.32-2.92.32h-6c-1.05 0-2-.11-2.92-.32-.87-.2-1.64-.63-2.26-1.25-.62-.62-1.05-1.39-1.25-2.26-.21-.92-.32-1.87-.32-2.92v-6c0-1.05.11-2 .32-2.92.2-.87.63-1.64 1.25-2.26.62-.62 1.39-1.05 2.26-1.25.92-.21 1.87-.32 2.92-.32h6c1.05 0 2 .11 2.92.32.87.2 1.64.63 2.26 1.25.62.62 1.39 1.05 2.26 1.25.92.21.32 2.92v6c0 1.05-.11 2-.32 2.92-.2.87-.63 1.64-1.25 2.26zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm4.5-5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
                          </svg>
                          n4.5e7
                      </a>
@@ -801,7 +935,6 @@
                  ${T('start')}
              </button>
          `;
-         // Add initial player names if they exist
          playerNames.forEach((name, i) => {
              const input = document.getElementById(`player-input-${i}`);
              if (input) input.value = name;
@@ -810,10 +943,10 @@
 
      /** Renders the screen where each player views their role. */
      const renderPlayerTurnView = (playerIndex = 0) => {
+         shareButton.classList.add('hidden'); // Hide share button on turn screen
          const container = document.getElementById('game-container');
          const player = roles[playerIndex];
 
-         // Safety check: if somehow a role is missing, go back to setup
          if (!player) {
              gameActive = false;
              renderSetupView();
@@ -844,28 +977,21 @@
          const player = roles[playerIndex];
          const isImposter = player.role === T('imposter');
        
-         // Apply color to the WORD only as requested
          const wordColorClass = isImposter ? 'word-imposter' : 'word-civilian';
-       
-         // Use the role name as the prefix: Civilian: or Imposter:
          const rolePrefix = player.role + ":";
          
          let hintLabel = '';
          if (player.isHint) {
-             // If it's the imposter AND they have the hint, show the hint label
              hintLabel = `<p class="text-lg text-slate-400 mb-2">${T('imposterHintLabel')}</p>`;
          }
          
          const content = document.getElementById('role-display-area');
          content.innerHTML = `
              <div class="player-card">
-                 <!-- Role Prefix -->
                  <p class="text-xl text-slate-300 mb-4 font-bold">${rolePrefix}</p>
                
-                 <!-- Hint Label (only shows for imposter with hint) -->
                  ${hintLabel}
 
-                 <!-- The Word/Instruction with specific color and centered text -->
                  <p class="text-3xl font-extrabold ${wordColorClass} text-center">${player.word}</p>
              </div>
            
@@ -888,7 +1014,7 @@
      };
 
      /** Reveals the imposter names on the end game screen. */
-     const revealImposters = () => {
+     const revealImposters = (auto = false) => {
          const imposterNames = roles
              .filter(r => r.role === T('imposter'))
              .map(r => r.name);
@@ -904,8 +1030,10 @@
          `;
          imposterRevealDiv.classList.remove('hidden');
        
-         // Hide the button that was just clicked
-         document.getElementById('reveal-imposters-btn').style.display = 'none';
+         // Hide the button if not called automatically from the timer
+         if(!auto) {
+            document.getElementById('reveal-imposters-btn').style.display = 'none';
+         }
      };
 
 
@@ -919,21 +1047,29 @@
 
      /** Renders the final screen after all players have viewed their roles. */
      const renderEndGameView = () => {
+         shareButton.classList.add('hidden'); // Ensure share button is hidden on final page
          const container = document.getElementById('game-container');
+         
+         // Initial time calculation for display
+         const initialTime = playerCount * 60;
+         const initialTimeFormatted = formatTime(initialTime);
+
          container.innerHTML = `
-             <h1 class="text-3xl font-bold text-center text-primary mb-6">${T('appName')}</h1>
+             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+             <h2 id="timerDisplay" class="text-2xl text-slate-200 text-center mb-6">${T('discussionTime')} ${initialTimeFormatted}</h2>
              <div class="title-bar mb-6"></div>
 
-             <!-- Button to reveal Imposters (New Requirement) -->
-             <button id="reveal-imposters-btn" class="primary-btn mb-4 bg-red-500 hover:bg-red-600" onclick="revealImposters()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
+             <button id="startDiscussionButton" class="primary-btn mb-6 bg-secondary hover:bg-indigo-600" onclick="startDiscussion()" style="background: linear-gradient(145deg, #6366f1, #4f46e5); color: white;">
+                 ${T('startDiscussion')}
+             </button>
+
+             <button id="reveal-imposters-btn" class="primary-btn mb-4" onclick="revealImposters()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
                  ${T('revealImposters')}
              </button>
 
              <div id="imposter-reveal" class="text-center mt-6 hidden mb-6">
-                 <!-- Imposter names will be displayed here -->
-             </div>
+                 </div>
 
-             <!-- Button to reveal Secret Word -->
              <button id="reveal-word-btn" class="primary-btn mb-4" onclick="revealWord()">
                  ${T('revealWord')}
              </button>
@@ -944,7 +1080,7 @@
              </div>
 
              <div class="mt-8">
-                 <button class="primary-btn bg-secondary hover:bg-indigo-600" onclick="resetGame()" style="background: linear-gradient(145deg, #6366f1, #4f46e5); color: white;">
+                 <button class="primary-btn bg-secondary hover:bg-indigo-600" onclick="resetGame()" style="background: linear-gradient(145deg, #facc15, #eab308); color: #1e293b;">
                      ${T('reset')}
                  </button>
              </div>
@@ -957,20 +1093,16 @@
      };
    
    
-     // --- Event Handlers ---
-
+     // --- Event Handlers (Unchanged) ---
+     // ... (handlePlayerCountChange, handleImposterCountChange, handleHintChange, handleNameInput, toggleLanguage functions remain here) ...
      const handlePlayerCountChange = (event) => {
          let count = parseInt(event.target.value);
          if (isNaN(count) || count < 3) count = 3;
          if (count > 12) count = 12;
          playerCount = count;
-
-         // Ensure imposter count is valid relative to new player count
          if (imposterCount >= count) {
              imposterCount = count > 1 ? 1 : 1;
          }
-
-         // Trim or expand playerNames array
          if (playerNames.length > playerCount) {
              playerNames = playerNames.slice(0, playerCount);
          } else if (playerNames.length < playerCount) {
@@ -978,16 +1110,15 @@
                  playerNames.push('');
              }
          }
-         // Re-render to update the number of input fields
          renderSetupView();
      };
 
      const handleImposterCountChange = (event) => {
          let count = parseInt(event.target.value);
          if (isNaN(count) || count < 1) count = 1;
-         if (count > 2 || count >= playerCount) count = Math.min(2, playerCount - 1); // Max 2 imposters, and always less than total players
+         if (count > 2 || count >= playerCount) count = Math.min(2, playerCount - 1);
          imposterCount = count;
-         renderSetupView(); // Re-render to update the input value
+         renderSetupView();
      };
 
      const handleHintChange = (event) => {
@@ -1004,18 +1135,19 @@
      };
 
      const resetGame = () => {
-         // Keep the current player setup and names, just reset game state
          gameActive = false;
          roles = [];
          secretWord = '';
-         imposterHintWord = ''; // Reset hint word as well
+         imposterHintWord = '';
+         clearInterval(timerInterval); // Stop any running timer
+         timerInterval = null;
+         timeLeft = null;
          renderSetupView();
      };
 
      // --- Initialization ---
      window.onload = () => {
-          // Initialize playerNames array with empty strings
-         if (playerNames.length === 0) {
+          if (playerNames.length === 0) {
               for (let i = 0; i < playerCount; i++) {
                  playerNames.push('');
              }
