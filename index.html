@@ -205,7 +205,7 @@
          text-decoration: underline;
      }
 
-     /* Custom Modal Styles - KEEP THIS GENERAL */
+     /* Custom Modal Styles */
      #custom-modal {
          position: fixed;
          top: 0;
@@ -230,15 +230,13 @@
          margin: 15% auto;
          padding: 2rem;
          border-radius: 1rem;
-         max-width: 450px; /* Increased max-width for rules */
+         max-width: 350px;
          width: 90%;
          color: #f8fafc;
          text-align: center;
          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
          transform: translateY(-50px);
          transition: transform 0.3s;
-         max-height: 90vh; /* Limit modal height */
-         overflow-y: auto; /* Enable scrolling */
      }
      #custom-modal.show .modal-content {
          transform: translateY(0);
@@ -246,7 +244,7 @@
      .modal-title {
          font-size: 1.5rem;
          font-weight: 700;
-         color: var(--primary); /* Changed to primary for non-error modals */
+         color: #f87171; /* Use red for warning titles */
          margin-bottom: 0.75rem;
      }
      .modal-message {
@@ -287,97 +285,6 @@
          right: auto;
          left: 20px;
      }
-     
-     /* --- NEW STYLES FOR HOW TO PLAY BUTTON --- */
-     .how-to-play-btn {
-         position: fixed;
-         bottom: 20px;
-         right: 20px;
-         background-color: #34d399; /* Tailwind Emerald 400 */
-         color: #1e293b;
-         padding: 0.75rem 1.25rem;
-         border-radius: 0.75rem;
-         font-weight: bold;
-         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-         z-index: 1000;
-         transition: background-color 0.2s, transform 0.2s;
-     }
-     .how-to-play-btn:hover {
-         background-color: #10b981; /* Tailwind Emerald 500 */
-         transform: scale(1.05);
-     }
-     /* RTL adjustments for how to play button */
-     .rtl .how-to-play-btn {
-         right: auto;
-         left: 20px;
-     }
-     /* LTR adjustment for how to play button */
-     .ltr .how-to-play-btn {
-         left: auto;
-         right: 20px;
-     }
-     /* Adjust for when the share button is also visible */
-     .rtl .how-to-play-btn.share-visible {
-         right: 20px;
-         left: auto;
-     }
-     .ltr .how-to-play-btn.share-visible {
-         left: 20px;
-         right: auto;
-     }
-     
-     /* Rules Modal Specific Styles */
-     .rules-list {
-         text-align: right;
-         margin-bottom: 1.5rem;
-         font-size: 1rem;
-     }
-     .ltr .rules-list {
-         text-align: left;
-     }
-     .rules-list h4 {
-         font-weight: 700;
-         color: var(--secondary);
-         margin-top: 1rem;
-         margin-bottom: 0.5rem;
-         font-size: 1.15rem;
-     }
-     .rules-list ul {
-         list-style-type: none;
-         padding: 0;
-         margin-bottom: 1rem;
-     }
-     .rules-list ul li {
-         position: relative;
-         padding: 0.25rem 0;
-         padding-right: 20px; /* Space for bullet in RTL */
-     }
-     .ltr .rules-list ul li {
-         padding-left: 20px; /* Space for bullet in LTR */
-         padding-right: 0;
-     }
-     .rules-list ul li::before {
-         content: "•";
-         color: var(--primary);
-         font-weight: bold;
-         display: inline-block;
-         width: 1em;
-         margin-right: -1em;
-         position: absolute;
-         right: 0;
-     }
-     .ltr .rules-list ul li::before {
-         right: auto;
-         left: 0;
-     }
-     .rules-list p {
-         margin-bottom: 0.5rem;
-         font-weight: 600;
-         color: #94a3b8; /* Slate 400 */
-         font-size: 0.95rem;
-     }
-
-
      /* --- NEW STYLES FOR TIMER POPUP --- */
      .imposter-popup .modal-title {
         color: #f87171; /* Red color for Imposter reveal */
@@ -402,10 +309,6 @@
          </div>
  </div>
 
- <button id="howToPlayButton" class="how-to-play-btn share-visible" onclick="showRulesModal()">
-     چۆن یاری دەکرێت؟
- </button>
-
  <button id="shareButton" class="share-button hidden" onclick="shareGameLink()">
      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
  </button>
@@ -416,15 +319,10 @@
      const modal = document.getElementById('custom-modal');
      const modalInner = document.getElementById('modal-inner');
      const shareButton = document.getElementById('shareButton');
-     // New: How to Play Button
-     const howToPlayButton = document.getElementById('howToPlayButton');
    
      const showModal = (titleKey, messageKey, isImposterReveal = false) => {
          // Reset classes
          modalInner.classList.remove('imposter-popup');
-         // Clear previous content
-         modalInner.classList.remove('rules-content');
-
          if (isImposterReveal) {
              modalInner.classList.add('imposter-popup');
          }
@@ -732,86 +630,21 @@
          "Innovation (Concept)", "Old (Not new)", "New (Adjective)"
      ];
 
-     // --- NEW RULES DATA ---
-     const RULES_KU = {
-        title: "چۆن یاری فریودەر دەکرێت؟",
-        goal: "ئامانج ئەوەیە هەمووان قەناعەت پێبکەیت کە وشە نهێنییەکە دەزانیت— یان ئەو کەسە بدۆزیتەوە کە نایزانێت.",
-        steps: [
-            {
-                title: "1. 🤫 ڕۆڵی خۆت بدۆزەرەوە",
-                list: [
-                    "مۆبایلەکە بەسەر هەموواندا دەسوڕێتەوە بۆ ئەوەی هەرکەسێک بە نهێنی سەیری شاشەکە بکات.",
-                    "زۆرینەی یاریزانەکان **وشەی نهێنی** دەبینن (بۆ نموونە: قەنەفە).",
-                    "یەک یاریزان **'فریودەر'** دەبینێت."
-                ]
-            },
-            {
-                title: "2. 🗣️ ڕێنمایی بدە",
-                list: [
-                    "بە دەوری بازنەکەدا بگەڕێن. هەر یاریزانێک تەنها **یەک وشە** دەدات بۆ وەسفکردنی وشە نهێنییەکە.",
-                    "**ئەگەر وشەکە دەزانیت:** پێویستە ڕێنماییەکەت ئەوەندە تایبەت بێت کە بیسەلمێنێت دەزانیت، بەڵام ئەوەندە گشتی بێت کە فریودەرەکە سەرلێشێواو بکات.",
-                    "**ئەگەر فریودەریت:** ڕێنماییەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە: کەلوپەلی ماڵ) و هەوڵبدە خۆت بشاریتەوە!"
-                ]
-            },
-            {
-                title: "3. 🗳️ دەنگدان",
-                list: [
-                    "دوای 2-3 خول لە ڕێنماییەکان، گفتوگۆ دەستپێدەکات. تۆمەتی ئەو یاریزانە بکە کە ڕێنماییەکانی زۆرترین گوماناوی یان گشتی بوون.",
-                    "هەمووان دەنگ دەدەن بۆ ئەوەی بزانن کێیان بە فریودەر دادەنێن. ئەو یاریزانەی زۆرترین دەنگی هێنا بێت ئاشکرا دەکرێت."
-                ]
-            }
-        ],
-        win: {
-            title: "چۆن دەبیتە براوە 🏆 :",
-            players: [
-                "ئەگەر بتوانن فریودەرە ڕاستەقینەکە بدۆزنەوە پێش کۆتاییهاتنی کاتژمێرەکە."
-            ],
-            imposter: [
-                "ئەگەر یاریزانەکان نەتوانن بیدۆزنەوە کە ئەو فریودەرە.",
-                "ئەگەر کاتژمێرەکە کۆتایی پێهات."
-            ]
-        }
-    };
 
-    const RULES_EN = {
-        title: "How to Play: The Imposter Game",
-        goal: "The goal is to convince everyone you know the Secret Word—or find the person who doesn't.",
-        steps: [
-            {
-                title: "1. 🤫 Find Your Role",
-                list: [
-                    "The phone is passed around for everyone to look at the screen in secret.",
-                    "Most Players will see the **Secret Word** (e.g., Sofa).",
-                    "One Player will see **'IMPOSTER.'**"
-                ]
-            },
-            {
-                title: "2. 🗣️ Give Clues",
-                list: [
-                    "Go around the circle. Each player gives **ONE WORD** to describe the Secret Word.",
-                    "**If you know the word:** Your clue must be specific enough to prove you know it, but vague enough to confuse the Imposter.",
-                    "**If you are the Imposter:** Give a general clue that fits the category (e.g., Furniture) and try to blend in!"
-                ]
-            },
-            {
-                title: "3. 🗳️ Vote",
-                list: [
-                    "After 2-3 rounds of clues, the discussion begins. Accuse the player whose clues seemed the most suspicious or generic.",
-                    "Everyone votes on who they think the Imposter is. The player with the most votes is revealed."
-                ]
-            }
-        ],
-        win: {
-            title: "How to Win 🏆 :",
-            players: [
-                "If they find out who the real imposter is before the timer finishes."
-            ],
-            imposter: [
-                "If the players didn’t find out that they are the imposter.",
-                "If the timer finishes."
-            ]
-        }
-    };
+     // --- State Variables ---
+     let lang = 'ku';
+     let playerCount = 4;
+     let imposterCount = 1;
+     let showHint = false;
+     let playerNames = [];
+     let gameActive = false;
+     let roles = [];
+     let secretWord = '';
+     let imposterHintWord = '';
+
+     // --- NEW TIMER VARIABLES ---
+     let timerInterval;
+     let timeLeft;
 
 
      // --- Helper Functions ---
@@ -853,9 +686,7 @@
                  discussionTime: "کاتی گفتوگۆ:",
                  timesUp: "کات کۆتایی هات!",
                  imposterWas: "فریودەرەکە بریتی بوو لە:",
-                 shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!",
-                 howToPlay: "چۆن یاری دەکرێت؟", // NEW KEY
-                 and: "و"
+                 shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!"
              },
              en: {
                  appName: "The Imposter Game",
@@ -888,55 +719,14 @@
                  discussionTime: "Discussion Time:",
                  timesUp: "Time's Up!",
                  imposterWas: "The Imposter was:",
-                 shareLink: "Share the game link with your friends!",
-                 howToPlay: "How to Play", // NEW KEY
-                 and: "and"
+                 shareLink: "Share the game link with your friends!"
              }
          };
          return translations[l][key] || translations['ku'][key];
      };
 
-    // --- NEW RULES MODAL LOGIC ---
-    const showRulesModal = () => {
-        const rulesData = lang === 'ku' ? RULES_KU : RULES_EN;
 
-        // Reset classes
-        modalInner.classList.remove('imposter-popup');
-        modalInner.classList.add('rules-content'); // Add class for rules-specific styling
-
-        // Function to generate the list HTML
-        const generateListHtml = (items) => {
-            return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
-        };
-
-        let rulesHtml = `
-            <h3 class="modal-title text-center mb-4">${rulesData.title}</h3>
-            <div class="rules-list">
-                <p class="text-center">${rulesData.goal}</p>
-                <div class="title-bar mb-4 mt-4"></div>
-                
-                ${rulesData.steps.map(step => `
-                    <h4>${step.title}</h4>
-                    ${generateListHtml(step.list)}
-                `).join('')}
-
-                <h3 class="modal-title text-center mt-6">${rulesData.win.title}</h3>
-                <h4 class="text-green-400 mt-4">${lang === 'ku' ? '• براوەکانی هاوڵاتی (The Players):' : '• Civilian Winners (The Players):'}</h4>
-                ${generateListHtml(rulesData.win.players)}
-                <h4 class="text-red-400 mt-4">${lang === 'ku' ? '• براوەکانی فریودەر (The Imposter):' : '• Imposter Winners (The Imposter):'}</h4>
-                ${generateListHtml(rulesData.win.imposter)}
-
-            </div>
-            <button class="primary-btn mt-4" onclick="hideModal()">
-                ${T('close')}
-            </button>
-        `;
-
-        modalInner.innerHTML = rulesHtml;
-        modal.classList.add('show');
-    };
-
-    // --- NEW SHARE LOGIC ---
+     // --- NEW SHARE LOGIC ---
      const shareGameLink = async () => {
          // The URL you want to share (The current page URL)
          const shareUrl = window.location.href; 
@@ -1088,14 +878,6 @@
      const renderSetupView = () => {
          document.body.className = lang === 'ku' ? 'rtl' : 'ltr english-mode';
          shareButton.classList.remove('hidden'); // Show share button on first page
-         // New: Update How to Play button text and visibility
-         howToPlayButton.textContent = T('howToPlay');
-         howToPlayButton.classList.remove('hidden'); 
-         
-         // In RTL, the share button is on the right, so the How To Play button needs the 'share-visible' class to move it left.
-         // In LTR, the share button is on the left, so the How To Play button needs the 'share-visible' class to move it right.
-         howToPlayButton.classList.add('share-visible');
-
 
          // Reset timer state on returning to setup
          clearInterval(timerInterval);
@@ -1162,7 +944,6 @@
      /** Renders the screen where each player views their role. */
      const renderPlayerTurnView = (playerIndex = 0) => {
          shareButton.classList.add('hidden'); // Hide share button on turn screen
-         howToPlayButton.classList.add('hidden'); // Hide rules button on turn screen
          const container = document.getElementById('game-container');
          const player = roles[playerIndex];
 
@@ -1267,7 +1048,6 @@
      /** Renders the final screen after all players have viewed their roles. */
      const renderEndGameView = () => {
          shareButton.classList.add('hidden'); // Ensure share button is hidden on final page
-         howToPlayButton.classList.add('hidden'); // Ensure rules button is hidden on final page
          const container = document.getElementById('game-container');
          
          // Initial time calculation for display
