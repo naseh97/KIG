@@ -74,21 +74,19 @@
           text-align: left; /* Change for LTR/English */
      }
 
-     /* Checkbox custom style */
+     /* Checkbox custom style - REMOVED, BUT KEEPING BASIC STYLES */
+     /*
      .checkbox-container {
          display: flex;
          align-items: center;
          margin-top: 10px;
          margin-bottom: 15px;
      }
-
      .checkbox-container input[type="checkbox"] {
-         /* Hide the default checkbox */
          opacity: 0;
          width: 0;
          height: 0;
      }
-
      .checkbox-checkmark {
          height: 20px;
          width: 20px;
@@ -99,11 +97,9 @@
          position: relative;
          cursor: pointer;
      }
-
      .checkbox-container input:checked ~ .checkbox-checkmark {
          background-color: var(--primary);
      }
-
      .checkbox-checkmark:after {
          content: "";
          position: absolute;
@@ -116,10 +112,10 @@
          border-width: 0 3px 3px 0;
          transform: rotate(45deg);
      }
-
      .checkbox-container input:checked ~ .checkbox-checkmark:after {
          display: block;
      }
+     */
 
      /* Button Styling */
      .primary-btn {
@@ -439,9 +435,8 @@
      };
      // --- END NEW HELP MODAL LOGIC ---
 
-     // --- Data: Word Lists (EXPANDED) ---
-     
-     // ADDED: Many more words, especially physical ones (places, animals, plants)
+     // --- Data: Word Lists (Unchanged) ---
+     // ... (WORDS_KU and WORDS_EN arrays remain the same)
      const WORDS_KU = [
         // Jobs/People
         "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
@@ -516,11 +511,11 @@
      ];
 
 
-     // --- State Variables (Unchanged) ---
+     // --- State Variables (UPDATED: showHint removed) ---
      let lang = 'ku';
      let playerCount = 4;
      let imposterCount = 1;
-     let showHint = false;
+     // let showHint = false; // Removed
      let playerNames = [];
      let gameActive = false;
      let roles = [];
@@ -532,12 +527,12 @@
      let timeLeft;
 
 
-     // --- Helper Functions (Updated showModal, showHelpModal) ---
+     // --- Helper Functions (Translation Updated) ---
 
      /** Fetches the correct word list based on the current language. */
      const getWordList = () => lang === 'ku' ? WORDS_KU : WORDS_EN;
    
-     /** Translation function */
+     /** Translation function (UPDATED: removed hint translations) */
      const T = (key, l = lang) => {
          const translations = {
              ku: {
@@ -546,7 +541,7 @@
                  civilian: "هاوڵاتی",
                  playerCount: "ژمارەی یاریزانان (3-12):",
                  imposterCount: "ژمارەی فێڵبازەکان (1-2):",
-                 hint: "ڕێنمایی بۆ فێڵباز (وشەیەکی پەیوەندیدار)",
+                 // hint: "ڕێنمایی بۆ فێڵباز (وشەیەکی پەیوەندیدار)", // REMOVED
                  start: "دەستپێکردنی یاری",
                  playerName: "ناوی یاریزان",
                  showRole: "ڕۆڵی خۆت ببینە",
@@ -565,7 +560,7 @@
                  revealImposters: "فێڵبازەکان نیشان بدە",
                  impostersWere: "فێڵبازەکان بریتی بوون لە:",
                  justImposter: "تۆ فێڵبازی!",
-                 imposterHintLabel: "ڕێنمایی وشە:",
+                 imposterHintLabel: "وشە:", // UPDATED: Changed from "ڕێنمایی وشە" to just "وشە"
                  startDiscussion: "دەستپێکردنی گفتوگۆ",
                  discussionTime: "کاتی گفتوگۆ:",
                  timesUp: "کات کۆتایی هات!",
@@ -616,7 +611,7 @@
                  civilian: "Civilian",
                  playerCount: "Number of Players (3-12):",
                  imposterCount: "Number of Imposters (1-2):",
-                 hint: "Imposter Hint (Related Word)",
+                 // hint: "Imposter Hint (Related Word)", // REMOVED
                  start: "Start Game",
                  playerName: "Player Name",
                  showRole: "View Your Role",
@@ -635,7 +630,7 @@
                  revealImposters: "Reveal Imposters",
                  impostersWere: "The Imposters were:",
                  justImposter: "You are the Imposter!",
-                 imposterHintLabel: "Word Hint:",
+                 imposterHintLabel: "Word:", // UPDATED: Changed from "Word Hint" to just "Word"
                  startDiscussion: "Start Discussion",
                  discussionTime: "Discussion Time:",
                  timesUp: "Time's Up!",
@@ -765,7 +760,7 @@
          timerInterval = setInterval(countdown, 1000); 
      };
 
-     // --- Core Game Logic (Unchanged) ---
+     // --- Core Game Logic (UPDATED: Hint logic removed) ---
      
      /**
       * Selects a secret word, assigns roles, and validates the player setup.
@@ -785,19 +780,16 @@
          const wordList = getWordList();
          if (wordList.length === 0) {
              secretWord = T('selectWord');
+             imposterHintWord = T('justImposter'); // Fallback to just "Imposter"
          } else {
              const secretIndex = Math.floor(Math.random() * wordList.length);
              secretWord = wordList[secretIndex];
-             if (showHint) {
-                 let hintIndex = secretIndex;
-                 while (hintIndex === secretIndex) {
-                     hintIndex = Math.floor(Math.random() * wordList.length);
-                 }
-                 imposterHintWord = wordList[hintIndex];
-             } else {
-                 imposterHintWord = T('justImposter');
-             }
+             // *** HINT LOGIC REMOVED ***
+             // if (showHint) { ... } else { ... }
+             // The Imposter word is now always the generic "Imposter" text.
+             imposterHintWord = T('justImposter');
          }
+         
          roles = [];
          const imposterIndices = [];
          while (imposterIndices.length < imposterCount) {
@@ -806,15 +798,15 @@
                  imposterIndices.push(index);
              }
          }
+         
          for (let i = 0; i < playerCount; i++) {
              const isImposter = imposterIndices.includes(i);
              const role = isImposter ? T('imposter') : T('civilian');
              let wordContent;
-             let isHintDisplay = false;
 
              if (isImposter) {
-                 wordContent = imposterHintWord;
-                 isHintDisplay = showHint;
+                 // Imposters always see the "justImposter" message, no word/hint.
+                 wordContent = imposterHintWord; 
              } else {
                  wordContent = secretWord;
              }
@@ -822,7 +814,7 @@
                  name: playerNames[i],
                  role: role,
                  word: wordContent,
-                 isHint: isHintDisplay
+                 // isHint: isHintDisplay // REMOVED
              });
          }
          roles = roles.sort(() => Math.random() - 0.5);
@@ -831,9 +823,9 @@
      };
 
 
-     // --- UI Rendering Functions (Unchanged) ---
+     // --- UI Rendering Functions (UPDATED: hint checkbox removed) ---
 
-     /** Renders the main setup screen. */
+     /** Renders the main setup screen. (UPDATED) */
      const renderSetupView = () => {
          document.body.className = lang === 'ku' ? 'rtl' : 'ltr english-mode';
          shareButton.classList.remove('hidden'); // Show share button on first page
@@ -874,15 +866,6 @@
                  <input type="number" id="imposter-count" value="${imposterCount}" min="1" max="2" class="w-1/3 text-center" onchange="handleImposterCountChange(event)">
              </div>
 
-             <div class="checkbox-container">
-                 <label class="flex items-center text-slate-200 text-sm cursor-pointer ${lang === 'ku' ? 'flex-row-reverse justify-end' : 'flex-row'}">
-                     <span class="${lang === 'ku' ? 'mr-3' : 'ml-3'}">${T('hint')}</span>
-                     <input type="checkbox" id="hint-checkbox" ${showHint ? 'checked' : ''} onchange="handleHintChange(event)">
-                     <span class="checkbox-checkmark ${lang === 'ku' ? 'ml-3' : 'mr-3'}"></span>
-                 </label>
-             </div>
-           
-
              <div class="text-slate-200 text-base mb-2">${T('playerName')}</div>
              <div id="player-names-inputs">
                  ${Array.from({ length: playerCount }, (_, i) => `
@@ -900,7 +883,7 @@
          });
      };
 
-     /** Renders the screen where each player views their role. */
+     /** Renders the screen where each player views their role. (Unchanged) */
      const renderPlayerTurnView = (playerIndex = 0) => {
          shareButton.classList.add('hidden'); // Hide share button on turn screen
          const container = document.getElementById('game-container');
@@ -931,7 +914,7 @@
          `;
      };
 
-     /** Renders the player's specific role card in a modal-like structure. */
+     /** Renders the player's specific role card in a modal-like structure. (UPDATED: Hint display logic removed) */
      const showRole = (playerIndex) => {
          const player = roles[playerIndex];
          const isImposter = player.role === T('imposter');
@@ -939,9 +922,12 @@
          const wordColorClass = isImposter ? 'word-imposter' : 'word-civilian';
          const rolePrefix = player.role + ":";
          
+         // Hint label logic removed. Imposter is now just "Imposter"
          let hintLabel = '';
-         if (player.isHint) {
+         if (isImposter) {
              hintLabel = `<p class="text-lg text-slate-400 mb-2">${T('imposterHintLabel')}</p>`;
+         } else {
+             hintLabel = `<p class="text-lg text-slate-400 mb-2">${T('theWord')}</p>`;
          }
          
          const content = document.getElementById('role-display-area');
@@ -962,7 +948,7 @@
          `;
      };
 
-     /** Hides the role card and moves to the next player's turn or the end screen. */
+     /** Hides the role card and moves to the next player's turn or the end screen. (Unchanged) */
      const hideRole = (playerIndex) => {
          const nextIndex = playerIndex + 1;
          if (nextIndex < roles.length) {
@@ -972,7 +958,7 @@
          }
      };
 
-     /** Reveals the imposter names on the end game screen. */
+     /** Reveals the imposter names on the end game screen. (Unchanged) */
      const revealImposters = (auto = false) => {
          const imposterNames = roles
              .filter(r => r.role === T('imposter'))
@@ -996,7 +982,7 @@
      };
 
 
-     /** Reveals the secret word on the end game screen. */
+     /** Reveals the secret word on the end game screen. (Unchanged) */
      const revealWord = () => {
          document.getElementById('secret-word-reveal').classList.remove('hidden');
          // Hide the reveal word button
@@ -1004,7 +990,7 @@
          if(button) button.style.display = 'none';
      };
 
-     /** Renders the final screen after all players have viewed their roles. */
+     /** Renders the final screen after all players have viewed their roles. (Unchanged) */
      const renderEndGameView = () => {
          shareButton.classList.add('hidden'); // Ensure share button is hidden on final page
          const container = document.getElementById('game-container');
@@ -1052,7 +1038,7 @@
      };
    
    
-     // --- Event Handlers (Unchanged) ---
+     // --- Event Handlers (UPDATED: handleHintChange removed) ---
      
      const handlePlayerCountChange = (event) => {
          let count = parseInt(event.target.value);
@@ -1080,9 +1066,9 @@
          renderSetupView();
      };
 
-     const handleHintChange = (event) => {
-         showHint = event.target.checked;
-     };
+     // const handleHintChange = (event) => { // REMOVED
+     //     showHint = event.target.checked;
+     // };
 
      const handleNameInput = (event, index) => {
          playerNames[index] = event.target.value.trim();
