@@ -398,7 +398,7 @@
          </div>
  </div>
 
- <button id="shareButton" class="share-button hidden" onclick="shareGameLink()">
+ <button id="shareButton" class="share-button" onclick="shareGameLink()">
      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
  </button>
 
@@ -575,25 +575,32 @@
     
     // Function to handle link sharing
     const shareGameLink = async () => {
-        if (!currentRoomCode) return;
-        const url = window.location.href.split('?')[0] + `?room=${currentRoomCode}`;
+        if (!currentRoomCode && isRoomMode) return; // Only share if in a room or if we have a room code
+        
+        let url = window.location.href.split('?')[0];
+        let shareText = T('shareLink');
+        
+        if (isRoomMode) {
+           url = url + `?room=${currentRoomCode}`;
+           shareText = `${T('roomCode')} ${currentRoomCode}. ${T('shareLink')}`;
+        }
         
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: T('appName'),
-                    text: `${T('roomCode')} ${currentRoomCode}. ${T('shareLink')}`,
+                    text: shareText,
                     url: url
                 });
             } catch (error) {
                 // Fallback to clipboard if share fails
                 await navigator.clipboard.writeText(url);
-                showModal('roomCode', `${currentRoomCode}<br><br><strong>${T('shareLink')}</strong>`);
+                showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
             }
         } else {
             // Fallback for non-sharing browsers
             await navigator.clipboard.writeText(url);
-            showModal('roomCode', `${currentRoomCode}<br><br><strong>${T('shareLink')}</strong>`);
+            showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
         }
     };
 
@@ -1075,7 +1082,7 @@
     };
     
     const renderEndGameView = (isRoom = false) => {
-        shareButton.classList.add('hidden');
+        // MODIFICATION 2: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         
         const initialTime = playerCount * 60;
@@ -1305,7 +1312,7 @@
     };
     
     const renderPlayerTurnView = (playerIndex = 0) => {
-        shareButton.classList.add('hidden');
+        // MODIFICATION 3: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         const currentPlayer = roles[playerIndex];
         const totalPlayers = roles.length;
@@ -1334,7 +1341,7 @@
     };
     
     const renderRoomGameView = (myPlayerIndex) => {
-        shareButton.classList.add('hidden');
+        // MODIFICATION 4: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         const myPlayerData = roles.find(p => p.id === myPlayerId);
         
@@ -1395,7 +1402,7 @@
     const renderSetupView = () => {
         isRoomMode = false;
         gameActive = false;
-        shareButton.classList.add('hidden');
+        // MODIFICATION 5: REMOVED: shareButton.classList.add('hidden');
         helpButton.classList.remove('hidden');
 
         const container = document.getElementById('game-container');
@@ -1475,6 +1482,7 @@
      };
 
     const renderRoomMenu = () => {
+        // MODIFICATION 6: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         container.innerHTML = `
             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
@@ -1520,7 +1528,7 @@
         
         const container = document.getElementById('game-container');
         
-        // Show share button only in lobby
+        // Show share button only in lobby (This line is now redundant but kept for original intent consistency)
         shareButton.classList.remove('hidden');
 
         const playerListHTML = room.players.map(p => {
