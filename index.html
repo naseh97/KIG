@@ -13,15 +13,14 @@
          theme: {
              extend: {
                  colors: {
-                     'primary': '#facc15', // Tailwind Amber 500
-                     'secondary': '#6366f1', // Tailwind Indigo 500
-                     'dark-bg': '#1e293b', // Tailwind Slate 800
-                     'dark-card': '#334155', // Tailwind Slate 700
-                     'input-bg': '#475569', // Tailwind Slate 600
+                     'primary': '#facc15',
+                     'secondary': '#6366f1',
+                     'dark-bg': '#1e293b',
+                     'dark-card': '#334155',
+                     'input-bg': '#475569',
                  },
                  fontFamily: {
                      'kurdish': ['Scheherazade New', 'sans-serif'],
-                     'english': ['Roboto', 'sans-serif'],
                  }
              }
          }
@@ -29,10 +28,9 @@
  </script>
  <style>
      @import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
-     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap'); 
 
      body {
-         background-color: #0f172a; /* Tailwind Slate 900 */
+         background-color: #0f172a;
          background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
          background-size: 40px 40px;
          background-position: 0 0, 20px 20px;
@@ -41,7 +39,7 @@
          align-items: center;
          min-height: 100vh;
          padding: 20px;
-         font-family: 'kurdish', 'english';
+         font-family: 'kurdish';
      }
 
      .card {
@@ -70,10 +68,6 @@
          width: 100%;
          margin-bottom: 0.75rem;
          text-align: right;
-     }
-
-     .english-mode input[type="number"], .english-mode input[type="text"], .english-mode .input-text-area {
-          text-align: left;
      }
 
      .primary-btn {
@@ -150,6 +144,23 @@
          color: #34d399;
          font-weight: 700;
      }
+     
+     .lobby-player-item .remove-btn {
+         background-color: #f87171;
+         color: white;
+         border: none;
+         border-radius: 0.25rem;
+         padding: 0.25rem 0.5rem;
+         cursor: pointer;
+         font-size: 0.75rem;
+         font-weight: 700;
+         transition: background-color 0.2s;
+         margin-right: 0.5rem;
+     }
+     .lobby-player-item .remove-btn:hover {
+         background-color: #ef4444;
+     }
+
 
      .player-card {
          background-color: #475569;
@@ -179,7 +190,6 @@
          color: var(--primary);
          margin-bottom: 10px;
      }
-     /* UPDATED: Simplify role text display */
      .role-text-simplified {
          font-size: 2rem;
          font-weight: 700;
@@ -191,19 +201,6 @@
          color: #f8fafc;
      }
    
-     .lang-btn {
-         background-color: var(--secondary);
-         color: #f8fafc;
-         padding: 0.5rem 1rem;
-         border-radius: 0.5rem;
-         font-size: 0.875rem;
-         transition: background-color 0.2s;
-         margin-bottom: 1.5rem;
-     }
-     .lang-btn:hover {
-         background-color: #4f46e5;
-     }
-
      .footer-text {
          margin-top: 2rem;
          text-align: center;
@@ -280,9 +277,6 @@
          font-size: 1rem;
          text-align: right;
      }
-     .ltr .modal-message {
-         text-align: left;
-     }
      .modal-message strong {
          color: #facc15;
      }
@@ -302,10 +296,6 @@
      .rtl .modal-close-btn {
         right: 10px;
         left: auto;
-     }
-     .ltr .modal-close-btn {
-        left: 10px;
-        right: auto;
      }
      
      #room-code-display {
@@ -327,7 +317,7 @@
      .share-button {
          position: fixed;
          bottom: 20px;
-         left: 20px;
+         right: 20px;
          background-color: var(--secondary);
          color: white;
          border: none;
@@ -346,18 +336,11 @@
          background-color: #4f46e5;
          transform: scale(1.05);
      }
-     .rtl .share-button {
-         left: auto;
-         right: 20px;
-     }
-     .ltr .share-button {
-         right: auto;
-         left: 20px;
-     }
 
      .help-button {
          position: fixed;
          bottom: 20px;
+         right: 90px;
          background-color: #34d399;
          color: #1e293b;
          border: none;
@@ -377,14 +360,6 @@
      .help-button:hover {
          background-color: #10b981;
          transform: scale(1.05);
-     }
-     .rtl .help-button {
-         right: 90px;
-         left: auto;
-     }
-     .ltr .help-button {
-         left: 90px;
-         right: auto;
      }
  </style>
 </head>
@@ -418,18 +393,15 @@
         appId: "YOUR_APP_ID"
     };
 
-    // Global state for modal
     const modal = document.getElementById('custom-modal');
     const modalInner = document.getElementById('modal-inner');
     const shareButton = document.getElementById('shareButton');
     const helpButton = document.getElementById('helpButton');
 
-    // FIREBASE STATE
     let database;
-    let roomRef; // Reference to the current room in the database
-    let myPlayerId = null; // Unique ID for this player session
+    let roomRef;
+    let myPlayerId = null;
 
-    // --- Data: Word Lists (Unchanged) ---
     const WORDS_KU = [
         "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
         "کاسبکار", "وێنەکێش", "باخچەوان", "نانەوا", "گەشتیار", "وەرزشکار", "فرۆشیار", "پۆلیس",
@@ -456,37 +428,8 @@
         "تەختە", "قوماش", "جام", "قەلەو", "دەمانچە", "حوشتر", "هەوال", "تاوان", "کلیل", "سندوق",
         "بنیشت", "مەلەوانگە", "هوتێل", "شمشێر", "ئاش", "فێلباز", "مولەتی شوفێری", "کابینە", "شوان", "کارەبا", "مردن", "شای"
     ];
-   
-    const WORDS_EN = [
-        "Doctor", "Teacher", "Engineer", "Employee", "Driver", "Singer", "Writer", "Translator",
-        "Merchant", "Painter", "Gardener", "Baker", "Tourist", "Athlete", "Seller", "Police",
-        "Soldier", "Firefighter", "Trader", "Journalist", "Farmer", "Guard", "Priest", "Hunter", "Shepherd", 
-        "Dog", "Cat", "Animal", "Bear", "Wolf", "Deer", "Fox", "Lion", "Whale", "Horse", "Bat", "Squirrel",
-        "Elephant", "Monkey", "Chimpanzee", "Eagle", "Owl", "Raven", "Parrot", "Chicken", "Goose", "Bird",
-        "Snake", "Lizard", "Frog", "Turtle", "Alligator", "Toad", "Fish", "Shark", "Octopus", "Seal", "Dolphin", 
-        "Spider", "Ant", "Bee", "Butterfly", "Moth", "Scorpion", "Mouse", "Cheetah", "Rhinoceros",
-        "Tree", "Flower", "Greenery", "Fruit", "Vegetable", "Oak", "Pine", "Willow", "Birch", "Palm", "Root", "Trunk", 
-        "Branch", "Leaf", "Tomato", "Cucumber", "Onion", "Garlic", "Mushroom", "Moss", "Fern", "Berry", "Herb", "Grass", 
-        "Wheat", "Corn", "Vine", "Algae", "Potato", "Tea", "Coffee", "Milk", "Honey", "Olive", "Nature",
-        "Mountain", "Plain", "Sea", "Village", "City", "House", "School", "University", "Factory", "Museum", "Theater", 
-        "Cinema", "Mosque", "Church", "Temple", "Castle", "Street", "Desert", "Swamp", "Forest", "River", 
-        "Car", "Airplane", "Train", "Bicycle", "Society", "Family", "Friend", "Neighbor", "Group",
-        "Refugee Camp", "Area", "Town", "Capital City", "Garage", "Market", "Shop", "Coffee Shop", "Bookstore",
-        "Coast", "Canyon", "Waterfall", "Island", "Volcano", "Treasure", "Border", "Program", "Website",
-        "Food", "Water", "Cloud", "Rain", "Snow", "Sun", "Moon", "Star", "Book", "Pen", "Page",
-        "Mobile", "Computer", "Music", "Poem", "Novel", "Story", "Color", "Sound", "Smell", "Taste", "Light",
-        "Darkness", "Gas", "Petrol", "Electricity", "Danger", "Safety", "Court", "Law", "Politics", "Economy", 
-        "Philosophy", "History", "Geography", "Physics", "Chemistry", "Mathematics", "Education", "Health", 
-        "Environment", "Human Rights", "Freedom", "Equality", "Dream", "Reality", "Love", "Hate",
-        "Fear", "Hope", "Peace", "War", "Sweet", "Salty", "Bitter", "Spicy", "Blood", "Brain", "Heart", 
-        "Stomach", "Eye", "Ear", "Hand", "Leg", "Skin", "Hair", "Clothing", "Tablecloth", "Motorcycle", "Fence", 
-        "Bullet", "Bomb", "Rocket", "Region", "Board (Wood)", "Cloth", "Glass", "Marsh", "Pistol", "Explosion",
-        "Document", "Crime", "Key", "Box", "Number", "Letter (Alphabet)", "Word", "Creation", "Soil", "Total", 
-        "Agriculture", "Cabinet (Government)", "Candle", "Device", "Country", "Party"
-    ];
 
 
-    // --- State Variables (UPDATED) ---
     let lang = 'ku';
     let playerCount = 4;
     let imposterCount = 1;
@@ -506,23 +449,17 @@
     let timeLeft;
 
 
-    // --- Helper Functions (Translation & UI remain mostly the same) ---
-    const getWordList = () => lang === 'ku' ? WORDS_KU : WORDS_EN;
+    const getWordList = () => WORDS_KU;
 
-    const T = (key, l = lang) => {
+    const T = (key) => {
         const translations = {
             ku: {
-                appName: "یاری فێڵباز", imposter: "فێڵباز", civilian: "هاوڵاتی", playerCount: "ژمارەی یاریزانان (3-12):", imposterCount: "ژمارەی فێڵبازەکان (1-2):", start: "دەستپێکردنی یاری", playerName: "ناوی یاریزان", showRole: "ڕۆڵی خۆت ببینە", yourRole: "ڕۆڵی تۆ:", theWord: "وشەی نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "نۆرەی یاریزانان", close: "داخستن", reset: "دووبارە دەستپێکردنەوە", revealWord: "وشەی نهێنی نیشان بدە (بۆ هەمووان)", wordWas: "وشەی نهێنی بریتی بوو لە:", selectWord: "تکایە وشەی نهێنی هەڵبژێرە!", validationTitle: "هۆشداری", nameRequired: "تکایە ناوی هەموو یاریزانەکان بنووسە.", notEnoughPlayers: "ژمارەی یاریزانان کەمە. پێویستت بە لانی کەم 3 یاریزانە.", revealImposters: "فێڵبازەکان نیشان بدە", impostersWere: "فێڵبازەکان بریتی بوون لە:", justImposter: "تۆ فێڵبازی!", imposterHintLabel: "وشە:", startDiscussion: "دەستپێکردنی گفتوگۆ", discussionTime: "کاتی گفتوگۆ:", timesUp: "کات کۆتایی هات!", imposterWas: "فێڵبازەکە بریتی بوو لە:", shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!", and: "و", howToPlayTitle: "چۆن یاری دەکەیت: یاری فێڵباز", howToPlayBody: `ئامانج ئەوەیە هەمووان قەناعەت پێبکەیت کە وشەی نهێنی دەزانیت—یاخود ئەو کەسە بدۆزیتەوە کە نایزانێت.<br><br><strong>١. 🤫 ڕۆڵی خۆت بدۆزەرەوە</strong><br>• مۆبایلەکە بەدەوردا دەسوڕێنرێتەوە بۆ ئەوەی هەمووان بە نهێنی سەیری شاشەکە بکەن.<br>• زۆربەی یاریزانەکان <strong>وشەی نهێنی</strong> دەبینن (بۆ نموونە: قەنەفە).<br>• یەک یاریزان <strong>"فریودەر"</strong> دەبینێت.<br><br><strong>٢. 🗣️ ئاماژە بدە</strong><br>• بە دەوری بازنەکەدا بگەڕێن. هەر یاریزانێک <strong>یەک وشە</strong> بۆ وەسفکردنی وشە نهێنییەکە دەدات.<br>• <strong>ئەگەر وشەکە دەزانیت:</strong> ئاماژەکەت دەبێت ئەوەندە دیاریکراو بێت کە بیسەلمێنێت دەیزانیت، بەڵام ئەوەندەش ناڕوون بێت کە فێڵبازەکە سەرلێشێواو بکات.<br>• <strong>ئەگەر تۆ فێڵبازیت:</strong> ئاماژەیەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە: کەلوپەل) و هەوڵبدە تێکەڵ ببیت!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• دوای ٢-٣ گەڕی ئاماژەدان، گفتوگۆ دەستپێدەکات. تۆمەت بخەرە پاڵ ئەو یاریزانەی کە ئاماژەکانی گوماناویترین یان گشتیترین بوون.<br>• هەمووان دەنگ دەدەن بۆ ئەوەی بزانن کێ گوماناوییە. ئەو یاریزانەی زۆرترین دەنگ بەدەست دەهێنێت ئاشکرا دەکرێت.<br><br><strong>چۆن دەیبەیتەوە 🏆 :</strong><br><br>• <strong>هاوڵاتییەکان:</strong><br>-ئەگەر پێش کۆتایی هاتنی کات فێلبازەکە بدۆزنەوە.<br><br>• <strong>فێڵباز:</strong><br>-ئەگەر هاوڵاتییەکان نەیاندۆزنەوە کە کێ فێڵبازە.<br>-ئەگەر کاتەکە کۆتایی بێت.`,
+                appName: "یاری فێڵباز", imposter: "فێڵباز", civilian: "هاوڵاتی", playerCount: "ژمارەی یاریزانان (3-12):", imposterCount: "ژمارەی فێڵبازەکان (1-2):", start: "دەستپێکردنی یاری", playerName: "ناوی یاریزان", showRole: "ڕۆڵی خۆت ببینە", yourRole: "ڕۆڵی تۆ:", theWord: "وشەی نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "نۆرەی یاریزانان", close: "داخستن", reset: "دووبارە دەستپێکردنەوە", wordWas: "وشەی نهێنی بریتی بوو لە:", selectWord: "تکایە وشەی نهێنی هەڵبژێرە!", validationTitle: "هۆشداری", nameRequired: "تکایە ناوی هەموو یاریزانەکان بنووسە.", notEnoughPlayers: "ژمارەی یاریزانان کەمە. پێویستت بە لانی کەم 3 یاریزانە.", impostersWere: "فێڵبازەکان بریتی بوون لە:", justImposter: "تۆ فێڵبازی!", imposterHintLabel: "وشە:", startDiscussion: "دەستپێکردنی گفتوگۆ", discussionTime: "کاتی گفتوگۆ:", timesUp: "کات کۆتایی هات!", imposterWas: "فێڵبازەکە بریتی بوو لە:", shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!", and: "و", howToPlayTitle: "چۆن یاری دەکەیت: یاری فێڵباز", howToPlayBody: `ئامانج ئەوەیە هەمووان قەناعەت پێبکەیت کە وشەی نهێنی دەزانیت—یاخود ئەو کەسە بدۆزیتەوە کە نایزانێت.<br><br><strong>١. 🤫 ڕۆڵی خۆت بدۆزەرەوە</strong><br>• مۆبایلەکە بەدەوردا دەسوڕێنرێتەوە بۆ ئەوەی هەمووان بە نهێنی سەیری شاشەکە بکەن.<br>• زۆربەی یاریزانەکان <strong>وشەی نهێنی</strong> دەبینن (بۆ نموونە: قەنەفە).<br>• یەک یاریزان <strong>"فریودەر"</strong> دەبینێت.<br><br><strong>٢. 🗣️ ئاماژە بدە</strong><br>• بە دەوری بازنەکەدا بگەڕێن. هەر یاریزانێک <strong>یەک وشە</strong> بۆ وەسفکردنی وشە نهێنییەکە دەدات.<br>• <strong>ئەگەر وشەکە دەزانیت:</strong> ئاماژەکەت دەبێت ئەوەندە دیاریکراو بێت کە بیسەلمێنێت دەیزانیت، بەڵام ئەوەندەش ناڕوون بێت کە فێڵبازەکە سەرلێشێواو بکات.<br>• <strong>ئەگەر تۆ فێڵبازیت:</strong> ئاماژەیەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە: کەلوپەل) و هەوڵبدە تێکەڵ ببیت!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• دوای ٢-٣ گەڕی ئاماژەدان، گفتوگۆ دەستپێدەکات. تۆمەت بخەرە پاڵ ئەو یاریزانەی کە ئاماژەکانی گوماناویترین یان گشتیترین بوون.<br>• هەمووان دەنگ دەدەن بۆ ئەوەی بزانن کێ گوماناوییە. ئەو یاریزانەی زۆرترین دەنگ بەدەست دەهێنێت ئاشکرا دەکرێت.<br><br><strong>چۆن دەیبەیتەوە 🏆 :</strong><br><br>• <strong>هاوڵاتییەکان:</strong><br>-ئەگەر پێش کۆتایی هاتنی کات فێلبازەکە بدۆزنەوە.<br><br>• <strong>فێڵباز:</strong><br>-ئەگەر هاوڵاتییەکان نەیاندۆزنەوە کە کێ فێڵبازە.<br>-ئەگەر کاتەکە کۆتایی بێت.`,
                 room: "ژوور", playWithFriends: "یاری لەگەڵ هاوڕێیان", createRoom: "دروستکردنی ژوور", joinRoom: "چوونە ژوورەوە", roomCode: "کۆدی ژوور:", enterCode: "کۆدی ژوور بنووسە", creator: "دروستکەر", myStatus: "دۆخی من:", waitingForName: "چاوەڕێی نووسینی ناو", waitingForOthers: "چاوەڕێی یاریزانانی تر", ready: "ئامادە", submit: "پشتڕاستکردنەوە", notEnoughPlayersPopup: "ژمارەی یاریزانان کەمە. لانی کەم 3 یاریزان پێویستە.", roomFull: "ژوورەکە پڕە.", roomNotFound: "کۆدی ژوورەکە نادروستە.", roomStart: "دەستپێکردنی یاری (3+ یاریزان)", gameAlreadyStarted: "یارییەکە دەستیپێکردووە...", enterYourName: "ناوی خۆت بنووسە", nameSubmitSuccess: "ناوی تۆ نووسرا. چاوەڕێی ئەوانی تر بە.", gameOverTitle: "کۆتایی یاری", playAgain: "دووبارە یاری بکەوە لە هەمان ژوور", exitRoom: "چوونە دەرەوەی ژوور", startOver: "دەستپێکی دووبارە (وشە و ڕۆڵی نوێ)", backToSetup: "گەڕانەوە بۆ ڕێکخستنەکان",
-                finishTheTimer: "کۆتایی هێنان بە کات" // NEW TRANSLATION
-            },
-            en: {
-                appName: "The Imposter Game", imposter: "Imposter", civilian: "Civilian", playerCount: "Number of Players (3-12):", imposterCount: "Number of Imposters (1-2):", start: "Start Game", playerName: "Player Name", showRole: "View Your Role", yourRole: "Your Role:", theWord: "The Secret Word:", madeBy: "Made By Naseh M. Zebari", turn: "Player Turn", close: "Close", reset: "Start New Game", revealWord: "Reveal Secret Word (For All)", wordWas: "The secret word was:", selectWord: "Please select a secret word!", validationTitle: "Warning", nameRequired: "Please enter all player names.", notEnoughPlayers: "Not enough players. You need at least 3 players.", revealImposters: "Reveal Imposters", impostersWere: "The Imposters were:", justImposter: "You are the Imposter!", imposterHintLabel: "Word:", startDiscussion: "Start Discussion", discussionTime: "Discussion Time:", timesUp: "Time's Up!", imposterWas: "The Imposter was:", shareLink: "Share the game link with your friends!", and: "and", howToPlayTitle: "How to Play: The Imposter Game", howToPlayBody: `The goal is to convince everyone you know the Secret Word—or find the person who doesn't.<br><br><strong>1. 🤫 Find Your Role</strong><br>• The phone is passed around for everyone to look at the screen in secret.<br>• Most Players will see the <strong>Secret Word</strong> (e.g., Sofa).<br>• One Player will see <strong>"IMPOSTOR."</strong><br><br><strong>2. 🗣️ Give Clues</strong><br>• Go around the circle. Each player gives <strong>ONE WORD</strong> to describe the Secret Word.<br>• <strong>If you know the word:</strong> Your clue must be specific enough to prove you know it, but vague enough to confuse the Impostor.<br>• <strong>If you are the Impostor:</strong> Give a general clue that fits the category (e.g., Furniture) and try to blend in!<br><br><strong>3. 🗳️ Vote</strong><br>• After 2-3 rounds of clues, the discussion begins. Accuse the player whose clues seemed the most suspicious or generic.<br>• Everyone votes on who they think the Impostor is. The player with the most votes is revealed.<br><br><strong>How to Win 🏆 :</strong><br><br>• <strong>The Civilians:</strong><br>-If they find out who is really the Imposter before the timer finishes.<br><br>• <strong>The Imposter:</strong><br>-If the Civilians didn’t find out that he is the Imposter.<br>-If the timer finishes.`,
-                room: "Room", playWithFriends: "Play with Friends", createRoom: "Create Room", joinRoom: "Join Room", roomCode: "Room Code:", enterCode: "Enter Room Code", creator: "Creator", myStatus: "My Status:", waitingForName: "Waiting to enter name", waitingForOthers: "Waiting for other players", ready: "Ready", submit: "Submit", notEnoughPlayersPopup: "Not enough players. Minimum 3 players required.", roomFull: "The room is full.", roomNotFound: "The room code is invalid.", roomStart: "Start Game (3+ Players)", gameAlreadyStarted: "Game has started...", enterYourName: "Enter Your Name", nameSubmitSuccess: "Name submitted. Waiting for others.", gameOverTitle: "Game Over", playAgain: "Play Again in Same Room", exitRoom: "Exit Room", startOver: "Start Over (New Words and Roles)", backToSetup: "Back to Settings",
-                finishTheTimer: "Finish the Timer" // NEW TRANSLATION
+                finishTheTimer: "کۆتایی هێنان بە کات", remove: "لابردن" // Added translation for 'remove'
             }
         };
-        return translations[l][key] || translations['ku'][key];
+        return translations.ku[key] || key;
     };
     
     const formatTime = (seconds) => {
@@ -536,7 +473,7 @@
         let message = T(messageKey);
         
         if(isImposterReveal) {
-             message = messageKey; // Use raw string if it's the imposter list
+             message = messageKey;
         }
         
         modalInner.className = 'modal-content ' + (isImposterReveal ? 'imposter-popup' : '');
@@ -559,25 +496,8 @@
         modal.classList.remove('show');
     };
 
-    const toggleLanguage = () => {
-        lang = lang === 'ku' ? 'en' : 'ku';
-        document.body.className = lang === 'ku' ? 'rtl' : 'ltr english-mode';
-        document.getElementById('main-title').textContent = T('appName');
-        document.getElementById('helpButton').innerHTML = '?';
-
-        // Re-render the current view to apply language changes
-        if (isRoomMode) {
-            getRoomSnapshot(currentRoomCode).then(renderRoomLobby);
-        } else if (gameActive) {
-            renderEndGameView(false);
-        } else {
-            renderSetupView();
-        }
-    };
-    
-    // Function to handle link sharing
     const shareGameLink = async () => {
-        if (!currentRoomCode && isRoomMode) return; // Only share if in a room or if we have a room code
+        if (!currentRoomCode && isRoomMode) return;
         
         let url = window.location.href.split('?')[0];
         let shareText = T('shareLink');
@@ -595,25 +515,19 @@
                     url: url
                 });
             } catch (error) {
-                // Fallback to clipboard if share fails
                 await navigator.clipboard.writeText(url);
                 showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
             }
         } else {
-            // Fallback for non-sharing browsers
             await navigator.clipboard.writeText(url);
             showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
         }
     };
 
-    // Function to show the help/how-to-play modal
     const showHelpModal = () => {
         showModal('howToPlayTitle', 'howToPlayBody', false, T('howToPlayBody'));
     };
 
-    // --- FIREBASE ROOM MANAGEMENT FUNCTIONS (Updated for Online Database) ---
-
-    /** Gets a snapshot of the room data from Firebase (one-time read) */
     const getRoomSnapshot = async (code) => {
         try {
             const snapshot = await database.ref('rooms/' + code).once('value');
@@ -624,7 +538,6 @@
         }
     };
 
-    /** Starts listening for real-time room updates (used by all players) */
     const startRoomPolling = () => {
         if (!currentRoomCode) return;
         
@@ -640,7 +553,6 @@
         });
     };
 
-    /** Stops the real-time listener */
     const stopRoomPolling = () => {
         if (roomRef) {
             roomRef.off('value', pollRoomCallback);
@@ -648,7 +560,6 @@
         }
     };
     
-    /** Callback function for the Firebase real-time listener */
     const pollRoomCallback = (snapshot) => {
         const room = snapshot.val();
         
@@ -660,19 +571,17 @@
             return;
         }
         
-        // Skip rendering if an input field is currently focused
         if (isInputFocused) {
            return;
         }
 
-        // Check if the current player is still in the room list
         if (myPlayerId && !room.players.some(p => p.id === myPlayerId)) {
             stopRoomPolling();
-            resetGame(); // Force a full reset
+            resetGame();
             return;
         }
         
-        // Update local state variables
+        isRoomCreator = room.creatorId === myPlayerId; // Update creator status on poll
         imposterCount = room.imposterCount;
         playerCount = room.players.length;
         
@@ -701,11 +610,10 @@
                  renderRoomLobby(room);
             }
         } else if (room.gameState === 'playing' && isGameStartedInRoom) {
-            renderEndGameView(true); // Ensures non-creator gets timer sync
+            renderEndGameView(true);
         }
     };
 
-    /** Generates a random 4-letter room code (Unchanged) */
     const generateRoomCode = () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let code = '';
@@ -715,7 +623,6 @@
         return code;
     };
 
-    /** Creator: Create a new room */
     const createRoom = async () => {
         let code = generateRoomCode();
         let existingRoom = await getRoomSnapshot(code);
@@ -751,7 +658,6 @@
         startRoomPolling();
     };
 
-    /** Player: Join an existing room */
     const joinRoom = async (code) => {
         code = code.toUpperCase();
         const room = await getRoomSnapshot(code);
@@ -777,14 +683,13 @@
         await roomRef.update({ players: room.players });
         
         currentRoomCode = code;
-        isRoomCreator = room.creatorId === myPlayerId; // Should be false here
+        isRoomCreator = room.creatorId === myPlayerId;
         isRoomMode = true;
         
         renderRoomLobby(room);
         startRoomPolling();
     };
 
-    /** Both: Submit their name */
     const submitName = async () => {
         const nameInput = document.getElementById('my-name-input');
         const myName = nameInput.value.trim();
@@ -810,7 +715,6 @@
         }
     };
     
-    /** Update imposter count in the room */
     const updateRoomSettings = async (imposterValue) => {
         if (!isRoomCreator) return;
         
@@ -832,8 +736,30 @@
         }
     };
 
+    // New function to remove a player
+    const removePlayerFromRoom = async (playerIdToRemove) => {
+        if (!isRoomCreator || playerIdToRemove === myPlayerId) return; 
 
-    /** Creator: Start the game for everyone in the room */
+        isInputFocused = true;
+        const room = await getRoomSnapshot(currentRoomCode);
+        isInputFocused = false;
+        if (!room) return;
+
+        const updatedPlayers = room.players.filter(p => p.id !== playerIdToRemove);
+
+        if (updatedPlayers.length === 0) {
+            await database.ref('rooms/' + currentRoomCode).remove();
+        } else {
+            let updates = { players: updatedPlayers };
+            // If the removed player was the creator, assign new creator (the first player in the list)
+            if (room.creatorId === playerIdToRemove) {
+                 updates.creatorId = updatedPlayers[0].id;
+            }
+            await database.ref('rooms/' + currentRoomCode).update(updates);
+        }
+    };
+
+
     const startRoomGame = async () => {
         const room = await getRoomSnapshot(currentRoomCode);
         if (!room || room.players.length < 3) {
@@ -847,7 +773,6 @@
             return;
         }
         
-        // 1. Assign roles
         const wordList = getWordList();
         const secretIndex = Math.floor(Math.random() * wordList.length);
         const newSecretWord = wordList[secretIndex];
@@ -863,7 +788,7 @@
         
         let rolesList = readyPlayers.map((p, i) => {
             const isImposter = imposterIndices.includes(i);
-            const role = isImposter ? T('imposter', lang) : T('civilian', lang);
+            const role = isImposter ? T('imposter') : T('civilian');
             const wordContent = isImposter ? newImposterHintWord : newSecretWord;
             
             return {
@@ -876,16 +801,13 @@
 
         rolesList = rolesList.sort(() => Math.random() - 0.5);
         
-        // 2. Update room state with game data
         room.players = rolesList;
         room.secretWord = newSecretWord;
         room.imposterHintWord = newImposterHintWord;
         room.gameState = 'playing';
         
-        // Update local roles for current player
         roles = rolesList;
 
-        // 3. Save to Firebase
         await roomRef.update({
             players: room.players,
             secretWord: room.secretWord,
@@ -893,12 +815,10 @@
             gameState: room.gameState
         });
 
-        // 4. Start the game locally for the creator (pollRoomCallback handles the rest)
         isGameStartedInRoom = true;
         startGame(room);
     };
 
-    /** Creator: Reset game inside the room (Keep players/names) */
     const resetRoomGame = async () => {
         const room = await getRoomSnapshot(currentRoomCode);
         if (!room) return;
@@ -923,7 +843,6 @@
         hideModal();
     };
 
-    // NEW FUNCTION: Creator finishes the timer instantly
     const finishRoomTimer = async () => {
         if (!isRoomMode || !isRoomCreator) return;
         
@@ -931,50 +850,35 @@
             clearInterval(timerInterval);
             timerInterval = null;
             timeLeft = 0;
-            // Setting gameState to 'ended' will trigger pollRoomCallback for all players
             await roomRef.update({ gameState: 'ended' });
             renderGameOverModal();
         }
     };
+    
+    const finishLocalTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = 0;
+        
+        // --- نوێکراوە بۆ دۆخی ئاسایی ---
+        document.getElementById('timerDisplay').textContent = T('timesUp');
+        
+        const imposterNames = roles
+            .filter(r => r.role === T('imposter'))
+            .map(r => r.name);
+        const imposterList = imposterNames.join(' ' + T('and') + ' ');
+        
+        const message = `
+            <div class="text-right">
+                <p class="text-lg text-slate-300 mb-2">${T('wordWas')}</p>
+                <p class="text-2xl font-bold text-primary mb-4">${secretWord}</p>
+                <p class="text-lg text-slate-300 mb-2">${T('impostersWere')}</p>
+                <p class="text-2xl font-bold word-imposter">${imposterList}</p>
+            </div>
+        `;
+        showModal('gameOverTitle', '', true, message);
+    }
 
-    /** Both: Exit the room and go back to the setup view */
-    const exitRoom = async () => {
-        if (!currentRoomCode) {
-            resetGame();
-            return;
-        }
-        
-        stopRoomPolling();
-        
-        const room = await getRoomSnapshot(currentRoomCode);
-        if (room) {
-            const updatedPlayers = room.players.filter(p => p.id !== myPlayerId);
-            
-            if (updatedPlayers.length === 0) {
-                await database.ref('rooms/' + currentRoomCode).remove();
-            } else {
-                let updates = { players: updatedPlayers };
-                if (isRoomCreator && updatedPlayers.length > 0 && room.creatorId === myPlayerId) {
-                    updates.creatorId = updatedPlayers[0].id;
-                }
-                await database.ref('rooms/' + currentRoomCode).update(updates);
-            }
-        }
-        
-        currentRoomCode = null;
-        isRoomCreator = false;
-        isRoomMode = false;
-        isGameStartedInRoom = false;
-        myPlayerId = null;
-        isInputFocused = false; 
-        
-        hideModal(); 
-        resetGame();
-    };
-
-    // --- Core Game Logic & UI (with minor updates for Firebase) ---
-
-    // Function to handle the end of the timer (Room & Local)
     const timerFinished = async () => {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -984,15 +888,8 @@
                 await roomRef.update({ gameState: 'ended' });
                 renderGameOverModal();
             }
-            // Non-creators handle 'ended' state via pollRoomCallback
         } else {
-            document.getElementById('timerDisplay').textContent = T('timesUp');
-            const imposterNames = roles
-                .filter(r => r.role === T('imposter'))
-                .map(r => r.name);
-            const imposterList = imposterNames.join(' ' + T('and') + ' ');
-            showModal('imposterWas', imposterList, true);
-            // revealImposters(true); // Removed from local mode
+            finishLocalTimer();
         }
     }
 
@@ -1016,13 +913,11 @@
                 const room = await getRoomSnapshot(currentRoomCode);
                 if (room && room.gameState === 'playing') {
                     
-                    // Use Firebase ServerValue.TIMESTAMP to ensure everyone starts at the same *database* time
                     await roomRef.update({
                         discussionStartTime: firebase.database.ServerValue.TIMESTAMP,
                         discussionDuration: duration
                     });
                     
-                    // Local timer starts for creator
                     timeLeft = duration;
                     timerInterval = setInterval(countdown, 1000); 
                     
@@ -1033,26 +928,26 @@
                     }
                     const timerEl = document.getElementById('timerDisplay');
                     if(timerEl) timerEl.textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+                    
+                    const endBtn = document.getElementById('finishLocalTimerButton');
+                    if(endBtn) endBtn.classList.remove('hidden');
                 }
             }
         } else {
-            // Local Mode
             timeLeft = duration; 
             const startButton = document.getElementById('startDiscussionButton');
             startButton.textContent = T('discussionTime');
             startButton.disabled = true;
             document.getElementById('timerDisplay').textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
             timerInterval = setInterval(countdown, 1000); 
+            
+            // --- نوێکراوە بۆ دۆخی ئاسایی ---
+            const endBtn = document.getElementById('finishLocalTimerButton');
+            if(endBtn) endBtn.classList.remove('hidden');
         }
     };
     
-    // DELETED: revealImposters function
-    // DELETED: revealWord function
-    
     const renderEndGameView = (isRoom = false) => {
-        // MODIFICATION 1: Deleted 'revealImposters' button, 'revealWord' button and their corresponding divs.
-        // MODIFICATION 2: Added 'finishTheTimer' button for the Room Creator.
-        
         const container = document.getElementById('game-container');
         
         const initialTime = playerCount * 60;
@@ -1060,7 +955,6 @@
         let displayTime = timerInterval ? `${T('discussionTime')} ${formatTime(timeLeft)}` : `${T('discussionTime')} ${initialTimeFormatted}`;
         
         
-        // Logic to sync timer for non-creators
         if (isRoom && roomRef && !isRoomCreator) {
             roomRef.once('value').then(snapshot => {
                 const room = snapshot.val();
@@ -1083,13 +977,12 @@
                      if (timerEl) timerEl.textContent = T('waitingForOthers');
                 }
             });
-            displayTime = T('waitingForOthers'); // Initial display before async update
+            displayTime = T('waitingForOthers');
         }
         
         if (isRoom && !isRoomCreator) {
             const roomData = roles.find(p => p.id === myPlayerId);
              if (roomData && roomData.role) {
-                // If a non-creator refreshes or enters late, they see the word immediately
                 secretWord = roles.find(p => p.role === T('civilian'))?.word || '';
                 imposterHintWord = T('justImposter');
                 
@@ -1123,7 +1016,6 @@
             }
         }
         
-        // This is for Local Mode OR the Room Creator End Screen
         container.innerHTML = `
              <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
              <h2 id="timerDisplay" class="text-2xl text-slate-200 text-center mb-6">${displayTime}</h2>
@@ -1138,6 +1030,10 @@
 
              ${isRoom && isRoomCreator ? `
                  <button class="primary-btn secondary-btn mb-4" onclick="finishRoomTimer()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
+                     ${T('finishTheTimer')}
+                 </button>
+             ` : !isRoom ? `
+                 <button id="finishLocalTimerButton" class="primary-btn secondary-btn mb-4 hidden" onclick="finishLocalTimer()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
                      ${T('finishTheTimer')}
                  </button>
              ` : ''}
@@ -1169,6 +1065,8 @@
                  startButton.textContent = T('discussionTime');
                  startButton.disabled = true;
              }
+             const endBtn = document.getElementById('finishLocalTimerButton');
+             if(endBtn && !isRoom) endBtn.classList.remove('hidden');
          }
     };
     
@@ -1194,7 +1092,6 @@
             renderRoomGameView(myPlayerIndex);
             
         } else {
-             // Local Mode Game Setup
             playerNames = getNamesFromDOM().filter(n => n.length > 0);
             playerCount = playerNames.length;
             
@@ -1226,7 +1123,7 @@
                 const isImposter = imposterIndices.includes(i);
                 return {
                     name: name,
-                    role: isImposter ? T('imposter', lang) : T('civilian', lang),
+                    role: isImposter ? T('imposter') : T('civilian'),
                     word: isImposter ? imposterHintWord : secretWord
                 };
             }).sort(() => Math.random() - 0.5);
@@ -1240,7 +1137,6 @@
         
         if (!roleData) return;
         
-        // --- UPDATED ROLE DISPLAY ---
         const isImposter = roleData.role === T('imposter');
         const roleContent = isImposter 
             ? `<p class="role-text-simplified word-imposter">${T('justImposter')}</p>`
@@ -1266,7 +1162,7 @@
 
     const hideRole = (playerIndex) => {
         if (isRoomMode) {
-            renderEndGameView(true); // Go directly to the Discussion screen in room mode
+            renderEndGameView(true);
         } else if (playerIndex < roles.length - 1) {
             renderPlayerTurnView(playerIndex + 1);
         } else {
@@ -1275,7 +1171,6 @@
     };
     
     const renderPlayerTurnView = (playerIndex = 0) => {
-        // MODIFICATION 3: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         const currentPlayer = roles[playerIndex];
         const totalPlayers = roles.length;
@@ -1304,11 +1199,10 @@
     };
     
     const renderRoomGameView = (myPlayerIndex) => {
-        // MODIFICATION 4: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         const myPlayerData = roles.find(p => p.id === myPlayerId);
         
-        if (!myPlayerData) return; // Should not happen in a valid game state
+        if (!myPlayerData) return;
 
         container.innerHTML = `
             <div id="room-player-turn">
@@ -1334,14 +1228,13 @@
     };
     
     const renderGameOverModal = () => {
-         // This runs when pollRoomCallback detects gameState === 'ended'
         const imposterNames = roles
             .filter(r => r.role === T('imposter'))
             .map(r => r.name);
         const imposterList = imposterNames.join(' ' + T('and') + ' ');
         
         const message = `
-            <div class="text-right ${lang === 'en' ? 'text-left' : ''}">
+            <div class="text-right">
                 <p class="text-lg text-slate-300 mb-2">${T('wordWas')}</p>
                 <p class="text-2xl font-bold text-primary mb-4">${secretWord}</p>
                 <p class="text-lg text-slate-300 mb-2">${T('impostersWere')}</p>
@@ -1365,12 +1258,10 @@
     const renderSetupView = () => {
         isRoomMode = false;
         gameActive = false;
-        // MODIFICATION 5: REMOVED: shareButton.classList.add('hidden');
         helpButton.classList.remove('hidden');
 
         const container = document.getElementById('game-container');
         
-        // Ensure playerNames array matches current playerCount
         if (playerNames.length !== playerCount) {
              playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
         }
@@ -1386,18 +1277,14 @@
             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
             <div class="title-bar mb-6"></div>
             
-            <button class="lang-btn" onclick="toggleLanguage()">
-                ${lang === 'ku' ? 'English Mode' : 'کوردی'}
-            </button>
-            
-            <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('playerCount')}</p>
+            <p class="text-slate-300 mb-2 text-right">${T('playerCount')}</p>
             <input type="number" min="3" max="12" value="${playerCount}" onchange="handlePlayerCountChange(event)" class="mb-4">
 
-            <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('imposterCount')}</p>
+            <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
             <input type="number" min="1" max="2" value="${imposterCount}" onchange="handleImposterCountChange(event)" class="mb-6">
 
             <div id="player-names-input">
-                <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('playerName')} ${T('and')} ${T('playerName')}:</p>
+                <p class="text-slate-300 mb-2 text-right">${T('playerName')} ${T('and')} ${T('playerName')}:</p>
                 ${nameInputs}
             </div>
 
@@ -1425,7 +1312,6 @@
              imposterCount = count > 1 ? 1 : 1;
          }
          
-         // Update playerNames array when count changes
          if (playerNames.length > playerCount) {
              playerNames = playerNames.slice(0, playerCount);
          } else if (playerNames.length < playerCount) {
@@ -1445,7 +1331,6 @@
      };
 
     const renderRoomMenu = () => {
-        // MODIFICATION 6: REMOVED: shareButton.classList.add('hidden');
         const container = document.getElementById('game-container');
         container.innerHTML = `
             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
@@ -1455,8 +1340,8 @@
                 ${T('createRoom')}
             </button>
             
-            <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('enterCode')}</p>
-            <input type="text" id="join-code-input" placeholder="ABCD" maxlength="4" class="mb-4 english-mode" onfocus="isInputFocused = true" onblur="isInputFocused = false">
+            <p class="text-slate-300 mb-2 text-right">${T('enterCode')}</p>
+            <input type="text" id="join-code-input" placeholder="ABCD" maxlength="4" onfocus="isInputFocused = true" onblur="isInputFocused = false">
             
             <button class="primary-btn" onclick="joinRoom(document.getElementById('join-code-input').value)">
                 ${T('joinRoom')}
@@ -1484,23 +1369,31 @@
         currentRoomCode = room.code;
         isRoomCreator = room.creatorId === myPlayerId;
         
-        // Find current player's name
         const myPlayerData = room.players.find(p => p.id === myPlayerId) || { name: '', isReady: false };
         const myPlayerName = myPlayerData.name;
         const myStatusKey = myPlayerData.name ? (myPlayerData.isReady ? 'ready' : 'waitingForOthers') : 'waitingForName';
         
         const container = document.getElementById('game-container');
         
-        // Show share button only in lobby (This line is now redundant but kept for original intent consistency)
         shareButton.classList.remove('hidden');
 
         const playerListHTML = room.players.map(p => {
             const isCreator = p.id === room.creatorId;
+            const isMe = p.id === myPlayerId;
             const statusText = p.isReady ? T('ready') : T('waitingForName');
             const statusClass = p.isReady ? 'ready' : '';
+            
+            // Add remove button for creator, but not for themselves
+            const removeButton = isRoomCreator && !isMe ? 
+                `<button class="remove-btn" onclick="removePlayerFromRoom('${p.id}')">${T('remove')}</button>` : 
+                '';
+            
             return `
                 <div class="lobby-player-item ${isCreator ? 'creator' : ''}">
-                    <span class="font-bold">${p.name || T('waitingForName')} ${isCreator ? `(${T('creator')})` : ''}</span>
+                    <div class="flex items-center">
+                        ${removeButton}
+                        <span class="font-bold">${p.name || T('waitingForName')} ${isCreator ? `(${T('creator')})` : ''}</span>
+                    </div>
                     <span class="status ${statusClass}">${statusText}</span>
                 </div>
             `;
@@ -1517,12 +1410,12 @@
             <p id="room-code-display" onclick="copyRoomCode()">${room.code}</p>
             <p class="text-sm text-slate-400 text-center mb-6">${T('shareLink')}</p>
             
-            <div class="flex justify-between items-center text-slate-300 mb-4 ${lang === 'en' ? 'flex-row-reverse' : ''}">
+            <div class="flex justify-between items-center text-slate-300 mb-4">
                 <p><strong>${T('myStatus')}</strong></p>
                 <p class="status ${myStatusKey === 'ready' ? 'ready' : ''}">${T(myStatusKey)}</p>
             </div>
             
-            <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('enterYourName')}</p>
+            <p class="text-slate-300 mb-2 text-right">${T('enterYourName')}</p>
             <div class="flex gap-2">
                 <input type="text" id="my-name-input" placeholder="${T('playerName')}" value="${myPlayerName}" 
                        onfocus="isInputFocused = true" 
@@ -1535,7 +1428,7 @@
 
             ${isRoomCreator ? `
                 <div class="mt-4">
-                    <p class="text-slate-300 mb-2 text-right ${lang === 'en' ? 'text-left' : ''}">${T('imposterCount')}</p>
+                    <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
                     <input type="number" min="1" max="2" value="${room.imposterCount}" 
                            onchange="updateRoomSettings(this.value)" class="mb-4">
                 </div>
@@ -1561,6 +1454,40 @@
         `;
     };
     
+    const exitRoom = async () => {
+        if (!currentRoomCode) {
+            resetGame();
+            return;
+        }
+        
+        stopRoomPolling();
+        
+        const room = await getRoomSnapshot(currentRoomCode);
+        if (room) {
+            const updatedPlayers = room.players.filter(p => p.id !== myPlayerId);
+            
+            if (updatedPlayers.length === 0) {
+                await database.ref('rooms/' + currentRoomCode).remove();
+            } else {
+                let updates = { players: updatedPlayers };
+                if (isRoomCreator && updatedPlayers.length > 0 && room.creatorId === myPlayerId) {
+                    updates.creatorId = updatedPlayers[0].id;
+                }
+                await database.ref('rooms/' + currentRoomCode).update(updates);
+            }
+        }
+        
+        currentRoomCode = null;
+        isRoomCreator = false;
+        isRoomMode = false;
+        isGameStartedInRoom = false;
+        myPlayerId = null;
+        isInputFocused = false; 
+        
+        hideModal(); 
+        resetGame();
+    };
+    
     const resetGame = (skipRoomCheck = false) => {
         if (isRoomMode && isRoomCreator && !skipRoomCheck) {
             resetRoomGame();
@@ -1584,27 +1511,21 @@
             myPlayerId = null;
         }
         
-        // Reset player names array to default length for local mode
         playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
         
         renderSetupView();
     };
 
-    // --- Event Handlers & Initialization ---
-    
-    // Check for room code in URL on load
     const checkUrlForRoom = () => {
          const urlParams = new URLSearchParams(window.location.search);
          const roomCode = urlParams.get('room');
          if (roomCode && roomCode.length === 4) {
              joinRoom(roomCode);
-             window.history.replaceState({}, document.title, window.location.pathname); // Clean up URL
+             window.history.replaceState({}, document.title, window.location.pathname);
          }
     };
     
-    // Window onload initializes Firebase
     window.onload = () => {
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1616,9 +1537,8 @@
             }
         }
         renderSetupView();
-        checkUrlForRoom(); // Check if a user clicked a share link
+        checkUrlForRoom();
     };
  </script>
 </body>
 </html>
- 
