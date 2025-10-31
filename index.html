@@ -361,6 +361,151 @@
          background-color: #10b981;
          transform: scale(1.05);
      }
+     
+     /* --- CHAT CSS --- */
+     #chat-button {
+         position: fixed;
+         bottom: 20px;
+         right: 160px; 
+         background-color: #eab308;
+         color: #1e293b;
+         border: none;
+         border-radius: 50%;
+         width: 50px;
+         height: 50px;
+         display: flex; /* گۆڕانکاری: هەمیشە وەک flex دەربکەوێت (ئەگەر لە دۆخی ژووردا بین) */
+         align-items: center;
+         justify-content: center;
+         cursor: pointer;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+         z-index: 1000;
+         transition: background-color 0.2s, transform 0.2s;
+     }
+     #chat-button:hover {
+         background-color: #facc15;
+         transform: scale(1.05);
+     }
+     #unread-count {
+         position: absolute;
+         top: -5px;
+         right: -5px;
+         background-color: #ef4444; 
+         color: white;
+         border-radius: 50%;
+         padding: 0 5px;
+         font-size: 0.75rem;
+         min-width: 18px;
+         text-align: center;
+         line-height: 18px;
+         font-weight: bold;
+         display: none; 
+     }
+     
+     #chat-modal {
+         position: fixed;
+         bottom: 80px;
+         right: 15px;
+         width: 300px;
+         height: 400px;
+         background-color: var(--dark-card);
+         border-radius: 1rem;
+         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+         z-index: 999;
+         display: flex;
+         flex-direction: column;
+         opacity: 0;
+         visibility: hidden;
+         transform: translateY(20px);
+         transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+         color: #f8fafc;
+     }
+     #chat-modal.show {
+         opacity: 1;
+         visibility: visible;
+         transform: translateY(0);
+     }
+     
+     .chat-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 0.75rem 1rem;
+         border-bottom: 1px solid #475569;
+     }
+     .chat-header h3 {
+         font-size: 1.25rem;
+         font-weight: 700;
+         color: var(--primary);
+     }
+     .chat-close-btn {
+        background: none;
+        border: none;
+        color: #f8fafc;
+        cursor: pointer;
+        font-size: 1.5rem;
+     }
+
+     #messages-container {
+         flex-grow: 1;
+         padding: 1rem;
+         overflow-y: auto;
+         display: flex;
+         flex-direction: column-reverse; 
+     }
+     
+     /* --- NEW: Unique Player Colors and White Message Text --- */
+     .message-item {
+         margin-bottom: 0.5rem;
+         line-height: 1.4;
+     }
+     .message-item .sender-name {
+         font-weight: 700;
+         margin-left: 0.5rem; 
+     }
+     .message-item .message-text {
+         color: #f8fafc; 
+         display: block;
+         word-wrap: break-word;
+     }
+     /* Unique colors for players (12 colors) */
+     .player-color-0 { color: #f87171; } /* Red */
+     .player-color-1 { color: #34d399; } /* Emerald */
+     .player-color-2 { color: #60a5fa; } /* Blue */
+     .player-color-3 { color: #facc15; } /* Yellow */
+     .player-color-4 { color: #a78bfa; } /* Violet */
+     .player-color-5 { color: #f472b6; } /* Pink */
+     .player-color-6 { color: #4ade80; } /* Light Green */
+     .player-color-7 { color: #fb923c; } /* Orange */
+     .player-color-8 { color: #2dd4bf; } /* Teal */
+     .player-color-9 { color: #e879f9; } /* Fuchsia */
+     .player-color-10 { color: #94a3b8; } /* Slate */
+     .player-color-11 { color: #fca5a5; } /* Light Red */
+     /* --- END NEW --- */
+
+
+     .chat-input-area {
+         display: flex;
+         padding: 0.5rem 1rem;
+         border-top: 1px solid #475569;
+     }
+     #chat-input {
+         flex-grow: 1;
+         margin-bottom: 0;
+         margin-right: 0.5rem;
+         background-color: #475569;
+     }
+     .send-btn {
+         background-color: var(--primary);
+         color: #1e293b;
+         border-radius: 0.5rem;
+         padding: 0.5rem 1rem;
+         font-weight: 700;
+         cursor: pointer;
+         transition: opacity 0.2s;
+     }
+     .send-btn:hover {
+         opacity: 0.9;
+     }
  </style>
 </head>
 <body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
@@ -372,6 +517,22 @@
      <div class="modal-content" id="modal-inner">
          </div>
  </div>
+ 
+ <div id="chat-modal">
+    <div class="chat-header">
+        <h3>گفتوگۆی یاریزانان</h3>
+        <button class="chat-close-btn" onclick="toggleChatModal()">×</button>
+    </div>
+    <div id="messages-container">
+        </div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="نامەکەت بنووسە..." 
+               onfocus="isInputFocused = true" 
+               onblur="isInputFocused = false"
+               onkeyup="if(event.keyCode === 13) sendMessage()">
+        <button class="send-btn" onclick="sendMessage()">ناردن</button>
+    </div>
+ </div>
 
  <button id="shareButton" class="share-button" onclick="shareGameLink()">
      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -379,6 +540,11 @@
 
  <button id="helpButton" class="help-button" onclick="showHelpModal()">
     ?
+ </button>
+ 
+ <button id="chat-button" onclick="toggleChatModal()" style="display: none;">
+     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+     <span id="unread-count"></span>
  </button>
 
 
@@ -392,15 +558,33 @@
         messagingSenderId: "YOUR_SENDER_ID",
         appId: "YOUR_APP_ID"
     };
+    
+    // --- CHAT FIREBASE CONFIGURATION ---
+    const chatFirebaseConfig = {
+        databaseURL: "https://kigmessages-8e8dd-default-rtdb.firebaseio.com/" // The provided database link
+    };
+    
+    let chatApp;
+    let chatDatabase;
+    let chatRef;
+    let lastKnownMessageCount = 0;
 
     const modal = document.getElementById('custom-modal');
     const modalInner = document.getElementById('modal-inner');
     const shareButton = document.getElementById('shareButton');
     const helpButton = document.getElementById('helpButton');
+    const chatButton = document.getElementById('chat-button');
+    const chatModal = document.getElementById('chat-modal');
+    const unreadCountSpan = document.getElementById('unread-count');
+    const messagesContainer = document.getElementById('messages-container');
+    const chatInput = document.getElementById('chat-input');
+
 
     let database;
     let roomRef;
     let myPlayerId = null;
+    let myPlayerName = ''; 
+    let playerColorMap = {}; 
 
     const WORDS_KU = [
         "پزیشک", "مامۆستا", "ئەندازیار", "فەرمانبەر", "شۆفێر", "گۆرانیبێژ", "نووسەر", "وەرگێڕ",
@@ -456,12 +640,152 @@
             ku: {
                 appName: "یاری فێڵباز", imposter: "فێڵباز", civilian: "هاوڵاتی", playerCount: "ژمارەی یاریزانان (3-12):", imposterCount: "ژمارەی فێڵبازەکان (1-2):", start: "دەستپێکردنی یاری", playerName: "ناوی یاریزان", showRole: "ڕۆڵی خۆت ببینە", yourRole: "ڕۆڵی تۆ:", theWord: "وشەی نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "نۆرەی یاریزانان", close: "داخستن", reset: "دووبارە دەستپێکردنەوە", wordWas: "وشەی نهێنی بریتی بوو لە:", selectWord: "تکایە وشەی نهێنی هەڵبژێرە!", validationTitle: "هۆشداری", nameRequired: "تکایە ناوی هەموو یاریزانەکان بنووسە.", notEnoughPlayers: "ژمارەی یاریزانان کەمە. پێویستت بە لانی کەم 3 یاریزانە.", impostersWere: "فێڵبازەکان بریتی بوون لە:", justImposter: "تۆ فێڵبازی!", imposterHintLabel: "وشە:", startDiscussion: "دەستپێکردنی گفتوگۆ", discussionTime: "کاتی گفتوگۆ:", timesUp: "کات کۆتایی هات!", imposterWas: "فێڵبازەکە بریتی بوو لە:", shareLink: "لینکی یارییەکە بنێرە بۆ هاوڕێکانت!", and: "و", howToPlayTitle: "چۆن یاری دەکەیت: یاری فێڵباز", howToPlayBody: `ئامانج ئەوەیە هەمووان قەناعەت پێبکەیت کە وشەی نهێنی دەزانیت—یاخود ئەو کەسە بدۆزیتەوە کە نایزانێت.<br><br><strong>١. 🤫 ڕۆڵی خۆت بدۆزەرەوە</strong><br>• مۆبایلەکە بەدەوردا دەسوڕێنرێتەوە بۆ ئەوەی هەمووان بە نهێنی سەیری شاشەکە بکەن.<br>• زۆربەی یاریزانەکان <strong>وشەی نهێنی</strong> دەبینن (بۆ نموونە: قەنەفە).<br>• یەک یاریزان <strong>"فریودەر"</strong> دەبینێت.<br><br><strong>٢. 🗣️ ئاماژە بدە</strong><br>• بە دەوری بازنەکەدا بگەڕێن. هەر یاریزانێک <strong>یەک وشە</strong> بۆ وەسفکردنی وشە نهێنییەکە دەدات.<br>• <strong>ئەگەر وشەکە دەزانیت:</strong> ئاماژەکەت دەبێت ئەوەندە دیاریکراو بێت کە بیسەلمێنێت دەیزانیت، بەڵام ئەوەندەش ناڕوون بێت کە فێڵبازەکە سەرلێشێواو بکات.<br>• <strong>ئەگەر تۆ فێڵبازیت:</strong> ئاماژەیەکی گشتی بدە کە لەگەڵ پۆلەکەدا بگونجێت (بۆ نموونە: کەلوپەل) و هەوڵبدە تێکەڵ ببیت!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• دوای ٢-٣ گەڕی ئاماژەدان، گفتوگۆ دەستپێدەکات. تۆمەت بخەرە پاڵ ئەو یاریزانەی کە ئاماژەکانی گوماناویترین یان گشتیترین بوون.<br>• هەمووان دەنگ دەدەن بۆ ئەوەی بزانن کێ گوماناوییە. ئەو یاریزانەی زۆرترین دەنگ بەدەست دەهێنێت ئاشکرا دەکرێت.<br><br><strong>چۆن دەیبەیتەوە 🏆 :</strong><br><br>• <strong>هاوڵاتییەکان:</strong><br>-ئەگەر پێش کۆتایی هاتنی کات فێلبازەکە بدۆزنەوە.<br><br>• <strong>فێڵباز:</strong><br>-ئەگەر هاوڵاتییەکان نەیاندۆزنەوە کە کێ فێڵبازە.<br>-ئەگەر کاتەکە کۆتایی بێت.`,
                 room: "ژوور", playWithFriends: "یاری لەگەڵ هاوڕێیان", createRoom: "دروستکردنی ژوور", joinRoom: "چوونە ژوورەوە", roomCode: "کۆدی ژوور:", enterCode: "کۆدی ژوور بنووسە", creator: "دروستکەر", myStatus: "دۆخی من:", waitingForName: "چاوەڕێی نووسینی ناو", waitingForOthers: "چاوەڕێی یاریزانانی تر", ready: "ئامادە", submit: "پشتڕاستکردنەوە", notEnoughPlayersPopup: "ژمارەی یاریزانان کەمە. لانی کەم 3 یاریزان پێویستە.", roomFull: "ژوورەکە پڕە.", roomNotFound: "کۆدی ژوورەکە نادروستە.", roomStart: "دەستپێکردنی یاری (3+ یاریزان)", gameAlreadyStarted: "یارییەکە دەستیپێکردووە...", enterYourName: "ناوی خۆت بنووسە", nameSubmitSuccess: "ناوی تۆ نووسرا. چاوەڕێی ئەوانی تر بە.", gameOverTitle: "کۆتایی یاری", playAgain: "دووبارە یاری بکەوە لە هەمان ژوور", exitRoom: "چوونە دەرەوەی ژوور", startOver: "دەستپێکی دووبارە (وشە و ڕۆڵی نوێ)", backToSetup: "گەڕانەوە بۆ ڕێکخستنەکان",
-                finishTheTimer: "کۆتایی هێنان بە کات", remove: "لابردن" // Added translation for 'remove'
+                finishTheTimer: "کۆتایی هێنان بە کات", remove: "لابردن", chatTitle: "گفتوگۆی یاریزانان" 
             }
         };
         return translations.ku[key] || key;
     };
     
+    // --- CHAT LOGIC ---
+    
+    // Toggles the chat modal display and resets the unread count
+    const toggleChatModal = () => {
+        if (!currentRoomCode) return; // FIX: Prevent chat if not in a room
+
+        if (chatModal.classList.contains('show')) {
+            chatModal.classList.remove('show');
+        } else {
+            chatModal.classList.add('show');
+            
+            // Reset unread counter when opening the chat
+            unreadCountSpan.style.display = 'none';
+            unreadCountSpan.textContent = '';
+            lastKnownMessageCount = 0; // Reset counter value too
+            
+            // Scroll to the bottom to see the latest messages
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    };
+    
+    // Sends a message to the Firebase chat database
+    const sendMessage = () => {
+        const messageText = chatInput.value.trim();
+        
+        // **NEW: Check for player name**
+        if (!myPlayerName) {
+            showModal('validationTitle', 'enterYourName');
+            chatInput.value = ''; // Clear input if message wasn't sent
+            return;
+        }
+
+        if (!messageText || !currentRoomCode) return;
+
+        chatRef.child(currentRoomCode).push({
+            senderId: myPlayerId,
+            senderName: myPlayerName,
+            message: messageText,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        chatInput.value = '';
+    };
+
+    // Displays the messages in the container
+    const displayMessage = (senderId, senderName, message, timestamp, messageKey) => { 
+        
+        // **چارەسەری دووبارەبوونەوە: پشکنین بۆ ئەوەی بزانین پەیامەکە پێشتر دروستکراوە یان نا**
+        if (document.getElementById(`msg-${messageKey}`)) {
+            return;
+        }
+        
+        const time = new Date(timestamp).toLocaleTimeString('ku-IQ', { hour: '2-digit', minute: '2-digit' });
+        const isMe = senderId === myPlayerId;
+        
+        // **NEW: Get player color index**
+        const colorIndex = playerColorMap[senderId] !== undefined ? playerColorMap[senderId] : 0;
+        const colorClass = `player-color-${colorIndex % 12}`;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.id = `msg-${messageKey}`; // دانانی ID بۆ پەیامەکە
+        messageDiv.className = `message-item text-right`; 
+        messageDiv.innerHTML = `
+            <span class="sender-name ${colorClass}">${senderName}:</span> 
+            <span class="message-text">${message}</span>
+            <span class="text-xs text-slate-500 mr-2">${time}</span>
+        `;
+        
+        // Use insertBefore to keep the newest message at the bottom (due to flex-direction: column-reverse)
+        messagesContainer.insertBefore(messageDiv, messagesContainer.firstChild);
+
+        if (chatModal.classList.contains('show')) {
+             messagesContainer.scrollTop = messagesContainer.scrollHeight; // Keep chat scrolled to bottom when open
+        }
+    };
+    
+    // Listens for new messages in the specific room
+    const listenForMessages = (roomCode) => {
+        if (!chatDatabase) return;
+        
+        // Remove previous listener if it exists
+        if (chatRef) {
+             chatRef.off();
+        }
+        messagesContainer.innerHTML = ''; // Clear old messages
+        lastKnownMessageCount = 0;
+        unreadCountSpan.style.display = 'none';
+
+        chatRef = chatDatabase.ref('messages');
+        const roomChatRef = chatRef.child(roomCode);
+
+        // Initial fetch and on-new-child listener
+        roomChatRef.limitToLast(50).on('child_added', (snapshot) => {
+            const messageData = snapshot.val();
+            const messageKey = snapshot.key; // **New: Get the message key**
+            
+            // Check if the message is new (for unread count)
+            if (!chatModal.classList.contains('show') && messageData.senderId !== myPlayerId) {
+                 // Only count as unread if the message is new to the container
+                 if (!document.getElementById(`msg-${messageKey}`)) {
+                     lastKnownMessageCount++;
+                     if (lastKnownMessageCount > 0) {
+                        unreadCountSpan.style.display = 'flex';
+                        unreadCountSpan.textContent = lastKnownMessageCount;
+                     }
+                 }
+            }
+
+            displayMessage(
+                messageData.senderId, 
+                messageData.senderName, 
+                messageData.message, 
+                messageData.timestamp,
+                messageKey // **New: Pass the message key**
+            );
+        }, (error) => {
+             console.error("Firebase Chat Listener Error:", error);
+        });
+    };
+    
+    // Hides the chat button and removes the chat listener
+    const stopChat = () => {
+        chatButton.style.display = 'none';
+        chatModal.classList.remove('show');
+        unreadCountSpan.style.display = 'none';
+        if (chatRef) {
+             chatRef.off();
+        }
+        chatRef = null;
+        lastKnownMessageCount = 0;
+    };
+    
+    // Shows the chat button and starts the chat listener
+    const startChat = (roomCode) => {
+        chatButton.style.display = 'flex';
+        listenForMessages(roomCode);
+    };
+
+    // --- END CHAT LOGIC ---
+
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -565,6 +889,7 @@
         
         if (!room) {
             stopRoomPolling();
+            stopChat(); 
             if (currentRoomCode) {
                 showModal('validationTitle', 'roomNotFound', false, null, resetGame);
             }
@@ -577,11 +902,12 @@
 
         if (myPlayerId && !room.players.some(p => p.id === myPlayerId)) {
             stopRoomPolling();
+            stopChat(); 
             resetGame();
             return;
         }
         
-        isRoomCreator = room.creatorId === myPlayerId; // Update creator status on poll
+        isRoomCreator = room.creatorId === myPlayerId; 
         imposterCount = room.imposterCount;
         playerCount = room.players.length;
         
@@ -590,8 +916,14 @@
              roles = room.players;
              secretWord = room.secretWord;
              imposterHintWord = room.imposterHintWord;
+             myPlayerName = myPlayerData.name || ''; 
         }
 
+        // **NEW: Update player color map**
+        playerColorMap = {};
+        room.players.forEach((player, index) => {
+            playerColorMap[player.id] = index;
+        });
 
         if (room.gameState === 'playing' && !isGameStartedInRoom) {
             isGameStartedInRoom = true;
@@ -611,6 +943,16 @@
             }
         } else if (room.gameState === 'playing' && isGameStartedInRoom) {
             renderEndGameView(true);
+        }
+        
+        // **گۆڕانکاری: دەستپێکردنی چات لە هەر دۆخێکی ژووردا**
+        if (currentRoomCode && room.gameState !== 'menu' && room.gameState !== 'setup') {
+             // چاتەکە لە renderRoomLobby دەستپێدەکات، بەڵام ئەمە دڵنیا دەبێتەوە کە ئەگەر لە هەر دۆخێکی تردا بوو (وەک playing/ended)، چالاک دەبێت.
+             startChat(currentRoomCode); 
+        } else if (currentRoomCode && room.gameState === 'setup') {
+             startChat(currentRoomCode);
+        } else {
+             stopChat();
         }
     };
 
@@ -670,10 +1012,6 @@
             showModal('validationTitle', 'roomFull');
             return;
         }
-        if (room.gameState !== 'setup') {
-            showModal('validationTitle', 'gameAlreadyStarted');
-            return;
-        }
         
         myPlayerId = database.ref().push().key; 
         const newPlayer = { id: myPlayerId, name: '', isReady: false, role: '', word: '' };
@@ -692,9 +1030,9 @@
 
     const submitName = async () => {
         const nameInput = document.getElementById('my-name-input');
-        const myName = nameInput.value.trim();
+        const name = nameInput.value.trim();
         
-        if (myName.length < 1) {
+        if (name.length < 1) {
             showModal('validationTitle', 'nameRequired');
             return;
         }
@@ -703,10 +1041,12 @@
         const room = await getRoomSnapshot(currentRoomCode);
         isInputFocused = false;
         if (!room) return;
+        
+        myPlayerName = name; // Store player name globally
 
         const myPlayerIndex = room.players.findIndex(p => p.id === myPlayerId);
         if (myPlayerIndex !== -1) {
-            room.players[myPlayerIndex].name = myName;
+            room.players[myPlayerIndex].name = name;
             room.players[myPlayerIndex].isReady = true;
             
             await roomRef.update({ players: room.players });
@@ -829,7 +1169,7 @@
             imposterHintWord: '',
             discussionStartTime: null,
             discussionDuration: 0,
-            players: room.players.map(p => ({ ...p, isReady: false, role: '', word: '' }))
+            players: room.players.map(p => ({ ...p, isReady: p.id === myPlayerId && p.name.length > 0, role: '', word: '' })) // Keep current player ready if name is set
         };
         
         await roomRef.update(updates);
@@ -931,6 +1271,8 @@
                     
                     const endBtn = document.getElementById('finishLocalTimerButton');
                     if(endBtn) endBtn.classList.remove('hidden');
+                    
+                    // startChat(currentRoomCode); // Already started in pollRoomCallback
                 }
             }
         } else {
@@ -1068,6 +1410,11 @@
              const endBtn = document.getElementById('finishLocalTimerButton');
              if(endBtn && !isRoom) endBtn.classList.remove('hidden');
          }
+         
+         // **لادانی بانگکردنی چات لێرە، چونکە لە pollRoomCallback دەستیپێکردووە**
+         // if (isRoom && (timerInterval || displayTime === T('waitingForOthers'))) {
+         //     startChat(currentRoomCode);
+         // }
     };
     
     const getNamesFromDOM = () => {
@@ -1089,9 +1436,11 @@
             imposterHintWord = roomData.imposterHintWord;
             
             const myPlayerIndex = roles.findIndex(p => p.id === myPlayerId);
+            myPlayerName = roles[myPlayerIndex].name; // Ensure myPlayerName is set
             renderRoomGameView(myPlayerIndex);
             
         } else {
+            // Local game logic
             playerNames = getNamesFromDOM().filter(n => n.length > 0);
             playerCount = playerNames.length;
             
@@ -1228,6 +1577,7 @@
     };
     
     const renderGameOverModal = () => {
+        stopChat(); 
         const imposterNames = roles
             .filter(r => r.role === T('imposter'))
             .map(r => r.name);
@@ -1259,6 +1609,9 @@
         isRoomMode = false;
         gameActive = false;
         helpButton.classList.remove('hidden');
+        stopChat(); 
+        myPlayerName = ''; 
+        playerColorMap = {}; 
 
         const container = document.getElementById('game-container');
         
@@ -1296,7 +1649,7 @@
                 ${T('playWithFriends')}
             </button>
             
-            <div class="footer-text">
+            <div class="footer-text mt-8">
                 ${T('madeBy')}
                 <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
             </div>
@@ -1332,6 +1685,8 @@
 
     const renderRoomMenu = () => {
         const container = document.getElementById('game-container');
+        stopChat(); 
+
         container.innerHTML = `
             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
             <div class="title-bar mb-6"></div>
@@ -1369,13 +1724,16 @@
         currentRoomCode = room.code;
         isRoomCreator = room.creatorId === myPlayerId;
         
-        const myPlayerData = room.players.find(p => p.id === myPlayerId) || { name: '', isReady: false };
-        const myPlayerName = myPlayerData.name;
+        const myPlayerData = room.players.find(p => p.id === myPlayerId) || { name: myPlayerName, isReady: !!myPlayerName };
+        myPlayerName = myPlayerData.name || ''; 
         const myStatusKey = myPlayerData.name ? (myPlayerData.isReady ? 'ready' : 'waitingForOthers') : 'waitingForName';
         
         const container = document.getElementById('game-container');
         
         shareButton.classList.remove('hidden');
+        
+        // **گۆڕانکاری: دەستپێکردنی چات لێرە، لە دۆخی setup**
+        startChat(currentRoomCode); 
 
         const playerListHTML = room.players.map(p => {
             const isCreator = p.id === room.creatorId;
@@ -1419,7 +1777,8 @@
             <div class="flex gap-2">
                 <input type="text" id="my-name-input" placeholder="${T('playerName')}" value="${myPlayerName}" 
                        onfocus="isInputFocused = true" 
-                       onblur="isInputFocused = false" 
+                       onblur="isInputFocused = false"
+                       maxlength="15" 
                        class="flex-grow">
                 <button class="primary-btn w-auto px-6 py-2" onclick="submitName()">
                     ${T('submit')}
@@ -1461,6 +1820,7 @@
         }
         
         stopRoomPolling();
+        stopChat(); 
         
         const room = await getRoomSnapshot(currentRoomCode);
         if (room) {
@@ -1483,6 +1843,8 @@
         isGameStartedInRoom = false;
         myPlayerId = null;
         isInputFocused = false; 
+        myPlayerName = '';
+        playerColorMap = {}; 
         
         hideModal(); 
         resetGame();
@@ -1504,11 +1866,14 @@
         
         if (!isRoomMode || skipRoomCheck) {
             stopRoomPolling();
+            stopChat();
             currentRoomCode = null;
             isRoomCreator = false;
             isRoomMode = false;
             isGameStartedInRoom = false;
             myPlayerId = null;
+            myPlayerName = '';
+            playerColorMap = {}; 
         }
         
         playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
@@ -1530,6 +1895,17 @@
             firebase.initializeApp(firebaseConfig);
         }
         database = firebase.database();
+        
+        // Initialize a second Firebase app for the chat database
+        try {
+            chatApp = firebase.initializeApp(chatFirebaseConfig, "chatApp");
+            chatDatabase = chatApp.database();
+        } catch (e) {
+            console.warn("Chat Firebase App already initialized or failed to initialize:", e);
+            chatApp = firebase.app("chatApp");
+            chatDatabase = chatApp.database();
+        }
+
 
          if (playerNames.length === 0) {
              for (let i = 0; i < playerCount; i++) {
