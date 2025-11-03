@@ -1634,7 +1634,7 @@
             <input type="number" min="3" max="12" value="${playerCount}" onchange="handlePlayerCountChange(event)" class="mb-4">
 
             <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
-            <input type="number" min="1" max="2" value="${imposterCount}" onchange="handleImposterCountChange(event)" class="mb-6">
+            <input type="number" min="1" max="5" value="${imposterCount}" onchange="handleImposterCountChange(event)" class="mb-6">
 
             <div id="player-names-input">
                 <p class="text-slate-300 mb-2 text-right">${T('playerName')} ${T('and')} ${T('playerName')}:</p>
@@ -1788,7 +1788,7 @@
             ${isRoomCreator ? `
                 <div class="mt-4">
                     <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
-                    <input type="number" min="1" max="2" value="${room.imposterCount}" 
+                    <input type="number" min="1" max="5" value="${room.imposterCount}" 
                            onchange="updateRoomSettings(this.value)" class="mb-4">
                 </div>
             ` : `<p class="text-slate-400 text-sm mt-4 text-center">${T('imposterCount')}: ${room.imposterCount}</p>`}
