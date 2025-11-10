@@ -8,7 +8,6 @@
  
  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
- 
  <script>
      tailwind.config = {
          theme: {
@@ -43,93 +42,7 @@
          font-family: 'kurdish';
      }
 
-     /* --- NEW: User Info Display --- */
-     #user-info-display {
-        position: fixed;
-        top: 15px;
-        left: 20px; /* Positioned on the left for RTL, opposite of online counter */
-        font-size: 0.8rem;
-        font-weight: 700;
-        z-index: 1000;
-        background-color: rgba(30, 41, 59, 0.9); /* dark-bg with transparency */
-        padding: 5px 10px;
-        border-radius: 0.5rem;
-        color: #facc15; /* Primary color */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        display: none; /* Hide by default */
-        align-items: center;
-        white-space: nowrap;
-        cursor: pointer;
-        border: 1px solid #facc15;
-     }
-     
-     #user-info-display:hover {
-        background-color: rgba(49, 62, 88, 0.9);
-     }
-     
-     /* --- NEW: Friends/Play button position --- */
-     #start-game-button {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 999;
-        /* Using a secondary button style for this */
-        background: linear-gradient(145deg, #6366f1, #4f46e5);
-        color: white;
-        font-weight: 700;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15);
-        transition: all 0.2s;
-        display: none; /* Hidden until logged in */
-     }
-     
-     #start-game-button:hover {
-         opacity: 0.9;
-         transform: translateY(-1px);
-         box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-     }
-     
-     /* NEW: Style for the Friends Page */
-     .friends-container {
-        display: flex;
-        flex-direction: row;
-        gap: 20px;
-        max-width: 850px; /* Wider for two columns */
-        width: 100%;
-        color: #f8fafc;
-     }
-
-     .friends-column {
-        flex: 1;
-        background-color: var(--dark-card);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
-     }
-     
-     .friend-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0.75rem;
-        border-bottom: 1px solid #475569;
-     }
-     
-     .online-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-left: 8px;
-        margin-top: 2px;
-     }
-
-     .online { background-color: #34d399; } /* Emerald */
-     .offline { background-color: #ef4444; } /* Red */
-
-
-     /* --- Existing CSS continues below (unchanged) --- */
-
+     /* --- NEW: Online Counter CSS --- */
      #online-counter {
         position: fixed;
         top: 15px;
@@ -166,7 +79,7 @@
          margin-bottom: 1.5rem;
      }
 
-     input[type="password"], input[type="number"], input[type="text"], .input-text-area {
+     input[type="number"], input[type="text"], .input-text-area {
          background-color: var(--input-bg);
          color: #f8fafc;
          border: 1px solid #475569;
@@ -176,23 +89,6 @@
          margin-bottom: 0.75rem;
          text-align: right;
      }
-     
-     /* Added style for the checkbox */
-     .checkbox-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end; /* Align right for RTL */
-        margin-bottom: 1rem;
-        color: #94a3b8;
-     }
-     .checkbox-container input {
-        width: auto;
-        margin-right: 0.5rem;
-        margin-left: 0.5rem;
-        cursor: pointer;
-        margin-bottom: 0;
-     }
-
 
      .primary-btn {
          background: linear-gradient(145deg, #facc15, #eab308);
@@ -497,7 +393,7 @@
          border-radius: 50%;
          width: 50px;
          height: 50px;
-         display: flex; 
+         display: flex; /* گۆڕانکاری: هەمیشە وەک flex دەربکەوێت (ئەگەر لە دۆخی ژووردا بین) */
          align-items: center;
          justify-content: center;
          cursor: pointer;
@@ -635,8 +531,6 @@
 <body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
 
     <div id="online-counter">Online (0)</div>
-    <div id="user-info-display" onclick="renderFriendsPage()"></div>
-    
     <div id="game-container" class="card">
      </div>
 
@@ -674,10 +568,6 @@
      <span id="unread-count"></span>
  </button>
 
- <button id="start-game-button" onclick="renderSetupView()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-    دەستپێکرنا یاریێ
- </button>
 
  <script>
     const firebaseConfig = {
@@ -690,7 +580,7 @@
         appId: "YOUR_APP_ID"
     };
     
-    // --- CHAT FIREBASE CONFIGURATION (Keep separate for chat) ---
+    // --- CHAT FIREBASE CONFIGURATION ---
     const chatFirebaseConfig = {
         databaseURL: "https://kigmessages-8e8dd-default-rtdb.firebaseio.com/" // The provided database link
     };
@@ -709,10 +599,8 @@
     const unreadCountSpan = document.getElementById('unread-count');
     const messagesContainer = document.getElementById('messages-container');
     const chatInput = document.getElementById('chat-input');
+    // --- NEW: Online Counter Element ---
     const onlineCounter = document.getElementById('online-counter');
-    // --- NEW ELEMENTS ---
-    const userInfoDisplay = document.getElementById('user-info-display');
-    const startGameButton = document.getElementById('start-game-button');
 
 
     let database;
@@ -720,34 +608,23 @@
     let myPlayerId = null;
     let myPlayerName = ''; 
     let playerColorMap = {}; 
-    let presenceRef; 
-    let myConnectionRef; 
-    
-    // --- NEW: User Authentication State ---
-    let loggedInUser = null; 
-    let loggedInUserId = null; 
-    let usersRef; // Reference to the 'users' collection in Firebase
-    let friendsRef; // Reference to the current user's friends list
-    let friendsList = {}; // Local copy of the friends list {friendUsername: true}
-    let onlineUsers = {}; // Local copy of online users {userId: true}
-    let friendsOnlineListener = null; // Listener for friends' online status
-    // ----------------------------------------
-
+    let presenceRef; // Reference for the online counter
+    let myConnectionRef; // Reference for the user's connection status
 
     const WORDS_KU = [
         "نوژدار", "مامۆستا", "ئەندازیار", "تەلەڤزیون", "شۆفێر", "پایسکل", "ساردەمەنی", "خالخالوک",
         "پارە", "وێنەکێش", "پاپور", "نانپێژ", "جگارە", "وەرزشڤان", "بەنیشت", "پۆلیس",
         "سەرباز", "ئاگرکوژێنەر", "بازرگان", "ڕۆژنامەنڤیس", "جووتیار", "پاسەوان", "قەشە", "کاتژمێر", "شڤان", 
-        "سە", "پشیک", "کەو", "هرچ", "گورگ", "خەزال", "ریڤی", "شێر", "نەهەنگ", "هەسپ", "شەمشەمەکور",
+        "سە", "پشیک", "کەو", "هرچ", "گورگ", "خەزال", "ریڤی", "شێر", "نەهەنگ", "هەسپ","پیتزا" , "شەمشەمەکور",
         "سڤۆرە", "فیل", "مەیمینک", "کەنجال", "کەر", "مومیا", "قەلەڕەشک", "بەلاتینک", "مریشک", "قاز", "مەر",
         "مار", "کرم", "گوستیل", "کیسەلە", "تیمساح", "بەق", "ماسی", "قرش", "ئەختەبوت", "زەرافە", "دۆلفین", 
         "فرچێ ددانان", "مێری", "مێش", "کڤریشک", "قوندک", "دویپشک", "مشک", "شێر", "پڵنگ", "کوتر",
         "دار", "گوڵ", "نان", "فیقی", "کەسکاتی", "شاه", "ئیمام", "پێ", "دەست", "سمبێل", "ستێر", 
         "جوبرک", "بەلگ", "تەماتە", "خیار", "پیڤاز", "سیر", "کڤارک", "مۆز", "فرنی", "تی", "گژوگیا", "دەخل", "گەنمەشامی",
-        "پلەی ستەیشن", "زانا", "کرتوپ", "چا", "قەهوە", "شیر", "هنگڤین", "زەیتوون", "ریبار", "سروشت", 
+        "پلەی ستەیشن", "زانا", "کرتوپ", "چا", "قەهوە", "شیر", "هنگڤین", "زەیتوون", "بێرگەر", "ددان", "بيبه ر","كێک","ریبار", "سروشت", 
         "چیا", "دارستان", "دەریا", "گوند", "باژێر", "ماڵ", "قوتابخانە", "زانکۆ", "کارگە", "قەسپ", "بیابان",
         "سینەما", "مزگەفت", "حەوش", "قلێنە", "قەڵا", "رێک", "تیتک", "تاتو", "فیل", "کانی",
-        "ترومبێل", "فڕۆکە", "شەمەندەفر", "پاسکیل", "ژڤژی", "روژ", "هەڤال", "جیران", "حێشتر",
+        "ترومبێل","سینیک","دەرەجە", "فڕۆکە", "شەمەندەفر", "پاسکیل", "ژڤژی", "روژ", "هەڤال", "جیران", "حێشتر",
         "کەمپ", "نینوک", "بریسی", "قەبر", "گەراج", "دەستمال", "دوکان", "قاوەخانە", "کتێبفرۆش",
         "پێلێن دەریایێ", "کریستیانو", "فانوس", "گورە", "برکان", "خەزینە", "دەرگەه", "پەنجەرە", "بالیفک",
         "پەرسیڤ", "ئاڤ", "عەڤر", "باران", "بەفر", "بەتەنی", "هەیڤ", "زەیت", "کتێب", "قەڵەم", "لاپەڕ",
@@ -788,586 +665,199 @@
             ku: {
                 appName: "یاریا دروکەری", imposter: "دروکەر", civilian: "پاراستی", playerCount: "ژمارا یاریکەران (3-12):", imposterCount: "ژمارا دروکەران (1-2):", start: "دەستپێکرنا یاریێ", playerName: "ناڤ", showRole: "ڕۆلێ خو ببینە", yourRole: "ڕۆلێ تە:", theWord: "پەیڤا نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "سرا یاریکەری", close: "گرتن", reset: "دووبارە دەسپێبکەڤە", wordWas: " پەیڤا نهێنی :", selectWord: "  پەڤا نهێنی هەلبژێرە !", validationTitle: "ئاگەهداری", nameRequired: " ناڤێ هەمی یاریکەران بنڤیسە.", notEnoughPlayers: "ژمارا یاریکەران یا کێمە، دڤێت ب کێمی ٣ یاریکەر بن.", impostersWere: " دروکەر پێکهاتبین ژ:", justImposter: "تۆ دروکەری 🤫!", imposterHintLabel: "پەیڤ :", startDiscussion: "دەستپێکردنا گفتوگۆیێ", discussionTime: "دەمێ گفتوگۆیێ :", timesUp: " دەم ب دوماهیک هات !", imposterWas: "    دروکەر :", shareLink: "   لینکێ یاریێ بو هەڤالێن خو پنێرە !", and: "و", howToPlayTitle: "دێ چەوا یاریێ کەی: یاریا دروکەری", howToPlayBody: `ئارمانج ئەوە کو بو هەمیان روهن بکەی کو تو پەیڤا نهێنی دزانی- یانژی وی کەسی دیار بکەی کو پەیڤا نهێنی نزانیت.<br><br><strong>١. 🤫 رولێ خو ببینە  </strong><br>• مۆبایل دێ ل سەر هەمی یاریکەران زڤریت دا کو هەر ئێک رولێ خو ببینت.<br>• زۆرینا یاریکەران <strong>  پەیڤا نهێنی</strong>دبینن .<br>•  ئێک یاریکەر <strong>"پەیڤا ( دروکەر )"</strong> دبینیت.<br><br><strong>٢. 🗣️ ئاماژێ بدە</strong><br>• ل دەورێ بازنێ دا بزڤرن. هەر یاریکەرەک <strong>ئێک پەیڤێ </strong> بۆ وەسفکرنا پەیڤا نهێنی دبێژیت.<br>• <strong>ئەگەر پەیڤێ بزانیت:</strong> ئاماژا تە دڤێت تێرا هندێ بکەت کو ب سەلمینیت تو پەیڤا نهێنی دزانی، بەلێ هندا دیار نەبیت کو دروکەر فایدەی ژێ ببینیت.<br>• <strong>ئەگەر تو دروکەری:</strong>ئاماژەکا گشتی بێژە کو تە تێکهەلی یاریکەران بکەت و بشێی خو ڤەشێری!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• پشتی چەند گەران، ئاماژێ بدە وی کەسی کو تو ژێ دوودلی کو ئەو دروکەرە، یانژی هەول ددەت خو تێکهەلی یاریکەران بکەت.<br>• هەمی دێ دەنگی دەنە وی کەسی یێ کو هەر ئێک ژلایێ خوڤە ژێ دوو دلە.<br><br><strong>دێ چەوا یاریێ بەی  🏆 :</strong><br><br>• <strong>کەسێن پاراستی:</strong><br>-ئەگەر پێش دوماهیک هاتنا دەمی شیا دروکەری دیاربکەن.<br><br>• <strong>دروکەر:</strong><br>-ئەگەر پتریا دەنگان بو وی نەهات.<br>-ئەگەر دەم دوماهیک هات.`,
                 room: "رووم", playWithFriends: " رووم ", createRoom: "دروستکرنا روومێ", joinRoom: "چوونە ژوور", roomCode: "کۆدا روومێ:", enterCode: "کۆدا روومێ بنڤیسە", creator: "دروستکەر", myStatus: "دۆخ:", waitingForName: "هیڤیا نڤیسینا ناڤی", waitingForOthers: "هیڤیا یاریکەرێن دی بە ", ready: "ئامادەیە", submit: "پشتراستکرن", notEnoughPlayersPopup: "ژمارا یاریکەران یا کێمە، دڤێت ب کێمی ٣ یاریکەر بن.", roomFull: "رووم یا پڕە.", roomNotFound: "کۆدا روومێ یا خەلەتە.", roomStart: "دەستپێکرن", gameAlreadyStarted: "یاری یا هاتیە دەستپێکرن...", enterYourName: "ناڤێ خو بنڤیسە", nameSubmitSuccess: " ناڤێ تە هاتە نڤیسین، هیڤیا یێن دی بە.", gameOverTitle: "دوماهیک ئینانا یاریێ", playAgain: "دووبارە یاریێ بکەڤە", exitRoom: "دەرچوون", startOver: "دەستپێکا یاریێ ( پەیڤا نهێنی و رولێ تە )", backToSetup: "زڤرینەڤە بۆ ڕێکخستنان",
-                finishTheTimer: "دوماهیک ئینانا دەمی", remove: "ژێبرن", chatTitle: "گفتوگویا یاریکەران", onlineCountLabel: "Online",
-                // --- NEW AUTH/FRIENDS TRANSLATIONS ---
-                login: "چوونە ژوور", createAccount: "دروستکرنا هەژمارا نوی", username: "ناڤێ بکارئینەری", password: "پەیڤا نهێنی", rememberMe: "تە دبیرا خو دا بهێلە",
-                loginTitle: "چوونە ژوور", createTitle: "دروستکرنا هەژمارا نوی", 
-                usernameTaken: "ئەڤ ناڤە یێ بکارئینەر یێ هاتیە بکارئینان. یێ دی هەلبژێرە.", 
-                creationSuccess: "هەژمارا تە ب سەرکەفتیانە هاتە دروستکرن. دێ چیە ژوور.",
-                loginFailed: "ناڤێ بکارئینەر یان پەیڤا نهێنی یا خەلەتە.",
-                logout: "دەرچوون",
-                friends: "هەڤال", addFriend: "زێدەکرنا هەڤالەکی", friendsList: "لیستا هەڤالێن تە", online: "ئۆنلاین", offline: "ئۆفلاین",
-                noFriends: "هیچ هەڤالەکێ تە نینە. ئێکێ زێدە بکە!",
-                addFriendPlaceholder: "ناڤێ بکارئینەری یێ هەڤالێ خو بنڤیسە",
-                friendNotFound: "ئەڤ ناڤێ بکارئینەر یێ هەڤالێ تە نەهاتە دیتن.",
-                alreadyFriend: "ئەڤ کەسە ئێک ژ هەڤالێن تە یە.",
-                cannotAddSelf: "نەشێی خو بکەیە هەڤال.",
-                friendAdded: "هەڤالێ تە هاتە زێدەکرن.",
-                removeFriend: "ژێبرن",
-                backToMain: "زڤرینەڤە بۆ سەرەکی"
-                // --- END NEW AUTH/FRIENDS TRANSLATIONS ---
+                finishTheTimer: "دوماهیک ئینانا دەمی", remove: "ژێبرن", chatTitle: "گفتوگویا یاریکەران", onlineCountLabel: "Online"
             }
         };
         return translations.ku[key] || key;
     };
     
-    // --- NEW: AUTHENTICATION AND USER LOGIC ---
-    
-    /**
-     * Updates the UI state based on the loggedInUser variable.
-     */
-    const updateAuthUI = () => {
-        if (loggedInUser && loggedInUser.username) {
-            userInfoDisplay.textContent = `👋 ${loggedInUser.username}`;
-            userInfoDisplay.style.display = 'flex';
-            startGameButton.style.display = 'block';
-            startFriendsListener(loggedInUserId); // Start listening for friends' online status
-        } else {
-            userInfoDisplay.style.display = 'none';
-            startGameButton.style.display = 'none';
-            stopFriendsListener(); // Stop listening
-            renderAuthMenu(); // Show auth buttons if logged out
-        }
-    };
-
-    /**
-     * Checks localStorage for saved user credentials and logs in if found.
-     */
-    const checkSavedLogin = async () => {
-        const savedUser = localStorage.getItem('kig_user_data');
-        if (savedUser) {
-            const userData = JSON.parse(savedUser);
-            
-            // Re-validate against the database for security/data freshness
-            const userSnapshot = await usersRef.child(userData.userId).once('value');
-            const user = userSnapshot.val();
-            
-            if (user && user.username === userData.username) {
-                // Simplified login: using the stored ID and Name.
-                loggedInUser = {
-                    username: user.username,
-                    userId: userData.userId
-                };
-                loggedInUserId = userData.userId;
-                
-                // Update online presence with the actual user ID
-                updatePresenceId(loggedInUserId);
-                
-                updateAuthUI();
-                return true;
-            } else {
-                localStorage.removeItem('kig_user_data');
-            }
-        }
-        return false;
-    };
-    
-    /**
-     * Creates a new user in the Realtime Database.
-     */
-    const createUserWithUsername = async (username, password) => {
-        const lowerUsername = username.toLowerCase();
-        
-        // Check if username already exists
-        const usernameSnapshot = await usersRef.orderByChild('lowerUsername').equalTo(lowerUsername).once('value');
-        
-        if (usernameSnapshot.exists()) {
-            showModal('validationTitle', 'usernameTaken');
-            return false;
-        }
-        
-        // Simple hash/encryption should be used in production, but for this context, 
-        // we'll just store the password for simplicity, as Firebase Auth is not used.
-        const newUserRef = usersRef.push();
-        const userId = newUserRef.key;
-        
-        await newUserRef.set({
-            username: username,
-            lowerUsername: lowerUsername,
-            password: password, // WARNING: Not secure for production
-            friends: {},
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-        });
-        
-        // Automatically log in the user after creation
-        loggedInUser = { username: username, userId: userId };
-        loggedInUserId = userId;
-        
-        // No "remember me" prompt needed since user just created the account.
-        
-        // Ask to save account
-        showSaveAccountPrompt();
-        
-        // The prompt will call updateAuthUI() on success.
-        return true;
-    };
-
-    /**
-     * Logs in a user by checking credentials against the Realtime Database.
-     */
-    const loginWithUsername = async (username, password, rememberMe) => {
-        const lowerUsername = username.toLowerCase();
-        
-        const userSnapshot = await usersRef.orderByChild('lowerUsername').equalTo(lowerUsername).once('value');
-        
-        if (!userSnapshot.exists()) {
-            showModal('validationTitle', 'loginFailed');
-            return false;
-        }
-        
-        let userId = null;
-        let userData = null;
-        userSnapshot.forEach(childSnapshot => {
-            userId = childSnapshot.key;
-            userData = childSnapshot.val();
-        });
-        
-        // Check password (simple comparison for this context)
-        if (userData && userData.password === password) {
-            loggedInUser = { username: userData.username, userId: userId };
-            loggedInUserId = userId;
-            
-            if (rememberMe) {
-                 localStorage.setItem('kig_user_data', JSON.stringify({
-                    userId: userId,
-                    username: userData.username
-                 }));
-            } else {
-                localStorage.removeItem('kig_user_data');
-            }
-            
-            // Update online presence with the actual user ID
-            updatePresenceId(loggedInUserId);
-            
-            hideModal();
-            updateAuthUI();
-            return true;
-        } else {
-            showModal('validationTitle', 'loginFailed');
-            return false;
-        }
-    };
-    
-    /**
-     * Renders the login/create account modal.
-     * @param {string} mode 'login' or 'create'
-     */
-    const renderAuthModal = (mode) => {
-        const isLogin = mode === 'login';
-        const titleKey = isLogin ? 'loginTitle' : 'createTitle';
-        
-        modalInner.className = 'modal-content';
-        modalInner.innerHTML = `
-            <button class="modal-close-btn" onclick="hideModal(); renderAuthMenu();">×</button>
-            <h3 class="modal-title">${T(titleKey)}</h3>
-            <div class="modal-message">
-                <p class="text-slate-300 mb-2 text-right">${T('username')}</p>
-                <input type="text" id="auth-username" placeholder="${T('username')}" maxlength="15">
-                <p class="text-slate-300 mb-2 text-right">${T('password')}</p>
-                <input type="password" id="auth-password" placeholder="${T('password')}">
-                
-                ${isLogin ? `
-                    <div class="checkbox-container">
-                        <label for="remember-me">${T('rememberMe')}</label>
-                        <input type="checkbox" id="remember-me">
-                    </div>
-                ` : ''}
-            </div>
-            <button class="primary-btn" onclick="${isLogin ? 'handleLogin()' : 'handleCreateAccount()'}">
-                ${T(isLogin ? 'login' : 'createAccount')}
-            </button>
-            <button class="back-btn" onclick="hideModal(); renderAuthMenu();">
-                ${T('backToMain')}
-            </button>
-        `;
-        modal.classList.add('show');
-    };
-    
-    /**
-     * Shows a prompt asking the user if they want to save the account (remember me).
-     */
-    const showSaveAccountPrompt = () => {
-        modalInner.className = 'modal-content';
-        modalInner.innerHTML = `
-            <h3 class="modal-title">${T('rememberMe')}</h3>
-            <div class="modal-message">
-                <p class="text-center">ئایا دخوازی هەژمارا خو بهێلی دا کو پێتڤی نەبیت هەردەم بچیە ژوور؟</p>
-            </div>
-            <button class="primary-btn" onclick="saveAccount(true)">
-                بەلێ
-            </button>
-            <button class="secondary-btn" onclick="saveAccount(false)">
-                نەخێر
-            </button>
-        `;
-        modal.classList.add('show');
-    };
-
-    /**
-     * Handles saving the account credentials to localStorage.
-     */
-    const saveAccount = (shouldSave) => {
-        if (shouldSave && loggedInUser) {
-            localStorage.setItem('kig_user_data', JSON.stringify({
-                userId: loggedInUser.userId,
-                username: loggedInUser.username
-            }));
-        } else if (!shouldSave) {
-            localStorage.removeItem('kig_user_data');
-        }
-        
-        // Update online presence with the actual user ID
-        updatePresenceId(loggedInUserId);
-        
-        hideModal();
-        updateAuthUI();
-        renderSetupView(); // Go to the game setup screen
-    };
-    
-    /**
-     * Handles the login button click from the modal.
-     */
-    const handleLogin = () => {
-        const username = document.getElementById('auth-username').value.trim();
-        const password = document.getElementById('auth-password').value;
-        const rememberMe = document.getElementById('remember-me').checked;
-        
-        if (username.length < 3 || password.length < 6) {
-             showModal('validationTitle', 'Please enter valid username (min 3) and password (min 6).');
-             return;
-        }
-        
-        loginWithUsername(username, password, rememberMe);
-    };
-
-    /**
-     * Handles the create account button click from the modal.
-     */
-    const handleCreateAccount = () => {
-        const username = document.getElementById('auth-username').value.trim();
-        const password = document.getElementById('auth-password').value;
-        
-        if (username.length < 3 || password.length < 6) {
-             showModal('validationTitle', 'Please enter valid username (min 3) and password (min 6).');
-             return;
-        }
-
-        createUserWithUsername(username, password);
-    };
-
-    /**
-     * Logs out the current user.
-     */
-    const logoutUser = () => {
-        localStorage.removeItem('kig_user_data');
-        loggedInUser = null;
-        loggedInUserId = null;
-        if (myConnectionRef) {
-             myConnectionRef.remove(); // Remove user from online presence
-             myConnectionRef = null;
-        }
-        updateAuthUI();
-        resetGame(true); // Go back to the initial auth menu
-    };
-    
-    /**
-     * Renders the initial screen with Login and Create Account buttons.
-     */
-    const renderAuthMenu = () => {
-        // Only render the Auth Menu if no user is logged in
-        if (loggedInUser) {
-             renderSetupView(); // If somehow this is called while logged in, go to setup
-             return;
-        }
-        
-        const container = document.getElementById('game-container');
-        helpButton.classList.remove('hidden');
-        startGameButton.style.display = 'none';
-        
-        container.innerHTML = `
-            <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
-            <div class="title-bar mb-6"></div>
-            
-            <button class="primary-btn mt-6" onclick="renderAuthModal('create')">
-                ${T('createAccount')}
-            </button>
-            
-            <button class="secondary-btn" onclick="renderAuthModal('login')">
-                ${T('login')}
-            </button>
-            
-            <div class="footer-text mt-8">
-                ${T('madeBy')}
-                <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
-            </div>
-        `;
-    };
-
-    // --- FRIENDS SYSTEM LOGIC ---
-    
-    /**
-     * Starts listening for the current user's friends list updates.
-     */
-    const startFriendsListener = (userId) => {
-        if (!userId) return;
-        
-        stopFriendsListener(); // Stop any existing listener
-        
-        friendsRef = database.ref(`users/${userId}/friends`);
-        friendsRef.on('value', async (snapshot) => {
-            friendsList = snapshot.val() || {};
-            
-            // Re-render friends page if it's currently visible
-            if (document.getElementById('friends-list-container')) {
-                 renderFriendsPage();
-            }
-        });
-    };
-    
-    /**
-     * Stops listening for the current user's friends list updates.
-     */
-    const stopFriendsListener = () => {
-        if (friendsRef) {
-            friendsRef.off();
-            friendsRef = null;
-            friendsList = {};
-        }
-    };
-    
-    /**
-     * Adds a friend to the current user's list.
-     */
-    const addFriend = async () => {
-        const friendUsernameInput = document.getElementById('add-friend-input');
-        const friendUsername = friendUsernameInput.value.trim();
-        
-        if (!friendUsername || !loggedInUser) return;
-        
-        const lowerFriendUsername = friendUsername.toLowerCase();
-        const lowerMyUsername = loggedInUser.username.toLowerCase();
-        
-        if (lowerFriendUsername === lowerMyUsername) {
-            showModal('validationTitle', 'cannotAddSelf');
-            friendUsernameInput.value = '';
-            return;
-        }
-        
-        if (friendsList[lowerFriendUsername]) {
-            showModal('validationTitle', 'alreadyFriend');
-            friendUsernameInput.value = '';
-            return;
-        }
-
-        // 1. Find the friend's ID by their username
-        const friendSnapshot = await usersRef.orderByChild('lowerUsername').equalTo(lowerFriendUsername).once('value');
-        
-        if (!friendSnapshot.exists()) {
-            showModal('validationTitle', 'friendNotFound');
-            friendUsernameInput.value = '';
-            return;
-        }
-        
-        let friendUserId = null;
-        let friendData = null;
-        friendSnapshot.forEach(childSnapshot => {
-            friendUserId = childSnapshot.key;
-            friendData = childSnapshot.val();
-        });
-        
-        // 2. Add the friend to the current user's list
-        await database.ref(`users/${loggedInUserId}/friends/${lowerFriendUsername}`).set(true);
-        
-        // 3. (Optional but good practice) Add the current user to the friend's list
-        await database.ref(`users/${friendUserId}/friends/${lowerMyUsername}`).set(true);
-        
-        showModal('validationTitle', 'friendAdded');
-        friendUsernameInput.value = '';
-        renderFriendsPage(); // Re-render to update the list
-    };
-
-    /**
-     * Removes a friend from the current user's list.
-     */
-    const removeFriend = async (usernameToRemove) => {
-        if (!loggedInUser) return;
-        
-        const lowerUsername = usernameToRemove.toLowerCase();
-        
-        // 1. Find the friend's ID (needed to remove from their list)
-        const friendSnapshot = await usersRef.orderByChild('lowerUsername').equalTo(lowerUsername).once('value');
-        let friendUserId = null;
-        friendSnapshot.forEach(childSnapshot => {
-            friendUserId = childSnapshot.key;
-        });
-
-        // 2. Remove the friend from the current user's list
-        await database.ref(`users/${loggedInUserId}/friends/${lowerUsername}`).remove();
-        
-        // 3. (Optional but good practice) Remove the current user from the friend's list
-        if (friendUserId) {
-            await database.ref(`users/${friendUserId}/friends/${loggedInUser.username.toLowerCase()}`).remove();
-        }
-
-        renderFriendsPage(); // Re-render to update the list
-    };
-
-    // --- END FRIENDS SYSTEM LOGIC ---
-
-    // --- MODIFIED ONLINE PRESENCE LOGIC ---
-    const updatePresenceId = (userId) => {
-         if (!userId) {
-              if(myConnectionRef) {
-                 myConnectionRef.remove();
-                 myConnectionRef = null;
-              }
-              return;
-         }
-         
-         // Only update if we are connected and the ID is new or connection ref is gone
-         database.ref(".info/connected").once("value", (snapshot) => {
-             if (snapshot.val() === true) {
-                  if (myConnectionRef) {
-                      myConnectionRef.remove(); // Clean up old connection entry
-                      myConnectionRef = null;
-                  }
-                 
-                  myConnectionRef = presenceRef.child(userId);
-                  myConnectionRef.onDisconnect().remove();
-                  myConnectionRef.set(true); 
-             }
-         });
-    };
-    
+    // --- NEW: Online Presence LOGIC ---
     const setupOnlinePresence = () => {
+         // 1. Reference to the location where we will store online users
          presenceRef = database.ref('presence');
-         usersRef = database.ref('users'); // Initialize users reference
          
-         // 1. Listen for the total online count
-         presenceRef.on('value', updateOnlineCount);
+         // 2. Reference to the Firebase server's connection status
+         const connectedRef = database.ref(".info/connected");
          
-         // 2. Listen for individual user connection changes (for friends list)
-         presenceRef.on('value', (snapshot) => {
-             onlineUsers = {};
-             snapshot.forEach(child => {
-                 onlineUsers[child.key] = true;
-             });
-             // Re-render friends page if it's currently visible
-             if (document.getElementById('friends-list-container')) {
-                 renderFriendsPage();
+         connectedRef.on("value", (snapshot) => {
+             if (snapshot.val() === true) {
+                 // The user is connected
+                 myConnectionRef = presenceRef.push();
+                 
+                 // 3. Remove this user from the 'presence' list when they disconnect
+                 myConnectionRef.onDisconnect().remove();
+                 
+                 // 4. Set the user's data (could be just a timestamp or ID)
+                 myConnectionRef.set(true); 
+                 
+                 // 5. Start listening for the count of online users
+                 presenceRef.on('value', updateOnlineCount);
+             } else {
+                 // The user is disconnected
+                 if(myConnectionRef) {
+                    myConnectionRef.remove();
+                    myConnectionRef = null;
+                 }
+                 presenceRef.off('value', updateOnlineCount);
+                 onlineCounter.textContent = `${T('onlineCountLabel')} (0)`; 
              }
          });
-         
-         // Initial check to update presence if logged in
-         if(loggedInUserId) {
-             updatePresenceId(loggedInUserId);
-         }
     };
     
     const updateOnlineCount = (snapshot) => {
          const count = snapshot.numChildren();
          onlineCounter.textContent = `${T('onlineCountLabel')} (${count})`;
     };
-    // --- END MODIFIED ONLINE PRESENCE LOGIC ---
+    // --- END Online Presence LOGIC ---
+
+
+    // --- CHAT LOGIC (Not modified, but included for completeness) ---
     
-    // --- NEW: RENDER FRIENDS PAGE ---
-    const renderFriendsPage = () => {
-        const container = document.getElementById('game-container');
-        helpButton.classList.add('hidden');
-        startGameButton.style.display = 'none'; // Hide play button here
+    // Toggles the chat modal display and resets the unread count
+    const toggleChatModal = () => {
+        if (!currentRoomCode) return; // FIX: Prevent chat if not in a room
 
-        // Convert friendsList object to an array of usernames
-        const friendUsernames = Object.keys(friendsList);
-        
-        const friendsListHTML = friendUsernames.map(username => {
-            // NOTE: We need to find the friend's ID to check their online status
-            // This is inefficient. For a large list, you'd pre-fetch friend IDs or use a different structure.
-            // For now, we'll use a local map for the check
-            const isOnline = onlineUsers[username] ? true : false; // **Simplified check (assuming username is key, which is not true with the presence structure)**
+        if (chatModal.classList.contains('show')) {
+            chatModal.classList.remove('show');
+        } else {
+            chatModal.classList.add('show');
             
-            // To properly check, we would need to map username to userId first.
-            // Since `presence` uses `userId`, we'll simplify and check the lowerUsername against the friendsList keys for online status for *this* render.
-            // A more robust solution is needed for production. For this example, we assume we somehow know the friend's ID or will rely on a simpler check.
+            // Reset unread counter when opening the chat
+            unreadCountSpan.style.display = 'none';
+            unreadCountSpan.textContent = '';
+            lastKnownMessageCount = 0; // Reset counter value too
             
-            // Fallback for demonstration: Assume a structure where we can map username to ID quickly.
-            // Since the `presence` is using the actual `userId` (from `updatePresenceId`), we cannot easily check the friend's online status
-            // based on the `username` key in `friendsList`. We'll skip the online check for now in the rendered list to prevent complex lookups.
-            
-            // Reverting to the intended check based on the onlineUsers map keys (which are userIds).
-            // To make this work: The friends list should store {friendUsername: friendUserId} instead of {friendUsername: true}.
-            // **FIX:** Let's assume the friends list in the database stores {friendUsername: friendUserId} for this render to work.
-            
-            // **Correction:** For this implementation, the `friendsList` local variable stores `lowerUsername: true`.
-            // The Firebase `presence` system uses `userId: true`.
-            // To make the online check work simply in the UI for the demo:
-            
-            // 1. Fetch ALL user data for ALL friends to get their userId.
-            // 2. Match that userId to the `onlineUsers` map.
-            
-            // This is too slow for a simple UI update. We will simplify and assume the friend's username can be used for the online check, 
-            // or just rely on the full system structure where the friends list in the DB would store the friend's userId.
-            
-            // **Simplified Demo Logic:** Check against a hardcoded map of usernames to IDs for this example, or just show OFFLINE/ONLINE text for demo purposes.
-            // Let's just show a constant status for the demo to keep the code clean.
-            
-            const friendUserId = friendUsername; // Placeholder: In a real app, this should be the friend's actual ID
-            const isFriendOnline = onlineUsers[friendUserId] === true;
-            
-            // Let's perform the lookup to be as correct as possible:
-            // Since we only have the username, we can't efficiently check. 
-            // We'll proceed with a **dummy online/offline status** to show the UI structure.
-            const dummyStatus = Math.random() > 0.5; // Random status for demonstration
-            const statusClass = dummyStatus ? 'online' : 'offline';
-            const statusText = T(dummyStatus ? 'online' : 'offline');
-
-            return `
-                <div class="friend-item">
-                    <div class="flex items-center">
-                         <div class="online-dot ${statusClass}"></div>
-                         <span class="font-bold text-lg">${username}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-sm text-slate-400">${statusText}</span>
-                        <button class="remove-btn mr-0" onclick="removeFriend('${username}')">${T('removeFriend')}</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        container.innerHTML = `
-            <div class="friends-container">
-                <div class="friends-column">
-                    <h2 class="text-xl font-bold text-primary mb-4 text-center">${T('friendsList')}</h2>
-                    <div id="friends-list-container" class="max-h-96 overflow-y-auto">
-                        ${friendUsernames.length > 0 ? friendsListHTML : `<p class="text-center text-slate-400 mt-8">${T('noFriends')}</p>`}
-                    </div>
-                </div>
-                
-                <div class="friends-column">
-                    <h2 class="text-xl font-bold text-secondary mb-4 text-center">${T('addFriend')}</h2>
-                    <p class="text-slate-300 mb-2 text-right">${T('addFriendPlaceholder')}</p>
-                    <input type="text" id="add-friend-input" placeholder="${T('addFriendPlaceholder')}" maxlength="15" class="mb-4">
-                    <button class="primary-btn" onclick="addFriend()">
-                        ${T('addFriend')}
-                    </button>
-                </div>
-            </div>
-            
-            <button class="back-btn" onclick="renderSetupView()">
-                ${T('backToMain')}
-            </button>
-        `;
+            // Scroll to the bottom to see the latest messages
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     };
-    // --- END NEW: RENDER FRIENDS PAGE ---
+    
+    // Sends a message to the Firebase chat database
+    const sendMessage = () => {
+        const messageText = chatInput.value.trim();
+        
+        // **NEW: Check for player name**
+        if (!myPlayerName) {
+            showModal('validationTitle', 'enterYourName');
+            chatInput.value = ''; // Clear input if message wasn't sent
+            return;
+        }
 
-    const formatTime = (seconds) => { /* (Unchanged) */
+        if (!messageText || !currentRoomCode) return;
+
+        chatRef.child(currentRoomCode).push({
+            senderId: myPlayerId,
+            senderName: myPlayerName,
+            message: messageText,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        chatInput.value = '';
+    };
+
+    // Displays the messages in the container
+    const displayMessage = (senderId, senderName, message, timestamp, messageKey) => { 
+        
+        // **چارەسەری دووبارەبوونەوە: پشکنین بۆ ئەوەی بزانین پەیامەکە پێشتر دروستکراوە یان نا**
+        if (document.getElementById(`msg-${messageKey}`)) {
+            return;
+        }
+        
+        const time = new Date(timestamp).toLocaleTimeString('ku-IQ', { hour: '2-digit', minute: '2-digit' });
+        const isMe = senderId === myPlayerId;
+        
+        // **NEW: Get player color index**
+        const colorIndex = playerColorMap[senderId] !== undefined ? playerColorMap[senderId] : 0;
+        const colorClass = `player-color-${colorIndex % 12}`;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.id = `msg-${messageKey}`; // دانانی ID بۆ پەیامەکە
+        messageDiv.className = `message-item text-right`; 
+        messageDiv.innerHTML = `
+            <span class="sender-name ${colorClass}">${senderName}:</span> 
+            <span class="message-text">${message}</span>
+            <span class="text-xs text-slate-500 mr-2">${time}</span>
+        `;
+        
+        // Use insertBefore to keep the newest message at the bottom (due to flex-direction: column-reverse)
+        messagesContainer.insertBefore(messageDiv, messagesContainer.firstChild);
+
+        if (chatModal.classList.contains('show')) {
+             messagesContainer.scrollTop = messagesContainer.scrollHeight; // Keep chat scrolled to bottom when open
+        }
+    };
+    
+    // Listens for new messages in the specific room
+    const listenForMessages = (roomCode) => {
+        if (!chatDatabase) return;
+        
+        // Remove previous listener if it exists
+        if (chatRef) {
+             chatRef.off();
+        }
+        messagesContainer.innerHTML = ''; // Clear old messages
+        lastKnownMessageCount = 0;
+        unreadCountSpan.style.display = 'none';
+
+        chatRef = chatDatabase.ref('messages');
+        const roomChatRef = chatRef.child(roomCode);
+
+        // Initial fetch and on-new-child listener
+        roomChatRef.limitToLast(50).on('child_added', (snapshot) => {
+            const messageData = snapshot.val();
+            const messageKey = snapshot.key; // **New: Get the message key**
+            
+            // Check if the message is new (for unread count)
+            if (!chatModal.classList.contains('show') && messageData.senderId !== myPlayerId) {
+                 // Only count as unread if the message is new to the container
+                 if (!document.getElementById(`msg-${messageKey}`)) {
+                     lastKnownMessageCount++;
+                     if (lastKnownMessageCount > 0) {
+                        unreadCountSpan.style.display = 'flex';
+                        unreadCountSpan.textContent = lastKnownMessageCount;
+                     }
+                 }
+            }
+
+            displayMessage(
+                messageData.senderId, 
+                messageData.senderName, 
+                messageData.message, 
+                messageData.timestamp,
+                messageKey // **New: Pass the message key**
+            );
+        }, (error) => {
+             console.error("Firebase Chat Listener Error:", error);
+        });
+    };
+    
+    // Hides the chat button and removes the chat listener
+    const stopChat = () => {
+        chatButton.style.display = 'none';
+        chatModal.classList.remove('show');
+        unreadCountSpan.style.display = 'none';
+        if (chatRef) {
+             chatRef.off();
+        }
+        chatRef = null;
+        lastKnownMessageCount = 0;
+    };
+    
+    // Shows the chat button and starts the chat listener
+    const startChat = (roomCode) => {
+        chatButton.style.display = 'flex';
+        listenForMessages(roomCode);
+    };
+
+    // --- END CHAT LOGIC ---
+
+    const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
 
     const showModal = (titleKey, messageKey, isImposterReveal = false, customContent = null, closeCallback = hideModal) => {
-        /* (Unchanged) */
         const title = T(titleKey);
         let message = T(messageKey);
         
@@ -1395,63 +885,835 @@
         modal.classList.remove('show');
     };
 
-    // --- All other game/room/chat functions (listenForMessages, renderSetupView, startGame, resetGame, etc.)
-    // are assumed to be present and unchanged from the original code, only called if loggedInUser is set.
-    // The `renderSetupView` function now replaces `renderAuthMenu` as the main landing page *after* login.
+    const shareGameLink = async () => {
+        if (!currentRoomCode && isRoomMode) return;
+        
+        let url = window.location.href.split('?')[0];
+        let shareText = T('shareLink');
+        
+        if (isRoomMode) {
+           url = url + `?room=${currentRoomCode}`;
+           shareText = `${T('roomCode')} ${currentRoomCode}. ${T('shareLink')}`;
+        }
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: T('appName'),
+                    text: shareText,
+                    url: url
+                });
+            } catch (error) {
+                await navigator.clipboard.writeText(url);
+                showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
+            }
+        } else {
+            await navigator.clipboard.writeText(url);
+            showModal('roomCode', `${isRoomMode ? currentRoomCode : url}<br><br><strong>${T('shareLink')}</strong>`);
+        }
+    };
+
+    const showHelpModal = () => {
+        showModal('howToPlayTitle', 'howToPlayBody', false, T('howToPlayBody'));
+    };
+
+    const getRoomSnapshot = async (code) => {
+        try {
+            const snapshot = await database.ref('rooms/' + code).once('value');
+            return snapshot.val();
+        } catch (error) {
+            console.error("Error getting room snapshot:", error);
+            return null;
+        }
+    };
+
+    const startRoomPolling = () => {
+        if (!currentRoomCode) return;
+        
+        if (roomRef) roomRef.off('value', pollRoomCallback);
+
+        roomRef = database.ref('rooms/' + currentRoomCode);
+        
+        roomRef.on('value', pollRoomCallback, (error) => {
+            console.error("Firebase listener error:", error);
+            if (currentRoomCode) {
+                showModal('validationTitle', 'roomNotFound', false, null, resetGame);
+            }
+        });
+    };
+
+    const stopRoomPolling = () => {
+        if (roomRef) {
+            roomRef.off('value', pollRoomCallback);
+            roomRef = null;
+        }
+    };
     
-    /**
-     * Overrides the original resetGame to handle the new authentication layer.
-     */
-    const resetGame = (skipRoomCheck = false) => {
-        if (isRoomMode && isRoomCreator && !skipRoomCheck) {
-            resetRoomGame();
+    const pollRoomCallback = (snapshot) => {
+        const room = snapshot.val();
+        
+        if (!room) {
+            stopRoomPolling();
+            stopChat(); 
+            if (currentRoomCode) {
+                showModal('validationTitle', 'roomNotFound', false, null, resetGame);
+            }
             return;
         }
         
-        gameActive = false;
+        if (isInputFocused) {
+           return;
+        }
+        
+        // 👈 **گۆڕانکاری (D): دڵنیابوون لە بوونی words_used**
+        if (!room.words_used) {
+            room.words_used = [];
+        }
+
+        if (myPlayerId && !room.players.some(p => p.id === myPlayerId)) {
+            stopRoomPolling();
+            stopChat(); 
+            resetGame();
+            return;
+        }
+        
+        isRoomCreator = room.creatorId === myPlayerId; 
+        imposterCount = room.imposterCount;
+        playerCount = room.players.length;
+        
+        const myPlayerData = room.players.find(p => p.id === myPlayerId);
+        if (myPlayerData) {
+             roles = room.players;
+             secretWord = room.secretWord;
+             imposterHintWord = room.imposterHintWord;
+             myPlayerName = myPlayerData.name || ''; 
+        }
+
+        // **NEW: Update player color map**
+        playerColorMap = {};
+        room.players.forEach((player, index) => {
+            playerColorMap[player.id] = index;
+        });
+
+        if (room.gameState === 'playing' && !isGameStartedInRoom) {
+            isGameStartedInRoom = true;
+            startGame(room);
+        } else if (room.gameState === 'ended' && isGameStartedInRoom) {
+            renderGameOverModal();
+        } else if (room.gameState === 'setup') {
+            if (!isGameStartedInRoom) {
+               renderRoomLobby(room);
+            } else {
+                 isGameStartedInRoom = false;
+                 roles = [];
+                 clearInterval(timerInterval);
+                 timerInterval = null;
+                 timeLeft = null;
+                 renderRoomLobby(room);
+            }
+        } else if (room.gameState === 'playing' && isGameStartedInRoom) {
+            renderEndGameView(true);
+        }
+        
+        // **گۆڕانکاری: دەستپێکردنی چات لە هەر دۆخێکی ژووردا**
+        if (currentRoomCode && room.gameState !== 'menu' && room.gameState !== 'setup') {
+             // چاتەکە لە renderRoomLobby دەستپێدەکات، بەڵام ئەمە دڵنیا دەبێتەوە کە ئەگەر لە هەر دۆخێکی تردا بوو (وەک playing/ended)، چالاک دەبێت.
+             startChat(currentRoomCode); 
+        } else if (currentRoomCode && room.gameState === 'setup') {
+             startChat(currentRoomCode);
+        } else {
+             stopChat();
+        }
+    };
+
+    const generateRoomCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let code = '';
+        for (let i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    };
+
+    const createRoom = async () => {
+        let code = generateRoomCode();
+        let existingRoom = await getRoomSnapshot(code);
+        while (existingRoom) {
+            code = generateRoomCode();
+            existingRoom = await getRoomSnapshot(code);
+        }
+        
+        myPlayerId = database.ref().push().key; 
+        
+        const newRoom = {
+            code: code,
+            creatorId: myPlayerId,
+            imposterCount: 1,
+            players: [
+                { id: myPlayerId, name: '', isReady: false, role: '', word: '' }
+            ],
+            gameState: 'setup',
+            secretWord: '',
+            imposterHintWord: '',
+            discussionStartTime: null,
+            discussionDuration: 0,
+            // 👈 **گۆڕانکاری لێرەیە**
+            words_used: [] 
+        };
+        
+        roomRef = database.ref('rooms/' + code);
+        await roomRef.set(newRoom);
+        
+        currentRoomCode = code;
+        isRoomCreator = true;
+        isRoomMode = true;
+        
+        renderRoomLobby(newRoom);
+        startRoomPolling();
+    };
+
+    const joinRoom = async (code) => {
+        code = code.toUpperCase();
+        const room = await getRoomSnapshot(code);
+        
+        if (!room) {
+            showModal('validationTitle', 'roomNotFound');
+            return;
+        }
+        if (room.players.length >= 12) {
+            showModal('validationTitle', 'roomFull');
+            return;
+        }
+        
+        myPlayerId = database.ref().push().key; 
+        const newPlayer = { id: myPlayerId, name: '', isReady: false, role: '', word: '' };
+        
+        roomRef = database.ref('rooms/' + code);
+        room.players.push(newPlayer);
+        await roomRef.update({ players: room.players });
+        
+        currentRoomCode = code;
+        isRoomCreator = room.creatorId === myPlayerId;
+        isRoomMode = true;
+        
+        renderRoomLobby(room);
+        startRoomPolling();
+    };
+
+    const submitName = async () => {
+        const nameInput = document.getElementById('my-name-input');
+        const name = nameInput.value.trim();
+        
+        if (name.length < 1) {
+            showModal('validationTitle', 'nameRequired');
+            return;
+        }
+        
+        isInputFocused = true;
+        const room = await getRoomSnapshot(currentRoomCode);
+        isInputFocused = false;
+        if (!room) return;
+        
+        myPlayerName = name; // Store player name globally
+
+        const myPlayerIndex = room.players.findIndex(p => p.id === myPlayerId);
+        if (myPlayerIndex !== -1) {
+            room.players[myPlayerIndex].name = name;
+            room.players[myPlayerIndex].isReady = true;
+            
+            await roomRef.update({ players: room.players });
+            
+            showModal('validationTitle', 'nameSubmitSuccess', false, null, hideModal);
+        }
+    };
+    
+    const updateRoomSettings = async (imposterValue) => {
+        if (!isRoomCreator) return;
+        
+        let count = parseInt(imposterValue);
+        const room = await getRoomSnapshot(currentRoomCode);
+        
+        if (!room) return;
+
+        if (isNaN(count) || count < 1) count = 1;
+        if (count > 2) count = 2;
+        if (count >= room.players.length && room.players.length > 1) {
+            count = room.players.length - 1;
+        }
+        if (count < 1 && room.players.length > 0) count = 1;
+
+        if (roomRef) {
+            await roomRef.update({ imposterCount: count });
+            imposterCount = count;
+        }
+    };
+
+    // New function to remove a player
+    const removePlayerFromRoom = async (playerIdToRemove) => {
+        if (!isRoomCreator || playerIdToRemove === myPlayerId) return; 
+
+        isInputFocused = true;
+        const room = await getRoomSnapshot(currentRoomCode);
+        isInputFocused = false;
+        if (!room) return;
+
+        const updatedPlayers = room.players.filter(p => p.id !== playerIdToRemove);
+
+        if (updatedPlayers.length === 0) {
+            await database.ref('rooms/' + currentRoomCode).remove();
+        } else {
+            let updates = { players: updatedPlayers };
+            // If the removed player was the creator, assign new creator (the first player in the list)
+            if (room.creatorId === playerIdToRemove) {
+                 updates.creatorId = updatedPlayers[0].id;
+            }
+            await database.ref('rooms/' + currentRoomCode).update(updates);
+        }
+    };
+
+
+    const startRoomGame = async () => {
+        const room = await getRoomSnapshot(currentRoomCode);
+        if (!room || room.players.length < 3) {
+            renderNotEnoughPlayersModal();
+            return;
+        }
+        
+        const readyPlayers = room.players.filter(p => p.isReady && p.name);
+        if (readyPlayers.length < room.players.length) {
+            showModal('validationTitle', 'nameRequired');
+            return;
+        }
+        
+        // --- گۆڕانکاری لێرەیە: هەڵبژاردنی وشەی نهێنی دووبارە نەبوو ---
+        const allWordList = getWordList();
+        const usedWords = room.words_used || []; 
+        let availableWords = allWordList.filter(word => !usedWords.includes(word));
+        
+        let finalSecretWord;
+        
+        if (availableWords.length === 0) {
+            // ئەگەر هەموو وشەکان بەکارهێنرابوون، لیستی بەکارهێنراوەکان پاکبکەرەوە و هەموو وشەکان دووبارە بەردەست بن.
+            room.words_used = []; 
+            availableWords = allWordList;
+        }
+        
+        // هەڵبژاردنی وشەی نوێ لە لیستی بەردەستەکان
+        const secretIndex = Math.floor(Math.random() * availableWords.length);
+        finalSecretWord = availableWords[secretIndex];
+
+        // زیادکردنی وشە نوێیەکە بۆ لیستی بەکارهێنراوەکان (لەوانەیە لیستەکە تازە پاککرابێتەوە)
+        room.words_used.push(finalSecretWord); 
+        // -----------------------------------------------------------------
+
+        const newImposterHintWord = T('justImposter');
+        
+        const imposterIndices = [];
+        while (imposterIndices.length < room.imposterCount) {
+            const index = Math.floor(Math.random() * readyPlayers.length);
+            if (!imposterIndices.includes(index)) {
+                imposterIndices.push(index);
+            }
+        }
+        
+        let rolesList = readyPlayers.map((p, i) => {
+            const isImposter = imposterIndices.includes(i);
+            const role = isImposter ? T('imposter') : T('civilian');
+            const wordContent = isImposter ? newImposterHintWord : finalSecretWord;
+            
+            return {
+                ...p,
+                role: role,
+                word: wordContent,
+                name: p.name.trim(),
+            };
+        });
+
+        rolesList = rolesList.sort(() => Math.random() - 0.5);
+        
+        room.players = rolesList;
+        room.secretWord = finalSecretWord;
+        room.imposterHintWord = newImposterHintWord;
+        room.gameState = 'playing';
+        
+        roles = rolesList;
+
+        await roomRef.update({
+            players: room.players,
+            secretWord: room.secretWord,
+            imposterHintWord: room.imposterHintWord,
+            gameState: room.gameState,
+            // 👈 **گۆڕانکاری لێرەیە: نوێکردنەوەی وشە بەکارهێنراوەکان**
+            words_used: room.words_used 
+        });
+
+        isGameStartedInRoom = true;
+        startGame(room);
+    };
+
+    // --- MODIFIED: The function to keep players ready ---
+    const resetRoomGame = async () => {
+        const room = await getRoomSnapshot(currentRoomCode);
+        if (!room) return;
+        
+        // --- NEW LOGIC: Only reset role and word, keep name and isReady if name exists ---
+        const updates = {
+            gameState: 'setup',
+            secretWord: '',
+            imposterHintWord: '',
+            discussionStartTime: null,
+            discussionDuration: 0,
+            players: room.players.map(p => ({ 
+                ...p, 
+                // Keep the name and ready status if a name was set. Reset role/word.
+                isReady: p.name && p.name.length > 0, 
+                role: '', 
+                word: '' 
+            })) 
+        };
+        // ---------------------------------------------------------------------------------
+        
+        await roomRef.update(updates);
+        
+        isGameStartedInRoom = false;
         roles = [];
-        secretWord = '';
-        imposterHintWord = '';
         clearInterval(timerInterval);
         timerInterval = null;
         timeLeft = null;
         
-        if (!isRoomMode || skipRoomCheck) {
-            stopRoomPolling();
-            stopChat();
-            currentRoomCode = null;
-            isRoomCreator = false;
-            isRoomMode = false;
-            isGameStartedInRoom = false;
-            myPlayerId = null;
-            // myPlayerName is kept if logged in
-            playerColorMap = {}; 
-        }
+        hideModal();
+    };
+
+    const finishRoomTimer = async () => {
+        if (!isRoomMode || !isRoomCreator) return;
         
-        playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
-        
-        if (loggedInUser) {
-             renderSetupView(); // Go to the main game setup if logged in
-        } else {
-             renderAuthMenu(); // Go to the login/create account screen if logged out
+        if (roomRef) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timeLeft = 0;
+            await roomRef.update({ gameState: 'ended' });
+            renderGameOverModal();
         }
     };
     
-    // --- New function to handle the Play/Start Game button (which leads to the classic setup) ---
-    const renderSetupView = () => {
-        if (!loggedInUser) {
-            renderAuthMenu();
-            return;
+    const finishLocalTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = 0;
+        
+        // --- نوێکراوە بۆ دۆخی ئاسایی ---
+        document.getElementById('timerDisplay').textContent = T('timesUp');
+        
+        const imposterNames = roles
+            .filter(r => r.role === T('imposter'))
+            .map(r => r.name);
+        const imposterList = imposterNames.join(' ' + T('and') + ' ');
+        
+        const message = `
+            <div class="text-right">
+                <p class="text-lg text-slate-300 mb-2">${T('wordWas')}</p>
+                <p class="text-2xl font-bold text-primary mb-4">${secretWord}</p>
+                <p class="text-lg text-slate-300 mb-2">${T('impostersWere')}</p>
+                <p class="text-2xl font-bold word-imposter">${imposterList}</p>
+            </div>
+        `;
+        showModal('gameOverTitle', '', true, message);
+    }
+
+    const timerFinished = async () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        
+        if(isRoomMode) {
+            if(isRoomCreator) {
+                await roomRef.update({ gameState: 'ended' });
+                renderGameOverModal();
+            }
+        } else {
+            finishLocalTimer();
+        }
+    }
+
+    const countdown = () => {
+        if (timeLeft <= 0) {
+            timerFinished();
+        } else {
+            timeLeft--;
+            const timerEl = document.getElementById('timerDisplay');
+            if(timerEl) timerEl.textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+        }
+    }
+    
+    const startDiscussion = async () => {
+        if (timerInterval) return;
+
+        const duration = playerCount * 60;
+
+        if (isRoomMode) {
+            if (isRoomCreator) {
+                const room = await getRoomSnapshot(currentRoomCode);
+                if (room && room.gameState === 'playing') {
+                    
+                    await roomRef.update({
+                        discussionStartTime: firebase.database.ServerValue.TIMESTAMP,
+                        discussionDuration: duration
+                    });
+                    
+                    timeLeft = duration;
+                    timerInterval = setInterval(countdown, 1000); 
+                    
+                    const startButton = document.getElementById('startDiscussionButton');
+                    if(startButton) {
+                       startButton.textContent = T('discussionTime');
+                       startButton.disabled = true;
+                    }
+                    const timerEl = document.getElementById('timerDisplay');
+                    if(timerEl) timerEl.textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+                    
+                    const endBtn = document.getElementById('finishLocalTimerButton');
+                    if(endBtn) endBtn.classList.remove('hidden');
+                    
+                    // startChat(currentRoomCode); // Already started in pollRoomCallback
+                }
+            }
+        } else {
+            timeLeft = duration; 
+            const startButton = document.getElementById('startDiscussionButton');
+            startButton.textContent = T('discussionTime');
+            startButton.disabled = true;
+            document.getElementById('timerDisplay').textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+            timerInterval = setInterval(countdown, 1000); 
+            
+            // --- نوێکراوە بۆ دۆخی ئاسایی ---
+            const endBtn = document.getElementById('finishLocalTimerButton');
+            if(endBtn) endBtn.classList.remove('hidden');
+        }
+    };
+    
+    const renderEndGameView = (isRoom = false) => {
+        const container = document.getElementById('game-container');
+        
+        const initialTime = playerCount * 60;
+        const initialTimeFormatted = formatTime(initialTime);
+        let displayTime = timerInterval ? `${T('discussionTime')} ${formatTime(timeLeft)}` : `${T('discussionTime')} ${initialTimeFormatted}`;
+        
+        
+        if (isRoom && roomRef && !isRoomCreator) {
+            roomRef.once('value').then(snapshot => {
+                const room = snapshot.val();
+                const timerEl = document.getElementById('timerDisplay');
+                
+                if(room && room.discussionStartTime && room.discussionDuration) {
+                    const elapsed = Date.now() - room.discussionStartTime;
+                    const remaining = room.discussionDuration * 1000 - elapsed;
+                    
+                    if(remaining > 0) {
+                        timeLeft = Math.ceil(remaining / 1000);
+                        if (timerEl) timerEl.textContent = `${T('discussionTime')} ${formatTime(timeLeft)}`;
+                        if (!timerInterval) {
+                             timerInterval = setInterval(countdown, 1000); 
+                        }
+                    } else {
+                         if (timerEl) timerEl.textContent = T('timesUp');
+                    }
+                } else {
+                     if (timerEl) timerEl.textContent = T('waitingForOthers');
+                }
+            });
+            displayTime = T('waitingForOthers');
         }
         
+        if (isRoom && !isRoomCreator) {
+            const roomData = roles.find(p => p.id === myPlayerId);
+             if (roomData && roomData.role) {
+                secretWord = roles.find(p => p.role === T('civilian'))?.word || '';
+                imposterHintWord = T('justImposter');
+                
+                container.innerHTML = `
+                    <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+                    <h2 class="text-xl font-bold text-center text-slate-300 mb-6">${T('turn')}</h2>
+                    <div class="title-bar mb-6"></div>
+                    
+                    <div class="player-card">
+                        <p class="text-lg text-slate-300 mb-2">${roomData.name}</p>
+                        <p class="role-text-simplified ${roomData.role === T('imposter') ? 'word-imposter' : 'word-civilian'}">
+                           ${roomData.role === T('imposter') ? T('justImposter') : roomData.word}
+                        </p>
+                    </div>
+
+                    <p id="timerDisplay" class="text-2xl text-slate-200 text-center mt-6 mb-4">${displayTime}</p>
+                    <button id="startDiscussionButton" class="primary-btn mb-6 opacity-50 cursor-not-allowed" 
+                            disabled style="background: linear-gradient(145deg, #6366f1, #4f46e5); color: white;">
+                        ${T('startDiscussion')}
+                    </button>
+                    <p class="text-sm text-center text-slate-400">${T('waitingForOthers')}</p>
+                    
+                    <div class="mt-8">
+                        <button class="back-btn mt-2" onclick="exitRoom()">
+                            ${T('exitRoom')}
+                        </button>
+                    </div>
+                    <div class="footer-text mt-8">${T('madeBy')} <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a></div>
+                `;
+                return;
+            }
+        }
+        
+        container.innerHTML = `
+             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+             <h2 id="timerDisplay" class="text-2xl text-slate-200 text-center mb-6">${displayTime}</h2>
+             <div class="title-bar mb-6"></div>
+
+             <button id="startDiscussionButton" class="primary-btn mb-6 ${isRoom && !isRoomCreator ? 'opacity-50 cursor-not-allowed' : ''}" 
+                     onclick="startDiscussion()" 
+                     ${isRoom && !isRoomCreator ? 'disabled' : ''}
+                     style="background: linear-gradient(145deg, #6366f1, #4f46e5); color: white;">
+                 ${T('startDiscussion')}
+             </button>
+
+             ${isRoom && isRoomCreator ? `
+                 <button class="primary-btn secondary-btn mb-4" onclick="finishRoomTimer()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
+                     ${T('finishTheTimer')}
+                 </button>
+             ` : !isRoom ? `
+                 <button id="finishLocalTimerButton" class="primary-btn secondary-btn mb-4 hidden" onclick="finishLocalTimer()" style="background: linear-gradient(145deg, #f87171, #ef4444); color: white;">
+                     ${T('finishTheTimer')}
+                 </button>
+             ` : ''}
+
+             <div class="mt-8">
+                 ${isRoom ? `
+                    <button class="primary-btn bg-secondary hover:bg-indigo-600 mb-4" onclick="resetRoomGame()" ${!isRoomCreator ? 'disabled' : ''} style="background: linear-gradient(145deg, #facc15, #eab308); color: #1e293b;">
+                         ${T('startOver')}
+                     </button>
+                    <button class="back-btn mt-2" onclick="exitRoom()">
+                        ${T('exitRoom')}
+                    </button>
+                 ` : `
+                    <button class="primary-btn bg-secondary hover:bg-indigo-600" onclick="resetGame()" style="background: linear-gradient(145deg, #facc15, #eab308); color: #1e293b;">
+                         ${T('reset')}
+                     </button>
+                 `}
+             </div>
+           
+             <div class="footer-text mt-8">
+                 ${T('madeBy')}
+                 <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
+             </div>
+         `;
+         
+         if(timerInterval) {
+             const startButton = document.getElementById('startDiscussionButton');
+             if(startButton) {
+                 startButton.textContent = T('discussionTime');
+                 startButton.disabled = true;
+             }
+             const endBtn = document.getElementById('finishLocalTimerButton');
+             if(endBtn && !isRoom) endBtn.classList.remove('hidden');
+         }
+         
+         // **لادانی بانگکردنی چات لێرە، چونکە لە pollRoomCallback دەستیپێکردووە**
+         // if (isRoom && (timerInterval || displayTime === T('waitingForOthers'))) {
+         //     startChat(currentRoomCode);
+         // }
+    };
+    
+    const getNamesFromDOM = () => {
+         const inputs = document.querySelectorAll('#player-names-input input[type="text"]');
+         playerNames = Array.from(inputs).map(input => input.value.trim());
+         return playerNames;
+    };
+    
+    const startGame = (roomData = null) => {
+        hideModal();
+        gameActive = true;
+        
+        if (roomData) {
+            isRoomMode = true;
+            roles = roomData.players;
+            playerCount = roles.length;
+            imposterCount = roomData.imposterCount;
+            secretWord = roomData.secretWord;
+            imposterHintWord = roomData.imposterHintWord;
+            
+            const myPlayerIndex = roles.findIndex(p => p.id === myPlayerId);
+            myPlayerName = roles[myPlayerIndex].name; // Ensure myPlayerName is set
+            renderRoomGameView(myPlayerIndex);
+            
+        } else {
+            // Local game logic
+            playerNames = getNamesFromDOM().filter(n => n.length > 0);
+            playerCount = playerNames.length;
+            
+            if (playerCount < 3) {
+                 renderNotEnoughPlayersModal();
+                 gameActive = false;
+                 return;
+            }
+            if (playerNames.some(name => name.length < 1)) {
+                 showModal('validationTitle', 'nameRequired');
+                 gameActive = false;
+                 return;
+            }
+
+            const wordList = getWordList();
+            const secretIndex = Math.floor(Math.random() * wordList.length);
+            secretWord = wordList[secretIndex];
+            imposterHintWord = T('justImposter');
+            
+            const imposterIndices = [];
+            while (imposterIndices.length < imposterCount) {
+                const index = Math.floor(Math.random() * playerCount);
+                if (!imposterIndices.includes(index)) {
+                    imposterIndices.push(index);
+                }
+            }
+            
+            roles = playerNames.map((name, i) => {
+                const isImposter = imposterIndices.includes(i);
+                return {
+                    name: name,
+                    role: isImposter ? T('imposter') : T('civilian'),
+                    word: isImposter ? imposterHintWord : secretWord
+                };
+            }).sort(() => Math.random() - 0.5);
+
+            renderPlayerTurnView(0);
+        }
+    };
+
+    const showRole = (playerIndex) => {
+        const roleData = isRoomMode ? roles.find(p => p.id === myPlayerId) : roles[playerIndex];
+        
+        if (!roleData) return;
+        
+        const isImposter = roleData.role === T('imposter');
+        const roleContent = isImposter 
+            ? `<p class="role-text-simplified word-imposter">${T('justImposter')}</p>`
+            : `<p class="role-text-simplified word-civilian">${roleData.word}</p>`;
+
+        const container = isRoomMode ? document.getElementById('room-player-turn') : document.getElementById('player-turn-view');
+        
+        container.innerHTML = `
+            <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+            <h2 class="text-xl font-bold text-center text-slate-300 mb-6">${T('yourRole')}</h2>
+            <div class="title-bar mb-6"></div>
+
+            <div class="player-card">
+                <p class="text-lg text-slate-300 mb-2">${roleData.name}</p>
+                ${roleContent}
+            </div>
+            
+            <button class="primary-btn mt-6" onclick="hideRole(${playerIndex})">
+                ${T('close')}
+            </button>
+        `;
+    };
+
+    const hideRole = (playerIndex) => {
+        if (isRoomMode) {
+            renderEndGameView(true);
+        } else if (playerIndex < roles.length - 1) {
+            renderPlayerTurnView(playerIndex + 1);
+        } else {
+            renderEndGameView(false);
+        }
+    };
+    
+    const renderPlayerTurnView = (playerIndex = 0) => {
+        const container = document.getElementById('game-container');
+        const currentPlayer = roles[playerIndex];
+        const totalPlayers = roles.length;
+
+        container.innerHTML = `
+            <div id="player-turn-view">
+                <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+                <h2 class="text-xl font-bold text-center text-slate-300 mb-6">${T('turn')} ${playerIndex + 1}/${totalPlayers}</h2>
+                <div class="title-bar mb-6"></div>
+
+                <div class="player-card">
+                    <p class="text-lg text-slate-300 mb-2">${T('playerName')}:</p>
+                    <p class="text-3xl font-bold text-primary">${currentPlayer.name}</p>
+                </div>
+
+                <button class="primary-btn mt-6" onclick="showRole(${playerIndex})">
+                    ${T('showRole')}
+                </button>
+                
+                <button class="back-btn" onclick="resetGame()">
+                    ${T('backToSetup')}
+                </button>
+                 <div class="footer-text mt-8">${T('madeBy')} <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a></div>
+            </div>
+        `;
+    };
+    
+    const renderRoomGameView = (myPlayerIndex) => {
+        const container = document.getElementById('game-container');
+        const myPlayerData = roles.find(p => p.id === myPlayerId);
+        
+        if (!myPlayerData) return;
+
+        container.innerHTML = `
+            <div id="room-player-turn">
+                <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+                <h2 class="text-xl font-bold text-center text-slate-300 mb-6">${T('turn')}</h2>
+                <div class="title-bar mb-6"></div>
+
+                <div class="player-card">
+                    <p class="text-lg text-slate-300 mb-2">${T('playerName')}:</p>
+                    <p class="text-3xl font-bold text-primary">${myPlayerData.name}</p>
+                </div>
+
+                <button class="primary-btn mt-6" onclick="showRole(${myPlayerIndex})">
+                    ${T('showRole')}
+                </button>
+                
+                <button class="back-btn" onclick="exitRoom()">
+                    ${T('exitRoom')}
+                </button>
+                 <div class="footer-text mt-8">${T('madeBy')} <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a></div>
+            </div>
+        `;
+    };
+    
+    const renderGameOverModal = () => {
+        stopChat(); 
+        const imposterNames = roles
+            .filter(r => r.role === T('imposter'))
+            .map(r => r.name);
+        const imposterList = imposterNames.join(' ' + T('and') + ' ');
+        
+        const message = `
+            <div class="text-right">
+                <p class="text-lg text-slate-300 mb-2">${T('wordWas')}</p>
+                <p class="text-2xl font-bold text-primary mb-4">${secretWord}</p>
+                <p class="text-lg text-slate-300 mb-2">${T('impostersWere')}</p>
+                <p class="text-2xl font-bold word-imposter">${imposterList}</p>
+            </div>
+            <button class="primary-btn mt-6 mb-2" onclick="${isRoomCreator ? 'resetRoomGame()' : 'hideModal()'}">
+                ${isRoomCreator ? T('playAgain') : T('close')}
+            </button>
+            <button class="back-btn mt-2" onclick="exitRoom()">
+                ${T('exitRoom')}
+            </button>
+        `;
+
+        showModal('gameOverTitle', '', true, message, hideModal);
+    };
+
+    const renderNotEnoughPlayersModal = () => {
+        showModal('validationTitle', 'notEnoughPlayersPopup');
+    };
+
+    const renderSetupView = () => {
         isRoomMode = false;
         gameActive = false;
         helpButton.classList.remove('hidden');
         stopChat(); 
-        myPlayerName = loggedInUser.username; // Ensure myPlayerName is set for chat
-        
-        // ... (rest of the original renderSetupView logic) ...
-        
+        myPlayerName = ''; 
+        playerColorMap = {}; 
+
         const container = document.getElementById('game-container');
         
         if (playerNames.length !== playerCount) {
@@ -1495,11 +1757,241 @@
         `;
     };
     
-    // --- All other original functions need to be defined here or assumed to be present ---
-    // (Due to token limits, assuming the user copied them back in place or they are implicitly available)
-    // For this final response, I will include only the `window.onload` and the critical overrides.
+    const handlePlayerCountChange = (event) => {
+         let count = parseInt(event.target.value);
+         if (isNaN(count) || count < 3) count = 3;
+         if (count > 12) count = 12;
+         playerCount = count;
+         if (imposterCount >= count) {
+             imposterCount = count > 1 ? 1 : 1;
+         }
+         
+         if (playerNames.length > playerCount) {
+             playerNames = playerNames.slice(0, playerCount);
+         } else if (playerNames.length < playerCount) {
+             for (let i = playerNames.length; i < playerCount; i++) {
+                 playerNames.push('');
+             }
+         }
+         renderSetupView();
+     };
+
+     const handleImposterCountChange = (event) => {
+         let count = parseInt(event.target.value);
+         if (isNaN(count) || count < 1) count = 1;
+         if (count > 2 || count >= playerCount) count = Math.min(2, playerCount - 1);
+         imposterCount = count;
+         renderSetupView();
+     };
+
+    const renderRoomMenu = () => {
+        const container = document.getElementById('game-container');
+        stopChat(); 
+
+        container.innerHTML = `
+            <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+            <div class="title-bar mb-6"></div>
+            
+            <button class="secondary-btn mb-4" onclick="createRoom()">
+                ${T('createRoom')}
+            </button>
+            
+            <p class="text-slate-300 mb-2 text-right">${T('enterCode')}</p>
+            <input type="text" id="join-code-input" placeholder="ABCD" maxlength="4" onfocus="isInputFocused = true" onblur="isInputFocused = false">
+            
+            <button class="primary-btn" onclick="joinRoom(document.getElementById('join-code-input').value)">
+                ${T('joinRoom')}
+            </button>
+            
+            <button class="back-btn" onclick="renderSetupView()">
+                ${T('backToSetup')}
+            </button>
+            
+            <div class="footer-text mt-8">
+                ${T('madeBy')}
+                <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
+            </div>
+        `;
+    };
     
-    window.onload = async () => {
+    const copyRoomCode = async () => {
+        if (currentRoomCode) {
+            await navigator.clipboard.writeText(currentRoomCode);
+            showModal('roomCode', `${currentRoomCode}<br><br><strong>${T('shareLink')}</strong>`);
+        }
+     };
+
+    const renderRoomLobby = (room) => {
+        currentRoomCode = room.code;
+        isRoomCreator = room.creatorId === myPlayerId;
+        
+        const myPlayerData = room.players.find(p => p.id === myPlayerId) || { name: myPlayerName, isReady: !!myPlayerName };
+        myPlayerName = myPlayerData.name || ''; 
+        const myStatusKey = myPlayerData.name ? (myPlayerData.isReady ? 'ready' : 'waitingForOthers') : 'waitingForName';
+        
+        const container = document.getElementById('game-container');
+        
+        shareButton.classList.remove('hidden');
+        
+        // **گۆڕانکاری: دەستپێکردنی چات لێرە، لە دۆخی setup**
+        startChat(currentRoomCode); 
+
+        const playerListHTML = room.players.map(p => {
+            const isCreator = p.id === room.creatorId;
+            const isMe = p.id === myPlayerId;
+            const statusText = p.isReady ? T('ready') : T('waitingForName');
+            const statusClass = p.isReady ? 'ready' : '';
+            
+            // Add remove button for creator, but not for themselves
+            const removeButton = isRoomCreator && !isMe ? 
+                `<button class="remove-btn" onclick="removePlayerFromRoom('${p.id}')">${T('remove')}</button>` : 
+                '';
+            
+            return `
+                <div class="lobby-player-item ${isCreator ? 'creator' : ''}">
+                    <div class="flex items-center">
+                        ${removeButton}
+                        <span class="font-bold">${p.name || T('waitingForName')} ${isCreator ? `(${T('creator')})` : ''}</span>
+                    </div>
+                    <span class="status ${statusClass}">${statusText}</span>
+                </div>
+            `;
+        }).join('');
+
+        const isMinimumPlayers = room.players.length >= 3;
+        const allPlayersReady = room.players.every(p => p.isReady && p.name);
+
+        container.innerHTML = `
+            <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
+            <div class="title-bar mb-6"></div>
+            
+            <p id="room-code-label">${T('roomCode')}</p>
+            <p id="room-code-display" onclick="copyRoomCode()">${room.code}</p>
+            <p class="text-sm text-slate-400 text-center mb-6">${T('shareLink')}</p>
+            
+            <div class="flex justify-between items-center text-slate-300 mb-4">
+                <p><strong>${T('myStatus')}</strong></p>
+                <p class="status ${myStatusKey === 'ready' ? 'ready' : ''}">${T(myStatusKey)}</p>
+            </div>
+            
+            <p class="text-slate-300 mb-2 text-right">${T('enterYourName')}</p>
+            <div class="flex gap-2">
+                <input type="text" id="my-name-input" placeholder="${T('playerName')}" value="${myPlayerName}" 
+                       onfocus="isInputFocused = true" 
+                       onblur="isInputFocused = false"
+                       maxlength="15" 
+                       class="flex-grow">
+                <button class="primary-btn w-auto px-6 py-2" onclick="submitName()">
+                    ${T('submit')}
+                </button>
+            </div>
+
+            ${isRoomCreator ? `
+                <div class="mt-4">
+                    <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
+                    <input type="number" min="1" max="5" value="${room.imposterCount}" 
+                           onchange="updateRoomSettings(this.value)" class="mb-4">
+                </div>
+            ` : `<p class="text-slate-400 text-sm mt-4 text-center">${T('imposterCount')}: ${room.imposterCount}</p>`}
+
+            <div class="mt-6 mb-4 max-h-40 overflow-y-auto pr-1">
+                ${playerListHTML}
+            </div>
+
+            <button class="primary-btn mt-4 ${!isMinimumPlayers || !allPlayersReady || !isRoomCreator ? 'opacity-50 cursor-not-allowed' : ''}" 
+                    onclick="startRoomGame()" ${!isMinimumPlayers || !allPlayersReady || !isRoomCreator ? 'disabled' : ''}>
+                ${T('roomStart')}
+            </button>
+            
+            <button class="back-btn" onclick="exitRoom()">
+                ${T('exitRoom')}
+            </button>
+            
+            <div class="footer-text mt-8">
+                ${T('madeBy')}
+                <a href="https://www.instagram.com/n4.5e7/" target="_blank" class="hover:text-primary">@n4.5e7</a>
+            </div>
+        `;
+    };
+    
+    const exitRoom = async () => {
+        if (!currentRoomCode) {
+            resetGame();
+            return;
+        }
+        
+        stopRoomPolling();
+        stopChat(); 
+        
+        const room = await getRoomSnapshot(currentRoomCode);
+        if (room) {
+            const updatedPlayers = room.players.filter(p => p.id !== myPlayerId);
+            
+            if (updatedPlayers.length === 0) {
+                await database.ref('rooms/' + currentRoomCode).remove();
+            } else {
+                let updates = { players: updatedPlayers };
+                if (isRoomCreator && updatedPlayers.length > 0 && room.creatorId === myPlayerId) {
+                    updates.creatorId = updatedPlayers[0].id;
+                }
+                await database.ref('rooms/' + currentRoomCode).update(updates);
+            }
+        }
+        
+        currentRoomCode = null;
+        isRoomCreator = false;
+        isRoomMode = false;
+        isGameStartedInRoom = false;
+        myPlayerId = null;
+        isInputFocused = false; 
+        myPlayerName = '';
+        playerColorMap = {}; 
+        
+        hideModal(); 
+        resetGame();
+    };
+    
+    const resetGame = (skipRoomCheck = false) => {
+        if (isRoomMode && isRoomCreator && !skipRoomCheck) {
+            resetRoomGame();
+            return;
+        }
+        
+        gameActive = false;
+        roles = [];
+        secretWord = '';
+        imposterHintWord = '';
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = null;
+        
+        if (!isRoomMode || skipRoomCheck) {
+            stopRoomPolling();
+            stopChat();
+            currentRoomCode = null;
+            isRoomCreator = false;
+            isRoomMode = false;
+            isGameStartedInRoom = false;
+            myPlayerId = null;
+            myPlayerName = '';
+            playerColorMap = {}; 
+        }
+        
+        playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
+        
+        renderSetupView();
+    };
+
+    const checkUrlForRoom = () => {
+         const urlParams = new URLSearchParams(window.location.search);
+         const roomCode = urlParams.get('room');
+         if (roomCode && roomCode.length === 4) {
+             joinRoom(roomCode);
+             window.history.replaceState({}, document.title, window.location.pathname);
+         }
+    };
+    
+    window.onload = () => {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1510,40 +2002,23 @@
             chatApp = firebase.initializeApp(chatFirebaseConfig, "chatApp");
             chatDatabase = chatApp.database();
         } catch (e) {
-            // App already exists, use it
-            if (!firebase.apps.some(app => app.name === "chatApp")) {
-                console.warn("Chat Firebase App initialization failed:", e);
-                return;
-            }
+            console.warn("Chat Firebase App already initialized or failed to initialize:", e);
             chatApp = firebase.app("chatApp");
             chatDatabase = chatApp.database();
         }
 
-         // Setup Online Presence and Users Reference
+         // --- NEW: Setup Online Presence ---
          setupOnlinePresence();
-         
+         // ----------------------------------
+
          if (playerNames.length === 0) {
              for (let i = 0; i < playerCount; i++) {
                 playerNames.push('');
             }
         }
-        
-        // 1. Check for saved login
-        const loggedIn = await checkSavedLogin();
-        
-        // 2. If not logged in, show the Auth Menu
-        if (!loggedIn) {
-             renderAuthMenu();
-        } else {
-             // 3. If logged in, check URL for room and proceed to setup/lobby
-             checkUrlForRoom();
-        }
+        renderSetupView();
+        checkUrlForRoom();
     };
-    
-    // NOTE: The rest of the original functions (like handlePlayerCountChange, startGame, etc.) 
-    // are assumed to be in the final full code, and should use the `loggedInUser.username` 
-    // where they previously used `myPlayerName` in the room/chat system.
-    
  </script>
 </body>
 </html>
