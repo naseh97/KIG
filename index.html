@@ -634,7 +634,7 @@
         "مرۆڤ", "کلاڤ", "گولاڤ", "سێڤ", "بامی", "بەلەم", "تورە", "گلێش", "کێرک", "زێر", 
         "بلبل", "ئار", "شەکروک", "خوێ", "سبغ", "موم", "خوین", "سەتەلایت", "دڵ", "جزدان", "جەژن", "کلیل", "قوفل", 
         "حەدیقە", "چەرم", "می", "پێلاڤ", "کلو", "ماتۆر", "قەلابه", "فیشەک", "بۆمبە", "تزبی", "موبەریدە", 
-        "تەخت", "سەلاجە", "سپلێت", "سیسرک", "دەبانچە", "قاتە", "شقە", "ترێلە", "جێلی", "گول",
+        "تەخت", "سەلاجە","شەکر","سپێدە","پر","نسیک,"باقلک","قایش","بەرچافك", "سپلێت", "سیسرک", "دەبانچە", "قاتە", "شقە", "ترێلە", "جێلی", "گول",
         "قەلەفل", "مەلەڤانگەه", "هوتێل", "شیر", "ئاش", "دوشە", "مولەتا شوفێریێ", "کابینە", "شڤان", "کەهرەب", "رێڤاز", "کەرەفس"
     ];
 
@@ -964,6 +964,11 @@
         if (isInputFocused) {
            return;
         }
+        
+        // 👈 **گۆڕانکاری (D): دڵنیابوون لە بوونی words_used**
+        if (!room.words_used) {
+            room.words_used = [];
+        }
 
         if (myPlayerId && !room.players.some(p => p.id === myPlayerId)) {
             stopRoomPolling();
@@ -1051,7 +1056,9 @@
             secretWord: '',
             imposterHintWord: '',
             discussionStartTime: null,
-            discussionDuration: 0
+            discussionDuration: 0,
+            // 👈 **گۆڕانکاری لێرەیە**
+            words_used: [] 
         };
         
         roomRef = database.ref('rooms/' + code);
@@ -1178,9 +1185,27 @@
             return;
         }
         
-        const wordList = getWordList();
-        const secretIndex = Math.floor(Math.random() * wordList.length);
-        const newSecretWord = wordList[secretIndex];
+        // --- گۆڕانکاری لێرەیە: هەڵبژاردنی وشەی نهێنی دووبارە نەبوو ---
+        const allWordList = getWordList();
+        const usedWords = room.words_used || []; 
+        let availableWords = allWordList.filter(word => !usedWords.includes(word));
+        
+        let finalSecretWord;
+        
+        if (availableWords.length === 0) {
+            // ئەگەر هەموو وشەکان بەکارهێنرابوون، لیستی بەکارهێنراوەکان پاکبکەرەوە و هەموو وشەکان دووبارە بەردەست بن.
+            room.words_used = []; 
+            availableWords = allWordList;
+        }
+        
+        // هەڵبژاردنی وشەی نوێ لە لیستی بەردەستەکان
+        const secretIndex = Math.floor(Math.random() * availableWords.length);
+        finalSecretWord = availableWords[secretIndex];
+
+        // زیادکردنی وشە نوێیەکە بۆ لیستی بەکارهێنراوەکان (لەوانەیە لیستەکە تازە پاککرابێتەوە)
+        room.words_used.push(finalSecretWord); 
+        // -----------------------------------------------------------------
+
         const newImposterHintWord = T('justImposter');
         
         const imposterIndices = [];
@@ -1194,7 +1219,7 @@
         let rolesList = readyPlayers.map((p, i) => {
             const isImposter = imposterIndices.includes(i);
             const role = isImposter ? T('imposter') : T('civilian');
-            const wordContent = isImposter ? newImposterHintWord : newSecretWord;
+            const wordContent = isImposter ? newImposterHintWord : finalSecretWord;
             
             return {
                 ...p,
@@ -1207,7 +1232,7 @@
         rolesList = rolesList.sort(() => Math.random() - 0.5);
         
         room.players = rolesList;
-        room.secretWord = newSecretWord;
+        room.secretWord = finalSecretWord;
         room.imposterHintWord = newImposterHintWord;
         room.gameState = 'playing';
         
@@ -1217,7 +1242,9 @@
             players: room.players,
             secretWord: room.secretWord,
             imposterHintWord: room.imposterHintWord,
-            gameState: room.gameState
+            gameState: room.gameState,
+            // 👈 **گۆڕانکاری لێرەیە: نوێکردنەوەی وشە بەکارهێنراوەکان**
+            words_used: room.words_used 
         });
 
         isGameStartedInRoom = true;
