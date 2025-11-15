@@ -526,6 +526,100 @@
      .send-btn:hover {
          opacity: 0.9;
      }
+     
+     /* --- TOGGLE STYLES --- */
+     .toggle-container {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 1rem;
+         padding: 0.5rem 0;
+         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+     }
+     .toggle-label {
+         color: #f8fafc;
+         font-weight: 600;
+         margin-right: 1rem;
+         font-size: 1rem;
+     }
+     .switch {
+         position: relative;
+         display: inline-block;
+         width: 60px;
+         height: 34px;
+     }
+     .switch input { 
+         opacity: 0;
+         width: 0;
+         height: 0;
+     }
+     .slider {
+         position: absolute;
+         cursor: pointer;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background-color: #475569; 
+         transition: .4s;
+         border-radius: 34px;
+     }
+     .slider:before {
+         position: absolute;
+         content: "";
+         height: 26px;
+         width: 26px;
+         left: 4px;
+         bottom: 4px;
+         background-color: white;
+         transition: .4s;
+         border-radius: 50%;
+     }
+     input:checked + .slider {
+         background-color: #facc15; 
+     }
+     input:checked + .slider:before {
+         -webkit-transform: translateX(26px);
+         -ms-transform: translateX(26px);
+         transform: translateX(26px);
+     }
+     .slider:after {
+         color: white;
+         display: block;
+         position: absolute;
+         transform: translate(-50%,-50%);
+         top: 50%;
+         right: 50%;
+         font-size: 12px;
+         font-weight: bold;
+         line-height: 1;
+     }
+     input:checked + .slider:after {
+         color: #1e293b;
+         right: 30%;
+         left: auto;
+         transform: translate(0, -50%);
+     }
+     /* RTL adjustments */
+     .rtl .slider:before {
+        left: auto;
+        right: 4px;
+     }
+     .rtl input:checked + .slider:before {
+         -webkit-transform: translateX(-26px);
+         -ms-transform: translateX(-26px);
+         transform: translateX(-26px);
+     }
+     .rtl .slider:after {
+         right: auto;
+         left: 50%;
+         transform: translate(50%, -50%);
+     }
+     .rtl input:checked + .slider:after {
+         right: auto;
+         left: 30%;
+         transform: translate(0, -50%);
+     }
  </style>
 </head>
 <body class="rtl" style="--dark-card: #334155; --input-bg: #475569; --primary: #facc15; --secondary: #6366f1;">
@@ -653,6 +747,7 @@
     let isRoomCreator = false;
     let isGameStartedInRoom = false;
     let isInputFocused = false; 
+    let isCustomImposterMode = false; // --- NEW STATE VARIABLE ---
 
     let timerInterval;
     let timeLeft;
@@ -663,9 +758,9 @@
     const T = (key) => {
         const translations = {
             ku: {
-                appName: "یاریا دروکەری", imposter: "دروکەر", civilian: "پاراستی", playerCount: "ژمارا یاریکەران (3-12):", imposterCount: "ژمارا دروکەران (1-2):", start: "دەستپێکرنا یاریێ", playerName: "ناڤ", showRole: "ڕۆلێ خو ببینە", yourRole: "ڕۆلێ تە:", theWord: "پەیڤا نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "سرا یاریکەری", close: "گرتن", reset: "دووبارە دەسپێبکەڤە", wordWas: " پەیڤا نهێنی :", selectWord: "  پەڤا نهێنی هەلبژێرە !", validationTitle: "ئاگەهداری", nameRequired: " ناڤێ هەمی یاریکەران بنڤیسە.", notEnoughPlayers: "ژمارا یاریکەران یا کێمە، دڤێت ب کێمی ٣ یاریکەر بن.", impostersWere: " دروکەر پێکهاتبین ژ:", justImposter: "تۆ دروکەری 🤫!", imposterHintLabel: "پەیڤ :", startDiscussion: "دەستپێکردنا گفتوگۆیێ", discussionTime: "دەمێ گفتوگۆیێ :", timesUp: " دەم ب دوماهیک هات !", imposterWas: "    دروکەر :", shareLink: "   لینکێ یاریێ بو هەڤالێن خو پنێرە !", and: "و", howToPlayTitle: "دێ چەوا یاریێ کەی: یاریا دروکەری", howToPlayBody: `ئارمانج ئەوە کو بو هەمیان روهن بکەی کو تو پەیڤا نهێنی دزانی- یانژی وی کەسی دیار بکەی کو پەیڤا نهێنی نزانیت.<br><br><strong>١. 🤫 رولێ خو ببینە  </strong><br>• مۆبایل دێ ل سەر هەمی یاریکەران زڤریت دا کو هەر ئێک رولێ خو ببینت.<br>• زۆرینا یاریکەران <strong>  پەیڤا نهێنی</strong>دبینن .<br>•  ئێک یاریکەر <strong>"پەیڤا ( دروکەر )"</strong> دبینیت.<br><br><strong>٢. 🗣️ ئاماژێ بدە</strong><br>• ل دەورێ بازنێ دا بزڤرن. هەر یاریکەرەک <strong>ئێک پەیڤێ </strong> بۆ وەسفکرنا پەیڤا نهێنی دبێژیت.<br>• <strong>ئەگەر پەیڤێ بزانیت:</strong> ئاماژا تە دڤێت تێرا هندێ بکەت کو ب سەلمینیت تو پەیڤا نهێنی دزانی، بەلێ هندا دیار نەبیت کو دروکەر فایدەی ژێ ببینیت.<br>• <strong>ئەگەر تو دروکەری:</strong>ئاماژەکا گشتی بێژە کو تە تێکهەلی یاریکەران بکەت و بشێی خو ڤەشێری!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• پشتی چەند گەران، ئاماژێ بدە وی کەسی کو تو ژێ دوودلی کو ئەو دروکەرە، یانژی هەول ددەت خو تێکهەلی یاریکەران بکەت.<br>• هەمی دێ دەنگی دەنە وی کەسی یێ کو هەر ئێک ژلایێ خوڤە ژێ دوو دلە.<br><br><strong>دێ چەوا یاریێ بەی  🏆 :</strong><br><br>• <strong>کەسێن پاراستی:</strong><br>-ئەگەر پێش دوماهیک هاتنا دەمی شیا دروکەری دیاربکەن.<br><br>• <strong>دروکەر:</strong><br>-ئەگەر پتریا دەنگان بو وی نەهات.<br>-ئەگەر دەم دوماهیک هات.`,
+                appName: "یاریا دروکەری", imposter: "دروکەر", civilian: "پاراستی", playerCount: "ژمارا یاریکەران (3-12):", imposterCount: "ژمارا دروکەران:", start: "دەستپێکرنا یاریێ", playerName: "ناڤ", showRole: "ڕۆلێ خو ببینە", yourRole: "ڕۆلێ تە:", theWord: "پەیڤا نهێنی:", madeBy: "Made By Naseh M. Zebari", turn: "سرا یاریکەری", close: "گرتن", reset: "دووبارە دەسپێبکەڤە", wordWas: " پەیڤا نهێنی :", selectWord: "  پەڤا نهێنی هەلبژێرە !", validationTitle: "ئاگەهداری", nameRequired: " ناڤێ هەمی یاریکەران بنڤیسە.", notEnoughPlayers: "ژمارا یاریکەران یا کێمە، دڤێت ب کێمی ٣ یاریکەر بن.", impostersWere: " دروکەر پێکهاتبین ژ:", justImposter: "تۆ دروکەری 🤫!", imposterHintLabel: "پەیڤ :", startDiscussion: "دەستپێکردنا گفتوگۆیێ", discussionTime: "دەمێ گفتوگۆیێ :", timesUp: " دەم ب دوماهیک هات !", imposterWas: "    دروکەر :", shareLink: "   لینکێ یاریێ بو هەڤالێن خو پنێرە !", and: "و", howToPlayTitle: "دێ چەوا یاریێ کەی: یاریا دروکەری", howToPlayBody: `ئارمانج ئەوە کو بو هەمیان روهن بکەی کو تو پەیڤا نهێنی دزانی- یانژی وی کەسی دیار بکەی کو پەیڤا نهێنی نزانیت.<br><br><strong>١. 🤫 رولێ خو ببینە  </strong><br>• مۆبایل دێ ل سەر هەمی یاریکەران زڤریت دا کو هەر ئێک رولێ خو ببینت.<br>• زۆرینا یاریکەران <strong>  پەیڤا نهێنی</strong>دبینن .<br>•  ئێک یاریکەر <strong>"پەیڤا ( دروکەر )"</strong> دبینیت.<br><br><strong>٢. 🗣️ ئاماژێ بدە</strong><br>• ل دەورێ بازنێ دا بزڤرن. هەر یاریکەرەک <strong>ئێک پەیڤێ </strong> بۆ وەسفکرنا پەیڤا نهێنی دبێژیت.<br>• <strong>ئەگەر پەیڤێ بزانیت:</strong> ئاماژا تە دڤێت تێرا هندێ بکەت کو ب سەلمینیت تو پەیڤا نهێنی دزانی، بەلێ هندا دیار نەبیت کو دروکەر فایدەی ژێ ببینیت.<br>• <strong>ئەگەر تو دروکەری:</strong>ئاماژەکا گشتی بێژە کو تە تێکهەلی یاریکەران بکەت و بشێی خو ڤەشێری!<br><br><strong>٣. 🗳️ دەنگدان</strong><br>• پشتی چەند گەران، ئاماژێ بدە وی کەسی کو تو ژێ دوودلی کو ئەو دروکەرە، یانژی هەول ددەت خو تێکهەلی یاریکەران بکەت.<br>• هەمی دێ دەنگی دەنە وی کەسی یێ کو هەر ئێک ژلایێ خوڤە ژێ دوو دلە.<br><br><strong>دێ چەوا یاریێ بەی  🏆 :</strong><br><br>• <strong>کەسێن پاراستی:</strong><br>-ئەگەر پێش دوماهیک هاتنا دەمی شیا دروکەری دیاربکەن.<br><br>• <strong>دروکەر:</strong><br>-ئەگەر پتریا دەنگان بو وی نەهات.<br>-ئەگەر دەم دوماهیک هات.`,
                 room: "رووم", playWithFriends: " رووم ", createRoom: "دروستکرنا روومێ", joinRoom: "چوونە ژوور", roomCode: "کۆدا روومێ:", enterCode: "کۆدا روومێ بنڤیسە", creator: "دروستکەر", myStatus: "دۆخ:", waitingForName: "هیڤیا نڤیسینا ناڤی", waitingForOthers: "هیڤیا یاریکەرێن دی بە ", ready: "ئامادەیە", submit: "پشتراستکرن", notEnoughPlayersPopup: "ژمارا یاریکەران یا کێمە، دڤێت ب کێمی ٣ یاریکەر بن.", roomFull: "رووم یا پڕە.", roomNotFound: "کۆدا روومێ یا خەلەتە.", roomStart: "دەستپێکرن", gameAlreadyStarted: "یاری یا هاتیە دەستپێکرن...", enterYourName: "ناڤێ خو بنڤیسە", nameSubmitSuccess: " ناڤێ تە هاتە نڤیسین، هیڤیا یێن دی بە.", gameOverTitle: "دوماهیک ئینانا یاریێ", playAgain: "دووبارە یاریێ بکەڤە", exitRoom: "دەرچوون", startOver: "دەستپێکا یاریێ ( پەیڤا نهێنی و رولێ تە )", backToSetup: "زڤرینەڤە بۆ ڕێکخستنان",
-                finishTheTimer: "دوماهیک ئینانا دەمی", remove: "ژێبرن", chatTitle: "گفتوگویا یاریکەران", onlineCountLabel: "Online"
+                finishTheTimer: "دوماهیک ئینانا دەمی", remove: "ژێبرن", chatTitle: "گفتوگویا یاریکەران", onlineCountLabel: "Online", customImposters: "دروکەرێن تایبەت" // --- NEW TRANSLATION ---
             }
         };
         return translations.ku[key] || key;
@@ -976,6 +1071,9 @@
         imposterCount = room.imposterCount;
         playerCount = room.players.length;
         
+        // --- NEW: Update custom imposter mode state from room data ---
+        isCustomImposterMode = room.isCustomImposterMode || false;
+
         const myPlayerData = room.players.find(p => p.id === myPlayerId);
         if (myPlayerData) {
              roles = room.players;
@@ -1040,10 +1138,14 @@
         
         myPlayerId = database.ref().push().key; 
         
+        // Set initial imposter count based on minimum players (3 players, 1 imposter)
+        const initialImposterCount = 1; 
+
         const newRoom = {
             code: code,
             creatorId: myPlayerId,
-            imposterCount: 1,
+            imposterCount: initialImposterCount,
+            isCustomImposterMode: false, // --- NEW: Default to false ---
             players: [
                 { id: myPlayerId, name: '', isReady: false, role: '', word: '' }
             ],
@@ -1060,6 +1162,7 @@
         currentRoomCode = code;
         isRoomCreator = true;
         isRoomMode = true;
+        isCustomImposterMode = false;
         
         renderRoomLobby(newRoom);
         startRoomPolling();
@@ -1088,6 +1191,7 @@
         currentRoomCode = code;
         isRoomCreator = room.creatorId === myPlayerId;
         isRoomMode = true;
+        isCustomImposterMode = room.isCustomImposterMode || false; // Set mode based on room setting
         
         renderRoomLobby(room);
         startRoomPolling();
@@ -1120,6 +1224,7 @@
         }
     };
     
+    // --- NEW: Handles Imposter Count Change for Room, including enforcing max limit ---
     const updateRoomSettings = async (imposterValue) => {
         if (!isRoomCreator) return;
         
@@ -1128,18 +1233,56 @@
         
         if (!room) return;
 
-        if (isNaN(count) || count < 1) count = 1;
-        if (count > 2) count = 2;
-        if (count >= room.players.length && room.players.length > 1) {
-            count = room.players.length - 1;
+        const maxImposters = room.players.length > 1 ? room.players.length - 1 : 1;
+        let minImposters = 1;
+        
+        if (!room.isCustomImposterMode) {
+             // Enforce default rules limits when custom mode is OFF
+             if (room.players.length >= 10) {
+                 maxImposters = Math.min(maxImposters, 3);
+             } else if (room.players.length >= 6) {
+                 maxImposters = Math.min(maxImposters, 2);
+             } else {
+                 maxImposters = Math.min(maxImposters, 1);
+             }
         }
-        if (count < 1 && room.players.length > 0) count = 1;
+
+
+        if (isNaN(count) || count < minImposters) count = minImposters;
+        if (count > maxImposters) count = maxImposters;
 
         if (roomRef) {
             await roomRef.update({ imposterCount: count });
             imposterCount = count;
         }
     };
+    
+    // --- NEW: Handles the Custom Imposter Mode toggle for Room ---
+    const updateRoomCustomImposterMode = async (isToggledOn) => {
+        if (!isRoomCreator) return;
+        
+        const room = await getRoomSnapshot(currentRoomCode);
+        if (!room) return;
+        
+        isCustomImposterMode = isToggledOn;
+        let newImposterCount = room.imposterCount;
+        
+        if (!isToggledOn) {
+            // Revert to normal rules default when turning off
+            if (room.players.length >= 3) {
+                 newImposterCount = 1; 
+            }
+        }
+        
+        const updates = { 
+            isCustomImposterMode: isToggledOn, 
+            imposterCount: newImposterCount
+        };
+        
+        await roomRef.update(updates);
+        // The pollRoomCallback will re-render the lobby with the correct state/inputs
+    };
+
 
     // New function to remove a player
     const removePlayerFromRoom = async (playerIdToRemove) => {
@@ -1151,8 +1294,9 @@
         if (!room) return;
 
         const updatedPlayers = room.players.filter(p => p.id !== playerIdToRemove);
+        const playerCountAfterRemoval = updatedPlayers.length;
 
-        if (updatedPlayers.length === 0) {
+        if (playerCountAfterRemoval === 0) {
             await database.ref('rooms/' + currentRoomCode).remove();
         } else {
             let updates = { players: updatedPlayers };
@@ -1160,6 +1304,17 @@
             if (room.creatorId === playerIdToRemove) {
                  updates.creatorId = updatedPlayers[0].id;
             }
+            
+            // Adjust imposter count if it now exceeds the new max limit
+            let newImposterCount = room.imposterCount;
+            const maxImposters = playerCountAfterRemoval > 1 ? playerCountAfterRemoval - 1 : 1;
+
+            if (newImposterCount > maxImposters) {
+                newImposterCount = maxImposters;
+            }
+            
+            updates.imposterCount = newImposterCount;
+            
             await database.ref('rooms/' + currentRoomCode).update(updates);
         }
     };
@@ -1184,7 +1339,9 @@
         const newImposterHintWord = T('justImposter');
         
         const imposterIndices = [];
-        while (imposterIndices.length < room.imposterCount) {
+        const finalImposterCount = room.imposterCount;
+
+        while (imposterIndices.length < finalImposterCount) {
             const index = Math.floor(Math.random() * readyPlayers.length);
             if (!imposterIndices.includes(index)) {
                 imposterIndices.push(index);
@@ -1693,6 +1850,11 @@
              playerNames = Array(playerCount).fill('').map((_, i) => playerNames[i] || '');
         }
 
+        const maxImposters = isCustomImposterMode ? (playerCount > 1 ? playerCount - 1 : 1) : 
+                              (playerCount >= 10 ? Math.min(playerCount - 1, 3) : 
+                               (playerCount >= 6 ? Math.min(playerCount - 1, 2) : 1));
+        const minImposters = 1;
+
         const nameInputs = playerNames.map((name, index) => `
             <input type="text" placeholder="${T('playerName')} ${index + 1}" value="${name}" 
                    onfocus="isInputFocused = true" 
@@ -1707,8 +1869,16 @@
             <p class="text-slate-300 mb-2 text-right">${T('playerCount')}</p>
             <input type="number" min="3" max="12" value="${playerCount}" onchange="handlePlayerCountChange(event)" class="mb-4">
 
-            <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
-            <input type="number" min="1" max="2" value="${imposterCount}" onchange="handleImposterCountChange(event)" class="mb-6">
+            <div class="toggle-container">
+                <span class="toggle-label">${T('customImposters')}</span>
+                <label class="switch">
+                    <input type="checkbox" id="customImpostersToggle" ${isCustomImposterMode ? 'checked' : ''} onchange="handleCustomImposterToggle(event.target.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <p class="text-slate-300 mb-2 text-right">${T('imposterCount')} (${minImposters}-${maxImposters}):</p>
+            <input type="number" min="${minImposters}" max="${maxImposters}" value="${imposterCount}" 
+                   onchange="handleImposterCountChange(event)" class="mb-6">
 
             <div id="player-names-input">
                 <p class="text-slate-300 mb-2 text-right">${T('playerName')}:</p>
@@ -1730,15 +1900,46 @@
         `;
     };
     
+    // --- NEW FUNCTION: Handle Custom Imposter Toggle for Local Game ---
+    const handleCustomImposterToggle = (isToggledOn) => {
+        isCustomImposterMode = isToggledOn;
+        if (!isToggledOn) {
+            // Recalculate default imposter count
+            let newImposterCount = 1;
+            if (playerCount >= 10) {
+                 newImposterCount = Math.min(3, playerCount - 1);
+            } else if (playerCount >= 6) {
+                 newImposterCount = Math.min(2, playerCount - 1);
+            }
+            imposterCount = newImposterCount;
+        } else {
+             // Ensure imposter count respects the player count when toggling on
+             if (imposterCount >= playerCount && playerCount > 1) {
+                 imposterCount = playerCount - 1;
+             } else if (playerCount <= 2) {
+                 imposterCount = 1;
+             }
+        }
+        renderSetupView(); // Re-render to update the imposter input limits
+    };
+
     const handlePlayerCountChange = (event) => {
          let count = parseInt(event.target.value);
          if (isNaN(count) || count < 3) count = 3;
          if (count > 12) count = 12;
          playerCount = count;
-         if (imposterCount >= count) {
-             imposterCount = count > 1 ? 1 : 1;
-         }
          
+         // Adjust imposter count based on new player count and mode
+         const maxImposters = isCustomImposterMode ? (playerCount > 1 ? playerCount - 1 : 1) : 
+                               (playerCount >= 10 ? Math.min(playerCount - 1, 3) : 
+                                (playerCount >= 6 ? Math.min(playerCount - 1, 2) : 1));
+         
+         if (imposterCount > maxImposters) {
+             imposterCount = maxImposters;
+         } else if (imposterCount < 1 && playerCount > 0) {
+              imposterCount = 1;
+         }
+
          if (playerNames.length > playerCount) {
              playerNames = playerNames.slice(0, playerCount);
          } else if (playerNames.length < playerCount) {
@@ -1751,8 +1952,14 @@
 
      const handleImposterCountChange = (event) => {
          let count = parseInt(event.target.value);
-         if (isNaN(count) || count < 1) count = 1;
-         if (count > 2 || count >= playerCount) count = Math.min(2, playerCount - 1);
+         const maxImposters = isCustomImposterMode ? (playerCount > 1 ? playerCount - 1 : 1) : 
+                               (playerCount >= 10 ? Math.min(playerCount - 1, 3) : 
+                                (playerCount >= 6 ? Math.min(playerCount - 1, 2) : 1));
+         const minImposters = 1;
+         
+         if (isNaN(count) || count < minImposters) count = minImposters;
+         if (count > maxImposters) count = maxImposters;
+         
          imposterCount = count;
          renderSetupView();
      };
@@ -1797,7 +2004,8 @@
     const renderRoomLobby = (room) => {
         currentRoomCode = room.code;
         isRoomCreator = room.creatorId === myPlayerId;
-        
+        isCustomImposterMode = room.isCustomImposterMode || false; // Ensure sync
+
         const myPlayerData = room.players.find(p => p.id === myPlayerId) || { name: myPlayerName, isReady: !!myPlayerName };
         myPlayerName = myPlayerData.name || ''; 
         const myStatusKey = myPlayerData.name ? (myPlayerData.isReady ? 'ready' : 'waitingForOthers') : 'waitingForName';
@@ -1833,6 +2041,13 @@
 
         const isMinimumPlayers = room.players.length >= 3;
         const allPlayersReady = room.players.every(p => p.isReady && p.name);
+        
+        // Calculate max imposters for display/input limits
+        const maxImposters = isCustomImposterMode ? (room.players.length > 1 ? room.players.length - 1 : 1) : 
+                              (room.players.length >= 10 ? Math.min(room.players.length - 1, 3) : 
+                               (room.players.length >= 6 ? Math.min(room.players.length - 1, 2) : 1));
+        const minImposters = 1;
+
 
         container.innerHTML = `
             <h1 class="text-3xl font-bold text-center text-primary mb-4">${T('appName')}</h1>
@@ -1861,8 +2076,15 @@
 
             ${isRoomCreator ? `
                 <div class="mt-4">
-                    <p class="text-slate-300 mb-2 text-right">${T('imposterCount')}</p>
-                    <input type="number" min="1" max="5" value="${room.imposterCount}" 
+                    <div class="toggle-container">
+                        <span class="toggle-label">${T('customImposters')}</span>
+                        <label class="switch">
+                            <input type="checkbox" id="roomCustomImpostersToggle" ${isCustomImposterMode ? 'checked' : ''} onchange="updateRoomCustomImposterMode(event.target.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="text-slate-300 mb-2 text-right">${T('imposterCount')} (${minImposters}-${maxImposters}):</p>
+                    <input type="number" min="${minImposters}" max="${maxImposters}" value="${room.imposterCount}" 
                            onchange="updateRoomSettings(this.value)" class="mb-4">
                 </div>
             ` : `<p class="text-slate-400 text-sm mt-4 text-center">${T('imposterCount')}: ${room.imposterCount}</p>`}
@@ -1907,6 +2129,17 @@
                 if (isRoomCreator && updatedPlayers.length > 0 && room.creatorId === myPlayerId) {
                     updates.creatorId = updatedPlayers[0].id;
                 }
+                
+                // Adjust imposter count if it now exceeds the new max limit
+                let newImposterCount = room.imposterCount;
+                const maxImposters = updatedPlayers.length > 1 ? updatedPlayers.length - 1 : 1;
+
+                if (newImposterCount > maxImposters) {
+                    newImposterCount = maxImposters;
+                }
+                
+                updates.imposterCount = newImposterCount;
+
                 await database.ref('rooms/' + currentRoomCode).update(updates);
             }
         }
@@ -1919,6 +2152,7 @@
         isInputFocused = false; 
         myPlayerName = '';
         playerColorMap = {}; 
+        isCustomImposterMode = false; // Reset local state
         
         hideModal(); 
         resetGame();
